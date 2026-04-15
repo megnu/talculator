@@ -9,6 +9,7 @@
 
 #include <string.h>
 #include "flex_parser.h"
+#include "engine_qalc_bridge.h"
 
 struct talc_engine {
 	talc_engine_backend backend;
@@ -45,8 +46,8 @@ talc_engine_backend talc_engine_backend_get (const talc_engine *engine)
 gboolean talc_engine_backend_available (talc_engine_backend backend)
 {
 	if (backend == TALC_ENGINE_BACKEND_LEGACY) return TRUE;
-	/* libqalculate backend wiring will be added in a later step. */
-	if (backend == TALC_ENGINE_BACKEND_LIBQALCULATE) return FALSE;
+	if (backend == TALC_ENGINE_BACKEND_LIBQALCULATE)
+		return talc_qalc_bridge_available ();
 	return FALSE;
 }
 
@@ -91,6 +92,7 @@ gboolean talc_engine_eval_expression_numeric (talc_engine *engine,
 	talc_engine_eval_result *out_result)
 {
 	s_flex_parser_result parsed;
+	const char *bridge_error = NULL;
 
 	(void) ctx;
 	if (!engine || !out_result) return FALSE;
@@ -107,7 +109,11 @@ gboolean talc_engine_eval_expression_numeric (talc_engine *engine,
 		talc_engine_set_error (engine, parsed.error ? "Parse/evaluation error" : "");
 		return TRUE;
 	case TALC_ENGINE_BACKEND_LIBQALCULATE:
-		talc_engine_set_error (engine, "libqalculate backend not wired yet");
+		if (talc_qalc_bridge_eval_numeric (expression, out_result, &bridge_error)) {
+			talc_engine_set_error (engine, (out_result->error && bridge_error) ? bridge_error : "");
+			return TRUE;
+		}
+		talc_engine_set_error (engine, bridge_error ? bridge_error : "libqalculate backend failed");
 		return FALSE;
 	default:
 		talc_engine_set_error (engine, "Unknown backend");

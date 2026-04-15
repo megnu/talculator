@@ -13,6 +13,7 @@ bin_PROGRAMS = talculator
 talculator_SOURCES = \
 	main.c talculator.h \
 	engine.c engine.h \
+	engine_qalc_bridge.cpp engine_qalc_bridge.h \
 	math_functions.c math_functions.h \
 	display.c display.h \
 	general_functions.c general_functions.h \
@@ -24,6 +25,9 @@ talculator_SOURCES = \
 	g_real.h
 
 talculator_CFLAGS = \
+	$(GTK_CFLAGS)
+
+talculator_CXXFLAGS = \
 	$(GTK_CFLAGS)
 
 talculator_LDADD = \
