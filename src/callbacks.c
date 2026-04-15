@@ -1848,14 +1848,14 @@ gboolean paper_tree_view_selection_changed_cb (GtkWidget *widget,
 
 gboolean on_button_can_activate_accel (GtkWidget *widget, guint signal_id, gpointer user_data)
 {
-    if (!gtk_widget_get_sensitive(widget)) return FALSE;
+    if (!gtk_widget_is_sensitive(widget)) return FALSE;
     if (strcmp("clicked", g_signal_name(signal_id)) == 0) return TRUE;
     return FALSE;
 }
 
 gboolean on_menuitem_can_activate_accel (GtkWidget *widget, guint signal_id, gpointer user_data)
 {
-    if (!gtk_widget_get_sensitive(widget)) return FALSE;
+    if (!gtk_widget_is_sensitive(widget)) return FALSE;
     if (strcmp("activate", g_signal_name(signal_id)) == 0) return TRUE;
     return FALSE;
 }
