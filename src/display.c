@@ -41,18 +41,6 @@
 #define display_result_line (active_tab->tab_display_result_line)
 #define display_value (active_tab->tab_display_value)
 
-static void display_bind_active_tab_from_widget (GtkWidget *widget)
-{
-	while (widget != NULL) {
-		s_tab_context *ctx = g_object_get_data (G_OBJECT(widget), "tab-context");
-		if (ctx != NULL) {
-			active_tab = ctx;
-			return;
-		}
-		widget = gtk_widget_get_parent (widget);
-	}
-}
-
 static char	*number_mod_labels[5] = {" DEC ", " HEX ", " OCT ", " BIN ", NULL}, 
 		*angle_mod_labels[4] = {" DEG ", " RAD ", " GRAD ", NULL},
 		*notation_mod_labels[4] = {" ALG ", " RPN ", " FORM ", NULL};	
@@ -74,7 +62,7 @@ gboolean on_textview_button_press_event (GtkWidget *widget,
 						GdkEventButton *event,
 						gpointer user_data)
 {
-	display_bind_active_tab_from_widget (widget);
+	ui_bind_active_tab_from_widget (widget);
 	static 			GdkAtom targets_atom = GDK_NONE;
 	int			x, y;
 	GtkTextIter		start, end;
@@ -127,7 +115,7 @@ void on_textview_selection_received (GtkWidget *widget,
 					guint time,
 					gpointer user_data)
 {
-	display_bind_active_tab_from_widget (widget);
+	ui_bind_active_tab_from_widget (widget);
 	/* **** IMPORTANT **** Check to see if retrieval succeeded  */
 	/* occurs if we just press the middle button with no active selection */
 	if (gtk_selection_data_get_length(data) < 0) return;

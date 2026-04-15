@@ -19,10 +19,7 @@
  */
 
 extern GtkBuilder 	*main_window_xml;
-extern GtkBuilder 	*button_box_xml;
 extern GtkBuilder 	*prefs_xml;
-extern GtkBuilder		*dispctrl_xml;
-extern GtkBuilder		*view_xml;
 extern GtkListStore	*prefs_constant_store, *prefs_user_function_store;
 extern char		dec_point[2];
 
@@ -44,6 +41,15 @@ typedef struct {
 	
 
 GtkWidget *ui_main_window_create ();
+GtkNotebook *ui_tabs_get_notebook ();
+s_tab_context *ui_tab_context_from_widget (GtkWidget *widget);
+void ui_bind_active_tab_from_widget (GtkWidget *widget);
+void ui_bind_active_tab_from_menu_item (GtkMenuItem *menuitem);
+GtkWidget *ui_tab_create (const gchar *title);
+gboolean ui_tab_select (gint page_num);
+gboolean ui_tab_close (gint page_num);
+gboolean ui_tab_close_current ();
+gint ui_tab_get_current ();
 void ui_main_window_set_dispctrl (int location);
 void ui_main_window_buttons_destroy ();
 void ui_main_window_buttons_create (int mode);
@@ -66,7 +72,7 @@ GtkWidget *ui_user_functions_menu_create (s_user_function *user_function,
 				GCallback user_function_handler);
 GtkWidget *ui_constants_menu_create (s_constant *constant, 
 				GCallback const_handler);
-GtkWidget *ui_memory_menu_create (s_array memory, 
+GtkWidget *ui_memory_menu_create (s_array memory_array, 
 				GCallback const_handler, 
 				char *last_item);
 GtkWidget *ui_right_mouse_menu_create ();
@@ -74,7 +80,7 @@ void ui_formula_entry_activate ();
 void ui_formula_entry_set (G_CONST_RETURN gchar *text);
 void ui_formula_entry_insert (G_CONST_RETURN gchar *text);
 void ui_formula_entry_backspace ();
-void ui_formula_entry_state ();
+void ui_formula_entry_state (gboolean error);
 void ui_button_set_pan ();
 void ui_button_set_rpn ();
 void ui_relax_fmod_buttons ();
@@ -93,4 +99,3 @@ void ui_paper_view_destroy();
 #ifdef WITH_HILDON
 void create_hildon_menu (HildonWindow *main_window);
 #endif
-

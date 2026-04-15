@@ -302,10 +302,10 @@ static GtkWidget *ui_get_current_tab_container ()
 static s_tab_context *ui_tab_context_new ()
 {
 	s_tab_context *ctx = g_new0 (s_tab_context, 1);
-	if (active_tab) ctx->tab_current_status = active_tab->tab_current_status;
-	else ctx->tab_current_status = (s_current_status){0, 0, 0, 0, FALSE, FALSE, TRUE};
+	ctx->tab_current_status = (s_current_status){CS_DEC, CS_DEG, prefs.def_notation, 0, FALSE, FALSE, TRUE};
 	ctx->tab_memory.data = NULL;
 	ctx->tab_memory.len = 0;
+	ctx->tab_main_alg = alg_init (0);
 	ctx->tab_display_view = NULL;
 	ctx->tab_display_buffer = NULL;
 	ctx->tab_display_result_counter = 0;
@@ -319,6 +319,7 @@ static s_tab_context *ui_tab_context_new ()
 static void ui_tab_context_free (s_tab_context *ctx)
 {
 	if (!ctx) return;
+	if (ctx->tab_main_alg) alg_free (ctx->tab_main_alg);
 	if (ctx->tab_dispctrl_xml) g_object_unref (ctx->tab_dispctrl_xml);
 	if (ctx->tab_button_box_xml) g_object_unref (ctx->tab_button_box_xml);
 	if (ctx->tab_classic_view_xml) g_object_unref (ctx->tab_classic_view_xml);
@@ -349,6 +350,9 @@ static void ui_tab_build_content (s_tab_context *ctx, GtkWidget *page)
 	else {
 		ui_classic_view_create ();
 		ui_main_window_buttons_create (prefs.mode);
+		/* New tabs must enforce notation-dependent formula row visibility. */
+		set_widget_visibility (view_xml, "formula_entry_hbox",
+			ctx->tab_current_status.notation == CS_FORMULA);
 	}
 	update_dispctrl ();
 }
@@ -436,7 +440,7 @@ GtkWidget *ui_main_window_create ()
 	GtkNotebook *notebook = ui_tabs_get_notebook();
 	if (notebook) {
 		g_signal_connect (notebook, "switch-page", G_CALLBACK(on_tabs_switch_page), NULL);
-		ui_tab_create (_("Tab 1"));
+		ui_tab_create (_("Tab"));
 	}
     /* the gtk builder xml object is freed in on_main_window_destroy() */
 	return main_win;
@@ -446,6 +450,35 @@ GtkNotebook *ui_tabs_get_notebook ()
 {
 	if (!main_window_xml) return NULL;
 	return GTK_NOTEBOOK (gtk_builder_get_object (main_window_xml, "tabs_notebook"));
+}
+
+s_tab_context *ui_tab_context_from_widget (GtkWidget *widget)
+{
+	while (widget != NULL) {
+		s_tab_context *ctx = g_object_get_data (G_OBJECT(widget), "tab-context");
+		if (ctx != NULL) return ctx;
+		widget = gtk_widget_get_parent (widget);
+	}
+	return active_tab;
+}
+
+void ui_bind_active_tab_from_widget (GtkWidget *widget)
+{
+	s_tab_context *ctx = ui_tab_context_from_widget (widget);
+	if (ctx != NULL) active_tab = ctx;
+}
+
+void ui_bind_active_tab_from_menu_item (GtkMenuItem *menuitem)
+{
+	GtkWidget *menu = gtk_widget_get_parent (GTK_WIDGET(menuitem));
+	if (menu != NULL) {
+		s_tab_context *ctx = g_object_get_data (G_OBJECT(menu), "tab-context");
+		if (ctx != NULL) {
+			active_tab = ctx;
+			return;
+		}
+	}
+	ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
 }
 
 GtkWidget *ui_tab_create (const gchar *title)

@@ -36,36 +36,38 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 
-static s_tab_context *tab_context_from_widget (GtkWidget *widget)
+static void request_main_window_quit ()
 {
-    while (widget != NULL) {
-        s_tab_context *ctx = g_object_get_data (G_OBJECT(widget), "tab-context");
-        if (ctx != NULL) return ctx;
-        widget = gtk_widget_get_parent (widget);
+    GtkWidget *main_window;
+    if (!main_window_xml) {
+        gtk_main_quit();
+        return;
     }
-    return active_tab;
+    main_window = GTK_WIDGET(gtk_builder_get_object (main_window_xml, "main_window"));
+    if (main_window) gtk_widget_destroy (main_window);
+    else gtk_main_quit();
 }
 
-static s_tab_context *tab_context_from_menu_item (GtkMenuItem *menuitem)
+static gboolean cycle_tab_from_key (GdkEventKey *key_event)
 {
-    GtkWidget *menu = gtk_widget_get_parent (GTK_WIDGET(menuitem));
-    if (menu != NULL) {
-        s_tab_context *ctx = g_object_get_data (G_OBJECT(menu), "tab-context");
-        if (ctx != NULL) return ctx;
-    }
-    return tab_context_from_widget (GTK_WIDGET(menuitem));
-}
+    GtkNotebook *notebook;
+    gint page_count, current_page, target_page;
+    gboolean backward;
 
-static void bind_active_tab_from_widget (GtkWidget *widget)
-{
-    s_tab_context *ctx = tab_context_from_widget (widget);
-    if (ctx != NULL) active_tab = ctx;
-}
+    if ((key_event->state & GDK_CONTROL_MASK) == 0) return FALSE;
+    if ((key_event->keyval != GDK_KEY_Tab) && (key_event->keyval != GDK_KEY_ISO_Left_Tab)) return FALSE;
 
-static void bind_active_tab_from_menu_item (GtkMenuItem *menuitem)
-{
-    s_tab_context *ctx = tab_context_from_menu_item (menuitem);
-    if (ctx != NULL) active_tab = ctx;
+    notebook = ui_tabs_get_notebook ();
+    if (!notebook) return FALSE;
+    page_count = gtk_notebook_get_n_pages (notebook);
+    if (page_count <= 1) return TRUE;
+
+    current_page = gtk_notebook_get_current_page (notebook);
+    backward = ((key_event->state & GDK_SHIFT_MASK) != 0) || (key_event->keyval == GDK_KEY_ISO_Left_Tab);
+    if (backward) target_page = (current_page - 1 + page_count) % page_count;
+    else target_page = (current_page + 1) % page_count;
+    ui_tab_select (target_page);
+    return TRUE;
 }
 
 /* File */
@@ -75,6 +77,18 @@ on_main_window_destroy               (GtkWidget*         widget,
                                         gpointer         user_data)
 {
     char     **stack;
+    GtkNotebook *notebook;
+    GtkWidget *page;
+    s_tab_context *ctx;
+
+    notebook = ui_tabs_get_notebook();
+    if (notebook) {
+        page = gtk_notebook_get_nth_page (notebook, gtk_notebook_get_current_page (notebook));
+        if (page) {
+            ctx = g_object_get_data (G_OBJECT(page), "tab-context");
+            if (ctx) active_tab = ctx;
+        }
+    }
     
     /* remember some things */
     if (prefs.mode != BASIC_MODE) {
@@ -109,6 +123,14 @@ on_main_window_destroy               (GtkWidget*         widget,
     gtk_main_quit();
 }
 
+void
+on_quit_activate                     (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+    ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
+    request_main_window_quit ();
+}
+
 /* Help */
 
 void
@@ -117,6 +139,22 @@ on_about_activate                     (GtkMenuItem     *menuitem,
 {
     GtkWidget *about_dialog = ui_about_dialog_create();
     gtk_dialog_run (GTK_DIALOG(about_dialog));
+}
+
+void
+on_new_tab_activate                   (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+    ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
+    ui_tab_create (NULL);
+}
+
+void
+on_close_tab_activate                 (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+    ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
+    if (!ui_tab_close_current ()) request_main_window_quit ();
 }
 
 /* this callback is called if a button for entering a number is clicked. There are two
@@ -128,7 +166,7 @@ void
 on_number_button_clicked               (GtkToggleButton  *button,
                                         gpointer         user_data)
 {    
-    bind_active_tab_from_widget (GTK_WIDGET(button));
+    ui_bind_active_tab_from_widget (GTK_WIDGET(button));
     if (gtk_toggle_button_get_active(button) == FALSE) return;
     button_activation (button);
     if (current_status.notation == CS_FORMULA) {
@@ -151,7 +189,7 @@ on_operation_button_clicked(GtkToggleButton *button, gpointer user_data)
     G_REAL            return_value, *stack;
     GtkWidget        *tbutton;
     
-    bind_active_tab_from_widget (GTK_WIDGET(button));
+    ui_bind_active_tab_from_widget (GTK_WIDGET(button));
     if (gtk_toggle_button_get_active(button) == FALSE) return;
     button_activation (button);
     
@@ -259,7 +297,7 @@ on_function_button_clicked             (GtkToggleButton    *button,
     G_REAL        (*func[4])(G_REAL);
     char         **display_name;
 
-    bind_active_tab_from_widget (GTK_WIDGET(button));
+    ui_bind_active_tab_from_widget (GTK_WIDGET(button));
     if (gtk_toggle_button_get_active(button) == FALSE) return;
     button_activation (button);
     if (current_status.notation == CS_FORMULA) {
@@ -286,7 +324,7 @@ void
 on_tbutton_fmod_clicked                (GtkButton       *button,
                                         gpointer         user_data)
 {
-    bind_active_tab_from_widget (GTK_WIDGET(button));
+    ui_bind_active_tab_from_widget (GTK_WIDGET(button));
     if (strcmp (gtk_button_get_label (button), "inv") == 0)
         current_status.fmod ^= 1 << CS_FMOD_FLAG_INV;
     else if (strcmp (gtk_button_get_label (button), "hyp") == 0)
@@ -301,7 +339,7 @@ on_gfunc_button_clicked                (GtkToggleButton       *button,
     void    (*func)(GtkToggleButton *button);
     char     *display_string;
 
-    bind_active_tab_from_widget (GTK_WIDGET(button));
+    ui_bind_active_tab_from_widget (GTK_WIDGET(button));
     if (gtk_toggle_button_get_active(button) == FALSE) return;
     button_activation (button);
     if (current_status.notation == CS_FORMULA) {
@@ -326,7 +364,7 @@ void
 on_dec_toggled                       (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-    bind_active_tab_from_widget (GTK_WIDGET(menuitem));
+    ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (!gtk_check_menu_item_get_active((GtkCheckMenuItem *)menuitem)) return;
     change_option (CS_DEC, DISPLAY_OPT_NUMBER);
 }
@@ -335,7 +373,7 @@ on_dec_toggled                       (GtkMenuItem     *menuitem,
 void
 on_hex_toggled (GtkMenuItem     *menuitem, gpointer         user_data)
 {
-    bind_active_tab_from_widget (GTK_WIDGET(menuitem));
+    ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (!gtk_check_menu_item_get_active((GtkCheckMenuItem *)menuitem)) return;
     change_option (CS_HEX, DISPLAY_OPT_NUMBER);
 }
@@ -345,7 +383,7 @@ void
 on_oct_toggled                       (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-    bind_active_tab_from_widget (GTK_WIDGET(menuitem));
+    ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (!gtk_check_menu_item_get_active((GtkCheckMenuItem *)menuitem)) return;
     change_option (CS_OCT, DISPLAY_OPT_NUMBER);
 }
@@ -355,7 +393,7 @@ void
 on_bin_toggled                       (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-    bind_active_tab_from_widget (GTK_WIDGET(menuitem));
+    ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (!gtk_check_menu_item_get_active((GtkCheckMenuItem *)menuitem)) return;
     change_option (CS_BIN, DISPLAY_OPT_NUMBER);
 }
@@ -365,7 +403,7 @@ void
 on_deg_toggled                       (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-    bind_active_tab_from_widget (GTK_WIDGET(menuitem));
+    ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (!gtk_check_menu_item_get_active((GtkCheckMenuItem *)menuitem)) return;
     change_option (CS_DEG, DISPLAY_OPT_ANGLE);
 }
@@ -375,7 +413,7 @@ void
 on_rad_toggled                       (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-    bind_active_tab_from_widget (GTK_WIDGET(menuitem));
+    ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (!gtk_check_menu_item_get_active((GtkCheckMenuItem *)menuitem)) return;
     change_option (CS_RAD, DISPLAY_OPT_ANGLE);
 }
@@ -385,7 +423,7 @@ void
 on_grad_toggled                      (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-    bind_active_tab_from_widget (GTK_WIDGET(menuitem));
+    ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (!gtk_check_menu_item_get_active((GtkCheckMenuItem *)menuitem)) return;
     change_option (CS_GRAD, DISPLAY_OPT_ANGLE);
 }
@@ -394,7 +432,7 @@ void
 on_ordinary_toggled                  (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-    bind_active_tab_from_widget (GTK_WIDGET(menuitem));
+    ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem)) == FALSE) return;
     change_option (CS_PAN, DISPLAY_OPT_NOTATION);
     set_widget_visibility (view_xml, "formula_entry_hbox", FALSE);
@@ -411,7 +449,7 @@ void
 on_rpn_toggled                       (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-    bind_active_tab_from_widget (GTK_WIDGET(menuitem));
+    ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem)) == FALSE) return;
     change_option (CS_RPN, DISPLAY_OPT_NOTATION);
     
@@ -432,7 +470,7 @@ void
 on_form_toggled             (GtkMenuItem     *menuitem,
                     gpointer         user_data)
 {
-    bind_active_tab_from_widget (GTK_WIDGET(menuitem));
+    ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem)) == FALSE) return;
     change_option (CS_FORMULA, DISPLAY_OPT_NOTATION);
     all_clear();
@@ -445,7 +483,7 @@ void
 on_display_control_toggled (GtkMenuItem     *menuitem,
             gpointer         user_data)
 {
-    bind_active_tab_from_widget (GTK_WIDGET(menuitem));
+    ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (prefs.mode == PAPER_MODE) return;
     prefs.vis_dispctrl = 
         gtk_check_menu_item_get_active((GtkCheckMenuItem *) menuitem);
@@ -457,7 +495,7 @@ void
 on_logical_toggled (GtkMenuItem     *menuitem,
             gpointer         user_data)
 {
-    bind_active_tab_from_widget (GTK_WIDGET(menuitem));
+    ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (prefs.mode == BASIC_MODE) return;
     if (prefs.mode == PAPER_MODE) return;
 
@@ -471,7 +509,7 @@ void
 on_functions_toggled (GtkMenuItem     *menuitem,
             gpointer         user_data)
 {
-    bind_active_tab_from_widget (GTK_WIDGET(menuitem));
+    ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (prefs.mode == BASIC_MODE) return;
     if (prefs.mode == PAPER_MODE) return;
     prefs.vis_funcs = 
@@ -484,7 +522,7 @@ void
 on_standard_toggled (GtkMenuItem     *menuitem,
             gpointer         user_data)
 {
-    bind_active_tab_from_widget (GTK_WIDGET(menuitem));
+    ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (prefs.mode == BASIC_MODE) return;
     if (prefs.mode == PAPER_MODE) return;
     prefs.vis_standard = 
@@ -499,7 +537,7 @@ on_basic_mode_toggled (GtkMenuItem     *menuitem,
 {
     GtkWidget    *menu_item;
     
-    bind_active_tab_from_widget (GTK_WIDGET(menuitem));
+    ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem)) == FALSE) return;
 
 	G_REAL display_value = 0;
@@ -558,7 +596,7 @@ on_scientific_mode_toggled (GtkMenuItem *menuitem,
 {
     GtkWidget    *menu_item;
     
-    bind_active_tab_from_widget (GTK_WIDGET(menuitem));
+    ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem)) == FALSE) return;
 
 	G_REAL display_value = 0;
@@ -619,7 +657,7 @@ on_paper_mode_toggled (GtkMenuItem *menuitem,
 {
     GtkWidget    *menu_item;
     
-    bind_active_tab_from_widget (GTK_WIDGET(menuitem));
+    ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem)) == FALSE) return;
 
     prefs.mode = PAPER_MODE;
@@ -646,7 +684,7 @@ void
 on_cut_activate (GtkMenuItem     *menuitem,
             gpointer         user_data)
 {
-    bind_active_tab_from_widget (GTK_WIDGET(menuitem));
+    ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (prefs.mode == PAPER_MODE) return;
     gtk_clipboard_set_text (gtk_clipboard_get (GDK_SELECTION_CLIPBOARD), 
         display_result_get(), -1);
@@ -660,7 +698,7 @@ on_paste_activate (GtkMenuItem     *menuitem,
     GtkWidget    *formula_entry;
     char        *cp_text;
     
-    bind_active_tab_from_widget (GTK_WIDGET(menuitem));
+    ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (prefs.mode == PAPER_MODE) return;
     cp_text = gtk_clipboard_wait_for_text (gtk_clipboard_get (GDK_SELECTION_CLIPBOARD));
     if (cp_text) {
@@ -678,7 +716,7 @@ void
 on_copy_activate (GtkMenuItem     *menuitem,
             gpointer         user_data)
 {
-    bind_active_tab_from_widget (GTK_WIDGET(menuitem));
+    ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (prefs.mode == PAPER_MODE) return;
     gtk_clipboard_set_text (gtk_clipboard_get (GDK_SELECTION_CLIPBOARD), 
         display_result_get(), -1);
@@ -1017,7 +1055,7 @@ void user_functions_menu_handler (GtkMenuItem *menuitem, gpointer user_data)
     int             index;
     s_flex_parser_result    result;
     
-    bind_active_tab_from_menu_item (menuitem);
+    ui_bind_active_tab_from_menu_item (menuitem);
     index = GPOINTER_TO_INT(user_data);
     result = compute_user_function (
         user_function[index].expression, user_function[index].variable,
@@ -1038,7 +1076,7 @@ on_user_function_button_clicked (GtkToggleButton       *button,
 {
     GtkWidget    *menu;
 
-    bind_active_tab_from_widget (GTK_WIDGET(button));
+    ui_bind_active_tab_from_widget (GTK_WIDGET(button));
     if (gtk_toggle_button_get_active(button) == FALSE) return;
     button_activation (button);
     menu = ui_user_functions_menu_create(user_function, (GCallback)user_functions_menu_handler);
@@ -1055,7 +1093,7 @@ void constants_menu_handler (GtkMenuItem *menuitem, gpointer user_data)
 {
     char        *const_value;
     
-    bind_active_tab_from_menu_item (menuitem);
+    ui_bind_active_tab_from_menu_item (menuitem);
     /* push current display value */
     current_status.rpn_stack_lift_enabled = TRUE;
     rpn_stack_lift();
@@ -1072,7 +1110,7 @@ on_constant_button_clicked (GtkToggleButton       *button,
 {
     GtkWidget        *menu;
 
-    bind_active_tab_from_widget (GTK_WIDGET(button));
+    ui_bind_active_tab_from_widget (GTK_WIDGET(button));
     if (gtk_toggle_button_get_active(button) == FALSE) return;
     button_activation (button);
     menu = ui_constants_menu_create(constant, (GCallback)constants_menu_handler);
@@ -1090,7 +1128,7 @@ void ms_menu_handler (GtkMenuItem *menuitem, gpointer user_data)
     GtkWidget    *button;
     int        index;
     
-    bind_active_tab_from_menu_item (menuitem);
+    ui_bind_active_tab_from_menu_item (menuitem);
     index = GPOINTER_TO_INT(user_data);
     if (index >= memory.len) {
         index = memory.len;
@@ -1115,7 +1153,7 @@ void on_ms_button_clicked (GtkToggleButton *button, gpointer user_data)
 {
     GtkWidget    *menu;
 
-    bind_active_tab_from_widget (GTK_WIDGET(button));
+    ui_bind_active_tab_from_widget (GTK_WIDGET(button));
     if (gtk_toggle_button_get_active(button) == FALSE) return;
     button_activation (button);
     menu = ui_memory_menu_create (memory, (GCallback)ms_menu_handler, _("save here"));
@@ -1128,7 +1166,7 @@ void mr_menu_handler (GtkMenuItem *menuitem, gpointer user_data)
 {
     int        index;
 
-    bind_active_tab_from_menu_item (menuitem);
+    ui_bind_active_tab_from_menu_item (menuitem);
     /* current display value on stack */
     current_status.rpn_stack_lift_enabled = TRUE;
     rpn_stack_lift();
@@ -1142,7 +1180,7 @@ void on_mr_button_clicked (GtkToggleButton *button, gpointer user_data)
 {
     GtkWidget    *menu;;
 
-    bind_active_tab_from_widget (GTK_WIDGET(button));
+    ui_bind_active_tab_from_widget (GTK_WIDGET(button));
     if (gtk_toggle_button_get_active(button) == FALSE) return;
     button_activation (button);
     menu = ui_memory_menu_create(memory, (GCallback)mr_menu_handler, NULL);
@@ -1156,7 +1194,7 @@ void mplus_menu_handler (GtkMenuItem *menuitem, gpointer user_data)
 {
     int        index;
     
-    bind_active_tab_from_menu_item (menuitem);
+    ui_bind_active_tab_from_menu_item (menuitem);
     index = GPOINTER_TO_INT(user_data);
     memory.data[index] += display_result_get_double(current_status.number);
 }
@@ -1165,7 +1203,7 @@ void on_mplus_button_clicked (GtkToggleButton *button, gpointer user_data)
 {
     GtkWidget    *menu;
 
-    bind_active_tab_from_widget (GTK_WIDGET(button));
+    ui_bind_active_tab_from_widget (GTK_WIDGET(button));
     if (gtk_toggle_button_get_active(button) == FALSE) return;
     button_activation (button);
     menu = ui_memory_menu_create(memory, (GCallback)mplus_menu_handler, NULL);
@@ -1179,7 +1217,7 @@ void mc_menu_handler (GtkMenuItem *menuitem, gpointer user_data)
 {
     int        index, counter;
     
-    bind_active_tab_from_menu_item (menuitem);
+    ui_bind_active_tab_from_menu_item (menuitem);
     index = GPOINTER_TO_INT(user_data);
     if (index >= memory.len) {
         if (memory.len > 0) free (memory.data);
@@ -1199,7 +1237,7 @@ on_mc_button_clicked             (GtkToggleButton       *button,
 {
     GtkWidget    *menu;
 
-    bind_active_tab_from_widget (GTK_WIDGET(button));
+    ui_bind_active_tab_from_widget (GTK_WIDGET(button));
     if (gtk_toggle_button_get_active(button) == FALSE) return;
     button_activation (button);
     menu = ui_memory_menu_create(memory, (GCallback)mc_menu_handler, "clear all");
@@ -1213,7 +1251,7 @@ void mx_menu_handler (GtkMenuItem *menuitem, gpointer user_data)
 {
     int        index, temp;
     
-    bind_active_tab_from_menu_item (menuitem);
+    ui_bind_active_tab_from_menu_item (menuitem);
     index = GPOINTER_TO_INT(user_data);
     temp = memory.data[index];
     memory.data[index] = display_result_get_double(current_status.number);
@@ -1226,7 +1264,7 @@ on_mx_button_clicked             (GtkToggleButton       *button,
 {
     GtkWidget    *menu;
 
-    bind_active_tab_from_widget (GTK_WIDGET(button));
+    ui_bind_active_tab_from_widget (GTK_WIDGET(button));
     if (gtk_toggle_button_get_active(button) == FALSE) return;
     button_activation (button);
     menu = ui_memory_menu_create(memory, (GCallback)mx_menu_handler, NULL);
@@ -1701,7 +1739,7 @@ gboolean on_button_press_event (GtkWidget *widget, GdkEventButton *event, gpoint
 {
     GtkWidget    *menu;
     
-    bind_active_tab_from_widget (widget);
+    ui_bind_active_tab_from_widget (widget);
     if (event->button != 3) return FALSE;
     menu = ui_right_mouse_menu_create ();
     gtk_menu_popup ((GtkMenu *) menu, NULL, NULL, NULL, NULL, 3, event->time);
@@ -1712,7 +1750,7 @@ void on_formula_entry_activate (GtkEntry *entry, gpointer user_data)
 {
     s_flex_parser_result     result;
     
-    bind_active_tab_from_widget (GTK_WIDGET(entry));
+    ui_bind_active_tab_from_widget (GTK_WIDGET(entry));
     result = flex_parser(gtk_entry_get_text(entry));
     ui_formula_entry_state (result.error);
     if (!result.error) display_result_set_double (result.value, current_status.number);
@@ -1720,7 +1758,7 @@ void on_formula_entry_activate (GtkEntry *entry, gpointer user_data)
 
 void on_formula_entry_changed (GtkEditable *editable, gpointer user_data)
 {
-    bind_active_tab_from_widget (GTK_WIDGET(editable));
+    ui_bind_active_tab_from_widget (GTK_WIDGET(editable));
     ui_formula_entry_state(FALSE);
 }
 
@@ -1734,7 +1772,7 @@ void on_paper_entry_activate (GtkWidget *activated_widget, gpointer user_data)
     char                    *escaped_input_string, *result_string, *markup_result_string;
     GtkTreePath*             last_row_path;
     
-    bind_active_tab_from_widget (activated_widget);
+    ui_bind_active_tab_from_widget (activated_widget);
     if (!GTK_IS_ENTRY(activated_widget))
         entry = GTK_ENTRY(gtk_builder_get_object (view_xml, "paper_entry"));
     else
@@ -1782,7 +1820,7 @@ gboolean paper_tree_view_selection_changed_cb (GtkWidget *widget,
     int            position;
     GtkTreeSelection    *select;
     
-    bind_active_tab_from_widget (widget);
+    ui_bind_active_tab_from_widget (widget);
     if ((event->type == GDK_2BUTTON_PRESS) && (event->button == 1)) {
         select = gtk_tree_view_get_selection (GTK_TREE_VIEW (widget));
         if (gtk_tree_selection_get_selected (select, &model, &current_list_iter)) {
@@ -1829,10 +1867,14 @@ gboolean on_menuitem_can_activate_accel (GtkWidget *widget, guint signal_id, gpo
  */
 gboolean on_button_event(GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
+    if (event->type == GDK_KEY_PRESS) {
+        GdkEventKey *key_event = (GdkEventKey *) event;
+        if (cycle_tab_from_key (key_event)) return TRUE;
+    }
 #if GTK_CHECK_VERSION(3, 0, 0)
     if (GTK_IS_WINDOW(widget)) {
         GtkWidget *focus = gtk_window_get_focus (GTK_WINDOW(widget));
-        if (focus) bind_active_tab_from_widget (focus);
+        if (focus) ui_bind_active_tab_from_widget (focus);
     }
     /* do all cheap checks first before calling expensive formula_entry_is_active */
     if ((current_status.notation == CS_FORMULA) && (event->type == GDK_KEY_PRESS)) {
