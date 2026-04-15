@@ -654,9 +654,10 @@ void rpn_stack_set_size (int size)
 
 void rpn_free ()
 {
-	if (!rpn_stack) 
+	if (rpn_stack) 
 	{
 		g_array_free (rpn_stack, TRUE);
+		rpn_stack = NULL;
 	}
 }
 

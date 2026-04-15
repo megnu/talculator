@@ -1672,27 +1672,27 @@ void on_prefs_bin_sep_length_value_changed (GtkSpinButton *spinbutton,
 }
 
 void on_prefs_dec_sep_char_changed (GtkEditable *editable,
-                                            gpointer user_data)
+                                    gpointer user_data)
 {
-    prefs_sep_char_changed (editable, prefs.dec_sep_char, CS_DEC);
+    prefs_sep_char_changed (editable, &prefs.dec_sep_char, CS_DEC);
 }
 
 void on_prefs_hex_sep_char_changed (GtkEditable *editable,
-                                            gpointer user_data)
+                                    gpointer user_data)
 {
-    prefs_sep_char_changed (editable, prefs.hex_sep_char, CS_HEX);
+    prefs_sep_char_changed (editable, &prefs.hex_sep_char, CS_HEX);
 }
 
 void on_prefs_oct_sep_char_changed (GtkEditable *editable,
-                                            gpointer user_data)
+                                    gpointer user_data)
 {
-    prefs_sep_char_changed (editable, prefs.oct_sep_char, CS_OCT);
+    prefs_sep_char_changed (editable, &prefs.oct_sep_char, CS_OCT);
 }
 
 void on_prefs_bin_sep_char_changed (GtkEditable *editable,
-                                            gpointer user_data)
+                                    gpointer user_data)
 {
-    prefs_sep_char_changed (editable, prefs.bin_sep_char, CS_BIN);
+    prefs_sep_char_changed (editable, &prefs.bin_sep_char, CS_BIN);
 }
 
 void on_togglebutton_released (GtkToggleButton *togglebutton, 

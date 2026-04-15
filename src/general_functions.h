@@ -91,7 +91,7 @@ gboolean get_sep (int number_base);
 int get_sep_length (int number_base);
 char get_sep_char (int number_base);
 
-void prefs_sep_char_changed (GtkEditable *editable, char *prefs_sep, int number_base);
+void prefs_sep_char_changed (GtkEditable *editable, char **prefs_sep, int number_base);
 
 void change_option (int new_status, int opt_group);
 void change_option_for_tab (s_tab_context *ctx, int new_status, int opt_group);

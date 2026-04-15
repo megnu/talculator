@@ -920,6 +920,7 @@ void display_result_getset ()
 {
 	char	*result;
 	char	**stack;
+	int	i;
 	
 	if (prefs.mode == PAPER_MODE) return;
 	
@@ -928,6 +929,7 @@ void display_result_getset ()
 	display_result_set(result, FALSE, -1);
 	display_stack_set_yzt(stack);
 	g_free(result);
+	for (i = 0; i < 3; i++) g_free (stack[i]);
 	g_free(stack);
 }
 
@@ -1016,11 +1018,14 @@ G_REAL *display_stack_get_yzt_double (int number_base_status)
 {
 	char 	**string_stack;
 	G_REAL	*G_REAL_stack;
-	int	counter;
+	int	counter, stack_len = 3;
 	
-	G_REAL_stack = (G_REAL *) g_malloc (display_result_line * sizeof(G_REAL));
+	G_REAL_stack = (G_REAL *) g_malloc (stack_len * sizeof(G_REAL));
 	string_stack = display_stack_get_yzt();
-	for (counter = 0; counter < display_result_line; counter++)
+	for (counter = 0; counter < stack_len; counter++) {
 		G_REAL_stack[counter] = string2double (string_stack[counter], number_base_status);
+		g_free (string_stack[counter]);
+	}
+	g_free (string_stack);
 	return G_REAL_stack;
 }

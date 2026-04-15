@@ -213,7 +213,7 @@ int main (int argc, char *argv[])
 				fprintf (stderr, _("[%s] configuration file: Failed to create directory %s.\n"), PACKAGE, path);
 			g_free(path);
 			/* check old file location */
-			char *config_file_name_old = g_strdup_printf("%s/%s", getenv ("HOME"), CONFIG_FILE_NAME_OLD);
+			char *config_file_name_old = g_strdup_printf("%s/%s", g_get_home_dir(), CONFIG_FILE_NAME_OLD);
 			if (g_file_test(config_file_name_old, G_FILE_TEST_IS_REGULAR)) {
 				fprintf (stderr, _("[%s] configuration file: We will move the configuration \
 file from %s to %s. After you quit %s, you may remove the configuration file from its old location %s.\n"), 

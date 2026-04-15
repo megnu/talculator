@@ -121,7 +121,6 @@ static void apply_object_data (s_operation_map operation_map[],
 			s_function_map function_map[])
 {
 	int 		counter;
-	gpointer	*func;
 	GObject		*object;
 	
 	counter = 0;
@@ -146,12 +145,10 @@ static void apply_object_data (s_operation_map operation_map[],
 	
 	counter = 0;
 	while (function_map[counter].button_name != NULL) {
-		func = (void *) g_malloc (sizeof (function_map[counter].func));
-		memcpy (func, function_map[counter].func, sizeof (function_map[counter].func));
 		object = G_OBJECT (gtk_builder_get_object (button_box_xml, 
 			function_map[counter].button_name));
 		g_object_set_data (object, "display_names", function_map[counter].display_names);
-		g_object_set_data (object, "func", func);	
+		g_object_set_data (object, "func", function_map[counter].func);	
 		counter++;
 	};
 }

@@ -852,9 +852,10 @@ char get_sep_char (int number_base)
 	return 0;
 }
 
-void prefs_sep_char_changed (GtkEditable *editable, char *prefs_sep, int number_base)
+void prefs_sep_char_changed (GtkEditable *editable, char **prefs_sep, int number_base)
 {
 	char 	*sep, *result=NULL, **stack=NULL;
+	int i;
 	
 	sep = gtk_editable_get_chars (editable, 0, -1);
 	if (strlen(sep) > 0) {
@@ -869,8 +870,8 @@ void prefs_sep_char_changed (GtkEditable *editable, char *prefs_sep, int number_
 				stack = display_stack_get_yzt();				
 			}
 			
-			if (prefs_sep) g_free (prefs_sep);
-			prefs_sep = g_strdup(sep);
+			if (*prefs_sep) g_free (*prefs_sep);
+			*prefs_sep = g_strdup(sep);
 			
 			if (prefs.mode != PAPER_MODE && result && stack) {
 				if (number_base == current_status.number) {
@@ -878,6 +879,7 @@ void prefs_sep_char_changed (GtkEditable *editable, char *prefs_sep, int number_
 					display_stack_set_yzt(stack);
 				}
 				g_free (result);
+				for (i = 0; i < 3; i++) g_free (stack[i]);
 				g_free (stack);
 			}
 		}
