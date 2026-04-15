@@ -42,6 +42,8 @@ typedef struct {
 	talc_engine_angle angle;
 	gboolean rpn_notation;
 	gboolean formula_notation;
+	int display_precision;
+	char decimal_point;
 } talc_engine_context;
 
 typedef struct talc_engine talc_engine;

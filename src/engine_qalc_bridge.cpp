@@ -42,6 +42,35 @@ static int talc_qalc_number_base (const talc_engine_context *ctx)
 	}
 }
 
+static void talc_qalc_configure_locale (const talc_engine_context *ctx)
+{
+	if (!CALCULATOR) return;
+	if (ctx && ctx->decimal_point == ',') CALCULATOR->useDecimalComma ();
+	else CALCULATOR->useDecimalPoint (true);
+}
+
+static void talc_qalc_fill_print_options (const talc_engine_context *ctx,
+	PrintOptions *po)
+{
+	if (!po) return;
+	*po = default_print_options;
+	po->base = talc_qalc_number_base (ctx);
+	po->base_display = BASE_DISPLAY_NONE;
+	po->number_fraction_format = FRACTION_DECIMAL;
+	po->show_ending_zeroes = false;
+	po->use_unicode_signs = UNICODE_SIGNS_OFF;
+	po->exp_display = EXP_LOWERCASE_E;
+	po->digit_grouping = DIGIT_GROUPING_NONE;
+	po->spacious = false;
+	po->indicate_infinite_series = REPEATING_DECIMALS_OFF;
+	if (ctx && ctx->display_precision > 0 && CALCULATOR) {
+		CALCULATOR->setPrecision (ctx->display_precision);
+	}
+	if (ctx && ctx->decimal_point != '\0') {
+		po->decimalpoint_sign = std::string (1, ctx->decimal_point);
+	}
+}
+
 static bool talc_qalc_init_once (void)
 {
 	if (s_init_attempted) return s_init_ok;
@@ -108,6 +137,7 @@ gboolean talc_qalc_bridge_eval_numeric (const talc_engine_context *ctx,
 		return FALSE;
 	}
 
+	talc_qalc_configure_locale (ctx);
 	eval_opts = default_user_evaluation_options;
 	eval_opts.parse_options.base = talc_qalc_number_base (ctx);
 	eval_opts.parse_options.angle_unit = talc_qalc_angle_unit (ctx);
@@ -148,6 +178,68 @@ gboolean talc_qalc_bridge_eval_numeric (const talc_engine_context *ctx,
 
 	out_result->value = (G_REAL) number.floatValue ();
 	out_result->error = FALSE;
+	if (out_error) *out_error = "";
+	return TRUE;
+}
+
+gboolean talc_qalc_bridge_eval_formatted (const talc_engine_context *ctx,
+	const char *expression,
+	char **out_result,
+	const char **out_error)
+{
+	MathStructure value;
+	EvaluationOptions eval_opts;
+	PrintOptions print_opts;
+	std::string result;
+
+	if (out_error) *out_error = NULL;
+	if (!out_result) return FALSE;
+	*out_result = NULL;
+
+	if (!expression || expression[0] == '\0') {
+		if (out_error) *out_error = "Empty expression";
+		return TRUE;
+	}
+	if (!talc_qalc_init_once ()) {
+		if (out_error) *out_error = s_last_error.c_str ();
+		return FALSE;
+	}
+
+	talc_qalc_configure_locale (ctx);
+	talc_qalc_fill_print_options (ctx, &print_opts);
+	eval_opts = default_user_evaluation_options;
+	eval_opts.parse_options.base = talc_qalc_number_base (ctx);
+	eval_opts.parse_options.angle_unit = talc_qalc_angle_unit (ctx);
+	if (ctx && ctx->rpn_notation) {
+		eval_opts.parse_options.parsing_mode = PARSING_MODE_RPN;
+	}
+
+	try {
+		CALCULATOR->clearMessages ();
+		value = CALCULATOR->calculate (std::string (expression), eval_opts);
+	} catch (...) {
+		if (out_error) *out_error = "libqalculate evaluation threw an exception";
+		return FALSE;
+	}
+
+	if (value.isUndefined ()) {
+		if (out_error) *out_error = talc_qalc_get_message_or_default ("Undefined result");
+		return TRUE;
+	}
+
+	try {
+		value.format (print_opts);
+		result = value.print (print_opts);
+	} catch (...) {
+		if (out_error) *out_error = "libqalculate formatting threw an exception";
+		return FALSE;
+	}
+
+	*out_result = g_strdup (result.c_str ());
+	if (!*out_result) {
+		if (out_error) *out_error = "Out of memory";
+		return FALSE;
+	}
 	if (out_error) *out_error = "";
 	return TRUE;
 }

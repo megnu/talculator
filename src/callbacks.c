@@ -78,6 +78,8 @@ static void engine_context_from_ui_state (talc_engine_context *ctx)
 	ctx->angle = (talc_engine_angle) current_status.angle;
 	ctx->rpn_notation = (current_status.notation == CS_RPN);
 	ctx->formula_notation = (current_status.notation == CS_FORMULA);
+	ctx->display_precision = get_display_number_length (current_status.number);
+	ctx->decimal_point = dec_point[0];
 }
 
 static gboolean pan_expr_should_track_with_engine (void)
@@ -149,12 +151,14 @@ static void pan_expr_record_operation (char operation)
 	g_string_append_c (active_tab->tab_pan_expr, operation);
 }
 
-static gboolean pan_expr_evaluate_equal (G_REAL *out_value)
+static gboolean pan_expr_evaluate_equal (G_REAL *out_value, char **out_display)
 {
 	talc_engine_context engine_ctx;
 	talc_engine_eval_result eval_result = { TRUE, 0 };
+	char *display_string = NULL;
 
 	if (!out_value) return FALSE;
+	if (out_display) *out_display = NULL;
 	if (!pan_expr_should_track_with_engine ()) return FALSE;
 	if (!active_tab || !active_tab->tab_pan_expr) return FALSE;
 	if (!active_tab->tab_pan_expr_compatible) return FALSE;
@@ -166,6 +170,12 @@ static gboolean pan_expr_evaluate_equal (G_REAL *out_value)
 	if (eval_result.error) return FALSE;
 
 	*out_value = eval_result.value;
+	if (out_display) {
+		display_string = talc_engine_eval_expression (calc_engine, &engine_ctx,
+			active_tab->tab_pan_expr->str);
+		if (display_string && display_string[0] != '\0') *out_display = display_string;
+		else if (display_string) g_free (display_string);
+	}
 	return TRUE;
 }
 
@@ -336,6 +346,7 @@ on_operation_button_clicked(GtkToggleButton *button, gpointer user_data)
     if (current_status.notation == CS_PAN) {
         gboolean use_engine_result = FALSE;
         G_REAL engine_value = 0;
+        char *engine_display = NULL;
         /* '(' doesn't pay respect to allow_arith_op but sets it: a+((((((b-...
          * ')' pays respect to allow_arith_op but doesn't set it: ...+a)))))-...
          * '=' pays respect to allow_arith_op but doesn't set it: ...+a=
@@ -350,8 +361,13 @@ on_operation_button_clicked(GtkToggleButton *button, gpointer user_data)
             pan_expr_record_operation (current_token.operation);
             return_value = alg_add_token (&main_alg, current_token);
             if ((current_token.operation == '=') &&
-                pan_expr_evaluate_equal (&engine_value)) {
-                display_result_set_double (engine_value, current_status.number);
+                pan_expr_evaluate_equal (&engine_value, &engine_display)) {
+                if (engine_display) {
+                    display_result_set (engine_display, TRUE, engine_value);
+                    g_free (engine_display);
+                } else {
+                    display_result_set_double (engine_value, current_status.number);
+                }
                 use_engine_result = TRUE;
             }
             if (!use_engine_result)
@@ -1863,6 +1879,7 @@ void on_formula_entry_activate (GtkEntry *entry, gpointer user_data)
 {
     talc_engine_context      engine_ctx;
     talc_engine_eval_result  eval_result = { TRUE, 0 };
+    char                    *formatted_result = NULL;
     
     ui_bind_active_tab_from_widget (GTK_WIDGET(entry));
     engine_context_from_ui_state (&engine_ctx);
@@ -1872,7 +1889,16 @@ void on_formula_entry_activate (GtkEntry *entry, gpointer user_data)
         eval_result.error = TRUE;
     }
     ui_formula_entry_state (eval_result.error);
-    if (!eval_result.error) display_result_set_double (eval_result.value, current_status.number);
+    if (!eval_result.error) {
+        formatted_result = talc_engine_eval_expression (calc_engine, &engine_ctx,
+            gtk_entry_get_text(entry));
+        if (formatted_result) {
+            display_result_set (formatted_result, TRUE, eval_result.value);
+            g_free (formatted_result);
+        } else {
+            display_result_set_double (eval_result.value, current_status.number);
+        }
+    }
 }
 
 void on_formula_entry_changed (GtkEditable *editable, gpointer user_data)
@@ -1889,7 +1915,7 @@ void on_paper_entry_activate (GtkWidget *activated_widget, gpointer user_data)
     GtkTreeView                *tree_view;
     GtkListStore            *paper_store;
     GtkTreeIter               iter;
-    char                    *escaped_input_string, *result_string, *markup_result_string;
+    char                    *escaped_input_string, *result_string, *markup_result_string, *formatted_result;
     GtkTreePath*             last_row_path;
     
     ui_bind_active_tab_from_widget (activated_widget);
@@ -1919,7 +1945,10 @@ void on_paper_entry_activate (GtkWidget *activated_widget, gpointer user_data)
     if (eval_result.error)
         gtk_list_store_set (paper_store, &iter, 0, "Syntax Error", 1, 1.0, 2, "red", -1);
     else {
-        result_string = get_display_number_string(eval_result.value, current_status.number);
+        formatted_result = talc_engine_eval_expression (calc_engine, &engine_ctx,
+            gtk_entry_get_text(entry));
+        if (formatted_result) result_string = formatted_result;
+        else result_string = get_display_number_string(eval_result.value, current_status.number);
         markup_result_string = g_markup_printf_escaped ("<b>%s</b>", result_string);
         gtk_list_store_set (paper_store, &iter, 0, markup_result_string, 1, 1.0, 2, NULL, -1);
         g_free (result_string);

@@ -55,7 +55,9 @@ char *talc_engine_eval_expression (talc_engine *engine,
 	const talc_engine_context *ctx,
 	const char *expression)
 {
-	(void) ctx;
+	s_flex_parser_result parsed;
+	char *formatted = NULL;
+	const char *bridge_error = NULL;
 
 	if (!engine) return NULL;
 	if (!expression) {
@@ -69,10 +71,20 @@ char *talc_engine_eval_expression (talc_engine *engine,
 
 	switch (engine->backend) {
 	case TALC_ENGINE_BACKEND_LEGACY:
-		talc_engine_set_error (engine, "Legacy backend bridge not wired yet");
-		return NULL;
+		parsed = flex_parser (expression);
+		if (parsed.error) {
+			talc_engine_set_error (engine, "Parse/evaluation error");
+			return NULL;
+		}
+		formatted = g_strdup_printf ("%.12g", (double) parsed.value);
+		talc_engine_set_error (engine, "");
+		return formatted;
 	case TALC_ENGINE_BACKEND_LIBQALCULATE:
-		talc_engine_set_error (engine, "libqalculate backend not wired yet");
+		if (talc_qalc_bridge_eval_formatted (ctx, expression, &formatted, &bridge_error)) {
+			talc_engine_set_error (engine, bridge_error ? bridge_error : "");
+			return formatted;
+		}
+		talc_engine_set_error (engine, bridge_error ? bridge_error : "libqalculate backend failed");
 		return NULL;
 	default:
 		talc_engine_set_error (engine, "Unknown backend");

@@ -18,6 +18,11 @@ gboolean talc_qalc_bridge_eval_numeric (const talc_engine_context *ctx,
 	talc_engine_eval_result *out_result,
 	const char **out_error);
 
+gboolean talc_qalc_bridge_eval_formatted (const talc_engine_context *ctx,
+	const char *expression,
+	char **out_result,
+	const char **out_error);
+
 #ifdef __cplusplus
 }
 #endif
