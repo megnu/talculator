@@ -49,6 +49,10 @@ static s_tab_context *ui_tab_context_new ();
 static void ui_tab_context_free (s_tab_context *ctx);
 static void on_tabs_switch_page (GtkNotebook *notebook, GtkWidget *page, guint page_num, gpointer user_data);
 static void ui_tab_build_content (s_tab_context *ctx, GtkWidget *page);
+static gchar *ui_tab_default_title_new ();
+static void ui_tabs_refresh_actions ();
+static guint ui_tab_title_counter = 1;
+#define UI_MAX_TABS 6
 
 /* active_buttons. bit mask, in which modes the corresponding button is active.
  * assume TRUE for all other bases/modes!
@@ -440,10 +444,29 @@ GtkWidget *ui_main_window_create ()
 	GtkNotebook *notebook = ui_tabs_get_notebook();
 	if (notebook) {
 		g_signal_connect (notebook, "switch-page", G_CALLBACK(on_tabs_switch_page), NULL);
-		ui_tab_create (_("Tab"));
+		ui_tab_create (NULL);
 	}
     /* the gtk builder xml object is freed in on_main_window_destroy() */
 	return main_win;
+}
+
+static gchar *ui_tab_default_title_new ()
+{
+	return g_strdup_printf ("%s %u", _("Tab"), ui_tab_title_counter++);
+}
+
+static void ui_tabs_refresh_actions ()
+{
+	GtkNotebook *notebook;
+	GtkWidget *new_tab_item;
+	gboolean can_create;
+
+	notebook = ui_tabs_get_notebook ();
+	if (!notebook || !main_window_xml) return;
+
+	can_create = (gtk_notebook_get_n_pages (notebook) < UI_MAX_TABS);
+	new_tab_item = GTK_WIDGET(gtk_builder_get_object (main_window_xml, "new_tab"));
+	if (new_tab_item) gtk_widget_set_sensitive (new_tab_item, can_create);
 }
 
 GtkNotebook *ui_tabs_get_notebook ()
@@ -487,16 +510,25 @@ GtkWidget *ui_tab_create (const gchar *title)
 	GtkWidget		*page, *label;
 	s_tab_context	*ctx;
 	gint			n_pages, page_idx;
+	gchar			*generated_title = NULL;
 	
 	notebook = ui_tabs_get_notebook();
 	if (!notebook) return NULL;
 	
 	n_pages = gtk_notebook_get_n_pages (notebook);
+	if (n_pages >= UI_MAX_TABS) {
+		ui_tabs_refresh_actions ();
+		return NULL;
+	}
 	if (n_pages == 0) ctx = active_tab;
 	else ctx = ui_tab_context_new();
 	
 	page = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-	label = gtk_label_new (title ? title : _("Tab"));
+	if (title == NULL || *title == '\0') {
+		generated_title = ui_tab_default_title_new ();
+		title = generated_title;
+	}
+	label = gtk_label_new (title);
 	g_object_set_data (G_OBJECT(page), "tab-context", ctx);
 	g_object_set_data (G_OBJECT(page), "tab-context-owned", GINT_TO_POINTER(n_pages > 0));
 	
@@ -505,6 +537,8 @@ GtkWidget *ui_tab_create (const gchar *title)
 	gtk_notebook_set_current_page (notebook, page_idx);
 	active_tab = ctx;
 	ui_tab_build_content (ctx, page);
+	ui_tabs_refresh_actions ();
+	if (generated_title) g_free (generated_title);
 	
 	return page;
 }
@@ -544,6 +578,7 @@ gboolean ui_tab_close (gint page_num)
 		ctx = g_object_get_data (G_OBJECT(page), "tab-context");
 		if (ctx) active_tab = ctx;
 	}
+	ui_tabs_refresh_actions ();
 	
 	return TRUE;
 }
