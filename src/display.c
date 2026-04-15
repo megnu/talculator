@@ -35,10 +35,23 @@
 #include <gtk/gtk.h>
 #include <glib.h>
 
-static GtkTextView *view;
-static GtkTextBuffer *buffer;
-static int display_result_counter = 0;
-static int display_result_line = 0;
+#define view (active_tab->tab_display_view)
+#define buffer (active_tab->tab_display_buffer)
+#define display_result_counter (active_tab->tab_display_result_counter)
+#define display_result_line (active_tab->tab_display_result_line)
+#define display_value (active_tab->tab_display_value)
+
+static void display_bind_active_tab_from_widget (GtkWidget *widget)
+{
+	while (widget != NULL) {
+		s_tab_context *ctx = g_object_get_data (G_OBJECT(widget), "tab-context");
+		if (ctx != NULL) {
+			active_tab = ctx;
+			return;
+		}
+		widget = gtk_widget_get_parent (widget);
+	}
+}
 
 static char	*number_mod_labels[5] = {" DEC ", " HEX ", " OCT ", " BIN ", NULL}, 
 		*angle_mod_labels[4] = {" DEG ", " RAD ", " GRAD ", NULL},
@@ -48,11 +61,6 @@ static char	*number_mod_labels[5] = {" DEC ", " HEX ", " OCT ", " BIN ", NULL},
 static void display_set_line_double (G_REAL value, int line, char *tag, int number_base_status);
 static void display_set_line (char *string, int line, char *tag);
 static char *display_get_line (int line_nr);
-
-/* we do not need to remember the stack in G_REAL as this is stored outside
- * the stack functions in here only manipulate yzt
- */
-G_REAL display_value=0.;
 
 /*
  * display.c mainly consists of two parts: first display setup code
@@ -66,6 +74,7 @@ gboolean on_textview_button_press_event (GtkWidget *widget,
 						GdkEventButton *event,
 						gpointer user_data)
 {
+	display_bind_active_tab_from_widget (widget);
 	static 			GdkAtom targets_atom = GDK_NONE;
 	int			x, y;
 	GtkTextIter		start, end;
@@ -118,6 +127,7 @@ void on_textview_selection_received (GtkWidget *widget,
 					guint time,
 					gpointer user_data)
 {
+	display_bind_active_tab_from_widget (widget);
 	/* **** IMPORTANT **** Check to see if retrieval succeeded  */
 	/* occurs if we just press the middle button with no active selection */
 	if (gtk_selection_data_get_length(data) < 0) return;
@@ -186,6 +196,8 @@ void display_init ()
     char                    *lang_name;
 
 	current_status.calc_entry_start_new = FALSE;
+	active_tab->tab_display_last_arith = ' ';
+	active_tab->tab_display_brackets = 0;
 	view = (GtkTextView *) gtk_builder_get_object (view_xml, "textview");
     display_set_bkg_color(prefs.bkg_color);
 
@@ -237,7 +249,6 @@ void display_module_arith_label_update (char operation)
 {
 	GtkTextMark	*this_mark;
 	GtkTextIter	start, end;
-	static char 	current_char=' ';
 	
 	if ((prefs.vis_arith == FALSE) || (prefs.mode != SCIENTIFIC_MODE)) 
 		return;
@@ -252,10 +263,10 @@ void display_module_arith_label_update (char operation)
 	gtk_text_buffer_delete (buffer, &start, &end);
 	
 	gtk_text_buffer_get_iter_at_mark (buffer, &start, this_mark);
-	if (operation != NOP) current_char = operation;
+	if (operation != NOP) active_tab->tab_display_last_arith = operation;
 
 	gtk_text_buffer_insert_with_tags_by_name (buffer, &start, \
-		g_strdup_printf ("\t%c\t", current_char), -1, "active_module", NULL);
+		g_strdup_printf ("\t%c\t", active_tab->tab_display_last_arith), -1, "active_module", NULL);
 }
 
 /*
@@ -267,35 +278,34 @@ int display_module_bracket_label_update (int option)
 {
 	GtkTextMark	*this_mark;
 	GtkTextIter	start, end;
-	static int	nr_brackets=0;
 	int		forward_count=2;
 	char 		*string;
 	
 	switch (option) {
 		case ONE_MORE:
-			nr_brackets++;
-			if (nr_brackets > 0) forward_count = 5 + log10(nr_brackets);
+			active_tab->tab_display_brackets++;
+			if (active_tab->tab_display_brackets > 0) forward_count = 5 + log10(active_tab->tab_display_brackets);
 			break;
 		case ONE_LESS:
-			if (nr_brackets > 0) forward_count = 5 + log10(nr_brackets);
-			nr_brackets--;
+			if (active_tab->tab_display_brackets > 0) forward_count = 5 + log10(active_tab->tab_display_brackets);
+			active_tab->tab_display_brackets--;
 			break;
 		case RESET:
-			if (nr_brackets > 0) forward_count = 5 + log10(nr_brackets);
-			nr_brackets = 0;
+			if (active_tab->tab_display_brackets > 0) forward_count = 5 + log10(active_tab->tab_display_brackets);
+			active_tab->tab_display_brackets = 0;
 			break;
 		case GET:
 			/* doing this here to not touch the display */
-			return nr_brackets;
+			return active_tab->tab_display_brackets;
 		case NOP:
-			if (nr_brackets > 0) forward_count = 5 + log10(nr_brackets);
+			if (active_tab->tab_display_brackets > 0) forward_count = 5 + log10(active_tab->tab_display_brackets);
 			break;
 	}
 	if ((prefs.vis_bracket == FALSE) || (prefs.mode != SCIENTIFIC_MODE)) 
-		return nr_brackets;
+		return active_tab->tab_display_brackets;
 	
 	if ((this_mark = gtk_text_buffer_get_mark (buffer, DISPLAY_MARK_BRACKET)) == NULL) \
-		return nr_brackets;
+		return active_tab->tab_display_brackets;
 	gtk_text_buffer_get_iter_at_mark (buffer, &start, this_mark);
 	end = start;
 	gtk_text_iter_forward_chars (&end, forward_count);
@@ -303,18 +313,18 @@ int display_module_bracket_label_update (int option)
 
 	gtk_text_buffer_get_iter_at_mark (buffer, &start, this_mark);
 
-	if (nr_brackets > 0) {
-		string = g_strdup_printf ("\t(%i\t", nr_brackets);
+	if (active_tab->tab_display_brackets > 0) {
+		string = g_strdup_printf ("\t(%i\t", active_tab->tab_display_brackets);
 		gtk_text_buffer_insert_with_tags_by_name (buffer, &start, string, \
 			-1, "active_module", NULL);
 		g_free (string);	
 	}
 	else {
-		nr_brackets = 0;
+		active_tab->tab_display_brackets = 0;
 		gtk_text_buffer_insert_with_tags_by_name (buffer, &start, "\t\t", \
 			-1, "active_module", NULL);
 	}
-	return nr_brackets;
+	return active_tab->tab_display_brackets;
 }
 
 /*
@@ -555,25 +565,25 @@ void display_module_base_delete (char *mark_name, char **text)
 
 void display_change_option (int old_status, int new_status, int opt_group)
 {
-	G_REAL	display_value=0;
+	G_REAL	current_display_value=0;
 	G_REAL 	*stack;
 	int 	counter;
 	
 	switch (opt_group) {
 		case DISPLAY_OPT_NUMBER:
 			update_active_buttons (new_status, current_status.notation);
-			display_value = display_result_get_double (old_status);
+			current_display_value = display_result_get_double (old_status);
 			stack = display_stack_get_yzt_double (old_status);
 			/* In case we convert from decimal to integer, we round display 
 			 * values to integers. As in ftoax we use G_FLOOR, we use it here as
 			 * well.
 			 */
 			if ((old_status == CS_DEC) && (new_status != CS_DEC)) {
-				display_value = G_FLOOR(display_value);
+				current_display_value = G_FLOOR(current_display_value);
 				for (counter = 0; counter < display_result_line; counter++)
 					stack[counter] = G_FLOOR(stack[counter]);
 			}
-			display_result_set_double (display_value, new_status);
+			display_result_set_double (current_display_value, new_status);
 			display_stack_set_yzt_double (stack, new_status);
 			g_free (stack);
 			if ((prefs.vis_number) && (prefs.mode == SCIENTIFIC_MODE)) {

@@ -180,7 +180,7 @@ typedef struct {
 typedef struct {
 	char		*button_name;
 	char 		*display_string;
-	void		(*func)();
+	void		(*func)(GtkToggleButton *button);
 } s_gfunc_map;
 
 typedef struct {
@@ -214,13 +214,39 @@ typedef struct {
 	int		len;
 } s_array;
 
-extern s_array		memory;
 #include "config_file.h"
 extern s_preferences	prefs;
 extern s_constant 	*constant;
 extern s_user_function	*user_function;
-extern s_current_status	current_status;
 #include "calc_basic.h"
-extern ALG_OBJECT	*main_alg;
+
+typedef struct {
+	s_current_status	tab_current_status;
+	s_array			tab_memory;
+	ALG_OBJECT		*tab_main_alg;
+	GtkTextView		*tab_display_view;
+	GtkTextBuffer		*tab_display_buffer;
+	int			tab_display_result_counter;
+	int			tab_display_result_line;
+	G_REAL			tab_display_value;
+	char			tab_display_last_arith;
+	int			tab_display_brackets;
+	GtkBuilder		*tab_view_xml;
+	GtkBuilder		*tab_button_box_xml;
+	GtkBuilder		*tab_dispctrl_xml;
+	GtkBuilder		*tab_classic_view_xml;
+	GtkBuilder		*tab_paper_view_xml;
+} s_tab_context;
+
+extern s_tab_context *active_tab;
+
+#define current_status (active_tab->tab_current_status)
+#define memory (active_tab->tab_memory)
+#define main_alg (active_tab->tab_main_alg)
+#define view_xml (active_tab->tab_view_xml)
+#define button_box_xml (active_tab->tab_button_box_xml)
+#define dispctrl_xml (active_tab->tab_dispctrl_xml)
+#define classic_view_xml (active_tab->tab_classic_view_xml)
+#define paper_view_xml (active_tab->tab_paper_view_xml)
 
 #endif /* galculator.h */

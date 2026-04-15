@@ -67,27 +67,45 @@ void error_message (char *format_string, ...)
  * so if you entered 1+2- and you want to correct to 1+2/ calc_basic would have already
  * calculated 1+2=3 and set the tree to 3-. you would have to make a backup of the tree!*/
 
-void clear ()
+void clear_for_tab (s_tab_context *ctx)
 {
+	s_tab_context *prev_tab = active_tab;
+	if (ctx != NULL) active_tab = ctx;
 	display_result_set (CLEARED_DISPLAY, TRUE, 0.);
 	if (current_status.notation == CS_FORMULA) ui_formula_entry_set ("");
+	active_tab = prev_tab;
+}
+
+void clear ()
+{
+	clear_for_tab (active_tab);
 }
 
 /* backspace. if formula_entry is active, backspace works anyway. but if we
  * press GUI's backspace button this gives the expected result.
  */
 
-void backspace ()
+void backspace_for_tab (s_tab_context *ctx)
 {
+	s_tab_context *prev_tab = active_tab;
+	if (ctx != NULL) active_tab = ctx;
 	if (current_status.notation == CS_FORMULA) ui_formula_entry_backspace();
 	else display_result_backspace(current_status.number);
+	active_tab = prev_tab;
+}
+
+void backspace ()
+{
+	backspace_for_tab (active_tab);
 }
 
 /* clear all: display ("0"), calc_tree ... */
 
-void all_clear ()
+void all_clear_for_tab (s_tab_context *ctx)
 {
-	clear();
+	s_tab_context *prev_tab = active_tab;
+	if (ctx != NULL) active_tab = ctx;
+	clear_for_tab (active_tab);
 	switch (current_status.notation) {
 		case CS_PAN:
 			alg_free(main_alg);
@@ -113,6 +131,12 @@ void all_clear ()
 			
 	}
 	display_module_bracket_label_update (RESET);
+	active_tab = prev_tab;
+}
+
+void all_clear ()
+{
+	all_clear_for_tab (active_tab);
 }
 
 /* axtof: convert string to float 
@@ -518,8 +542,10 @@ void gfunc_f2 (GtkToggleButton *button)
  *	0-9, A-F, ., EE, const, MR
  */
 
-void rpn_stack_lift ()
+void rpn_stack_lift_for_tab (s_tab_context *ctx)
 {
+	s_tab_context *prev_tab = active_tab;
+	if (ctx != NULL) active_tab = ctx;
 	G_REAL	*stack;
 	
 	if ((current_status.notation == CS_RPN) && 
@@ -530,10 +556,18 @@ void rpn_stack_lift ()
 		g_free (stack);
 		current_status.rpn_stack_lift_enabled = FALSE;
 	}
+	active_tab = prev_tab;
 }
 
-void remember_display_values()
+void rpn_stack_lift ()
 {
+	rpn_stack_lift_for_tab (active_tab);
+}
+
+void remember_display_values_for_tab (s_tab_context *ctx)
+{
+	s_tab_context *prev_tab = active_tab;
+	if (ctx != NULL) active_tab = ctx;
 	char 	*stack[3];
 	
     if (prefs.rem_display == TRUE) {
@@ -550,6 +584,12 @@ void remember_display_values()
 			rpn_stack_push (string2double(stack[0], current_status.number));
 		}
 	}
+	active_tab = prev_tab;
+}
+
+void remember_display_values()
+{
+	remember_display_values_for_tab (active_tab);
 }
 
 /*
@@ -851,26 +891,28 @@ void prefs_sep_char_changed (GtkEditable *editable, char *prefs_sep, int number_
  * base etc.
  */
 
-void change_option (int new_status, int opt_group)
+void change_option_for_tab (s_tab_context *ctx, int new_status, int opt_group)
 {
+	s_tab_context *prev_tab = active_tab;
+	if (ctx != NULL) active_tab = ctx;
 	int	old_status;
 	
 	switch (opt_group) {
 		case DISPLAY_OPT_NUMBER:
 			old_status = current_status.number;
-			if (old_status == new_status) return;
+			if (old_status == new_status) goto out;
 			current_status.number = new_status;
 			if (prefs.mode != PAPER_MODE) display_change_option (old_status, new_status, DISPLAY_OPT_NUMBER);
 			break;
 		case DISPLAY_OPT_ANGLE:
 			old_status = current_status.angle;
-			if (old_status == new_status) return;
+			if (old_status == new_status) goto out;
 			current_status.angle = new_status;
 			if (prefs.mode != PAPER_MODE) display_change_option (old_status, new_status, DISPLAY_OPT_ANGLE);
 			break;
 		case DISPLAY_OPT_NOTATION:
 			old_status = current_status.notation;
-			if (old_status == new_status) return;
+			if (old_status == new_status) goto out;
 			current_status.notation = new_status;
 			if (prefs.mode != PAPER_MODE) display_change_option (old_status, new_status, DISPLAY_OPT_NOTATION);
 			break;
@@ -878,6 +920,13 @@ void change_option (int new_status, int opt_group)
 			error_message (_("unknown display option in function \"change_option\""));
 	}
 	current_status.calc_entry_start_new = TRUE;
+out:
+	active_tab = prev_tab;
+}
+
+void change_option (int new_status, int opt_group)
+{
+	change_option_for_tab (active_tab, new_status, opt_group);
 }
 
 /*

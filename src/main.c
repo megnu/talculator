@@ -50,11 +50,26 @@
 #define MASK_NUMLOCK GDK_MOD2_MASK
 
 s_preferences		prefs;
-s_current_status 	current_status = {0, 0, 0, 0, FALSE, FALSE, TRUE};
-s_array				memory;
 s_constant 			*constant;
 s_user_function		*user_function;
-ALG_OBJECT			*main_alg;
+s_tab_context		default_tab_context = {
+	.tab_current_status = {0, 0, 0, 0, FALSE, FALSE, TRUE},
+	.tab_memory = {NULL, 0},
+	.tab_main_alg = NULL,
+	.tab_display_view = NULL,
+	.tab_display_buffer = NULL,
+	.tab_display_result_counter = 0,
+	.tab_display_result_line = 0,
+	.tab_display_value = 0,
+	.tab_display_last_arith = ' ',
+	.tab_display_brackets = 0,
+	.tab_view_xml = NULL,
+	.tab_button_box_xml = NULL,
+	.tab_dispctrl_xml = NULL,
+	.tab_classic_view_xml = NULL,
+	.tab_paper_view_xml = NULL
+};
+s_tab_context		*active_tab = &default_tab_context;
 
 void print_usage ()
 {

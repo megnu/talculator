@@ -483,7 +483,11 @@
               </packing>
             </child>
             <child>
-              <placeholder/>
+              <object class="GtkNotebook" id="tabs_notebook">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="scrollable">True</property>
+              </object>
             </child>
           </object>
         </child>

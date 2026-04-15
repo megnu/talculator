@@ -30,8 +30,11 @@ void statusbar_init (GtkWidget *a_parent_widget);
 G_REAL error_unsupported_inv (G_REAL dummy);
 G_REAL error_unsupported_hyp (G_REAL dummy);
 void error_message (char *format_string, ...);
+void clear_for_tab (s_tab_context *ctx);
 void clear ();
+void backspace_for_tab (s_tab_context *ctx);
 void backspace ();
+void all_clear_for_tab (s_tab_context *ctx);
 void all_clear ();
 
 G_REAL axtof (char *bin_string, int base, int nr_bits, gboolean is_signed);
@@ -63,8 +66,10 @@ void gfunc_f1 (GtkToggleButton *button);
 void gfunc_f2 (GtkToggleButton *button);
 
 void rpn_stack_lift ();
+void rpn_stack_lift_for_tab (s_tab_context *ctx);
 
 void remember_display_values();
+void remember_display_values_for_tab (s_tab_context *ctx);
 
 G_REAL string2double (char *string, int number_base);
 
@@ -89,6 +94,7 @@ char get_sep_char (int number_base);
 void prefs_sep_char_changed (GtkEditable *editable, char *prefs_sep, int number_base);
 
 void change_option (int new_status, int opt_group);
+void change_option_for_tab (s_tab_context *ctx, int new_status, int opt_group);
 
 void set_window_size_minimal();
 
