@@ -106,6 +106,10 @@ void all_clear_for_tab (s_tab_context *ctx)
 	s_tab_context *prev_tab = active_tab;
 	if (ctx != NULL) active_tab = ctx;
 	clear_for_tab (active_tab);
+	if (active_tab && active_tab->tab_pan_expr) {
+		g_string_truncate (active_tab->tab_pan_expr, 0);
+		active_tab->tab_pan_expr_compatible = TRUE;
+	}
 	switch (current_status.notation) {
 		case CS_PAN:
 			alg_free(main_alg);

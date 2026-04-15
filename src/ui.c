@@ -314,6 +314,8 @@ static s_tab_context *ui_tab_context_new ()
 	ctx->tab_display_value = 0;
 	ctx->tab_display_last_arith = ' ';
 	ctx->tab_display_brackets = 0;
+	ctx->tab_pan_expr = g_string_new ("");
+	ctx->tab_pan_expr_compatible = TRUE;
 	return ctx;
 }
 
@@ -328,6 +330,7 @@ static void ui_tab_context_free (s_tab_context *ctx)
 	if (ctx->tab_view_xml && (ctx->tab_view_xml != ctx->tab_classic_view_xml) && (ctx->tab_view_xml != ctx->tab_paper_view_xml))
 		g_object_unref (ctx->tab_view_xml);
 	if (ctx->tab_memory.data) g_free (ctx->tab_memory.data);
+	if (ctx->tab_pan_expr) g_string_free (ctx->tab_pan_expr, TRUE);
 	g_free (ctx);
 }
 

@@ -80,6 +80,95 @@ static void engine_context_from_ui_state (talc_engine_context *ctx)
 	ctx->formula_notation = (current_status.notation == CS_FORMULA);
 }
 
+static gboolean pan_expr_should_track_with_engine (void)
+{
+	if (!active_tab || !calc_engine) return FALSE;
+	if (current_status.notation != CS_PAN) return FALSE;
+	if (current_status.number != CS_DEC) return FALSE;
+	return talc_engine_backend_get (calc_engine) == TALC_ENGINE_BACKEND_LIBQALCULATE;
+}
+
+static gboolean pan_expr_is_supported_operation (char operation)
+{
+	switch (operation) {
+	case '+':
+	case '-':
+	case '*':
+	case '/':
+	case '^':
+	case '(':
+	case ')':
+		return TRUE;
+	default:
+		return FALSE;
+	}
+}
+
+static void pan_expr_reset (void)
+{
+	if (!active_tab || !active_tab->tab_pan_expr) return;
+	g_string_truncate (active_tab->tab_pan_expr, 0);
+	active_tab->tab_pan_expr_compatible = TRUE;
+}
+
+static void pan_expr_append_current_operand (void)
+{
+	char *operand;
+
+	if (!active_tab || !active_tab->tab_pan_expr) return;
+	operand = display_result_get ();
+	if (!operand) return;
+	g_string_append (active_tab->tab_pan_expr, operand);
+	g_free (operand);
+}
+
+static void pan_expr_record_operation (char operation)
+{
+	if (!pan_expr_should_track_with_engine ()) {
+		pan_expr_reset ();
+		return;
+	}
+	if (!active_tab->tab_pan_expr) {
+		active_tab->tab_pan_expr = g_string_new ("");
+		active_tab->tab_pan_expr_compatible = TRUE;
+	}
+
+	if (operation == '(') {
+		g_string_append_c (active_tab->tab_pan_expr, '(');
+		return;
+	}
+
+	pan_expr_append_current_operand ();
+	if (operation == '=') return;
+
+	if (!pan_expr_is_supported_operation (operation)) {
+		active_tab->tab_pan_expr_compatible = FALSE;
+		return;
+	}
+
+	g_string_append_c (active_tab->tab_pan_expr, operation);
+}
+
+static gboolean pan_expr_evaluate_equal (G_REAL *out_value)
+{
+	talc_engine_context engine_ctx;
+	talc_engine_eval_result eval_result = { TRUE, 0 };
+
+	if (!out_value) return FALSE;
+	if (!pan_expr_should_track_with_engine ()) return FALSE;
+	if (!active_tab || !active_tab->tab_pan_expr) return FALSE;
+	if (!active_tab->tab_pan_expr_compatible) return FALSE;
+	if (active_tab->tab_pan_expr->len <= 0) return FALSE;
+
+	engine_context_from_ui_state (&engine_ctx);
+	if (!talc_engine_eval_expression_numeric (calc_engine, &engine_ctx,
+		active_tab->tab_pan_expr->str, &eval_result)) return FALSE;
+	if (eval_result.error) return FALSE;
+
+	*out_value = eval_result.value;
+	return TRUE;
+}
+
 /* File */
 
 void
@@ -245,6 +334,8 @@ on_operation_button_clicked(GtkToggleButton *button, gpointer user_data)
     /* notation specific interface code */
     
     if (current_status.notation == CS_PAN) {
+        gboolean use_engine_result = FALSE;
+        G_REAL engine_value = 0;
         /* '(' doesn't pay respect to allow_arith_op but sets it: a+((((((b-...
          * ')' pays respect to allow_arith_op but doesn't set it: ...+a)))))-...
          * '=' pays respect to allow_arith_op but doesn't set it: ...+a=
@@ -256,13 +347,21 @@ on_operation_button_clicked(GtkToggleButton *button, gpointer user_data)
          */
         if (((current_token.operation == '(') || current_status.allow_arith_op) && \
             ((current_token.operation != ')') || (display_module_bracket_label_update (GET) > 0))) {
+            pan_expr_record_operation (current_token.operation);
             return_value = alg_add_token (&main_alg, current_token);
-            display_result_set_double (return_value, current_status.number);
+            if ((current_token.operation == '=') &&
+                pan_expr_evaluate_equal (&engine_value)) {
+                display_result_set_double (engine_value, current_status.number);
+                use_engine_result = TRUE;
+            }
+            if (!use_engine_result)
+                display_result_set_double (return_value, current_status.number);
             display_module_arith_label_update (current_token.operation);
             
             /* setting of allow_arith_op. the missing breaks are wanted */
             switch (current_token.operation) {
                 case '=':
+                    pan_expr_reset ();
                     display_module_bracket_label_update (RESET);
                     break;
                 case ')':
