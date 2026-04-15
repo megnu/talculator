@@ -52,6 +52,7 @@
 s_preferences		prefs;
 s_constant 			*constant;
 s_user_function		*user_function;
+talc_engine		*calc_engine = NULL;
 s_tab_context		default_tab_context = {
 	.tab_current_status = {0, 0, 0, 0, FALSE, FALSE, TRUE},
 	.tab_memory = {NULL, 0},
@@ -190,6 +191,8 @@ int main (int argc, char *argv[])
 		return EXIT_SUCCESS;
 	}
 
+	calc_engine = talc_engine_new (TALC_ENGINE_BACKEND_LEGACY);
+	
     /* get config file. 
      * 
      * at first we check if there is env variable GALCULATOR_CONFIG set. If not,

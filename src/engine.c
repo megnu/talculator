@@ -8,6 +8,7 @@
 #include "engine.h"
 
 #include <string.h>
+#include "flex_parser.h"
 
 struct talc_engine {
 	talc_engine_backend backend;
@@ -82,4 +83,34 @@ const char *talc_engine_last_error (const talc_engine *engine)
 {
 	if (!engine || !engine->last_error) return "";
 	return engine->last_error;
+}
+
+gboolean talc_engine_eval_expression_numeric (talc_engine *engine,
+	const talc_engine_context *ctx,
+	const char *expression,
+	talc_engine_eval_result *out_result)
+{
+	s_flex_parser_result parsed;
+
+	(void) ctx;
+	if (!engine || !out_result) return FALSE;
+	if (!expression) {
+		talc_engine_set_error (engine, "NULL expression");
+		return FALSE;
+	}
+
+	switch (engine->backend) {
+	case TALC_ENGINE_BACKEND_LEGACY:
+		parsed = flex_parser (expression);
+		out_result->error = parsed.error;
+		out_result->value = parsed.value;
+		talc_engine_set_error (engine, parsed.error ? "Parse/evaluation error" : "");
+		return TRUE;
+	case TALC_ENGINE_BACKEND_LIBQALCULATE:
+		talc_engine_set_error (engine, "libqalculate backend not wired yet");
+		return FALSE;
+	default:
+		talc_engine_set_error (engine, "Unknown backend");
+		return FALSE;
+	}
 }

@@ -218,6 +218,8 @@ typedef struct {
 extern s_preferences	prefs;
 extern s_constant 	*constant;
 extern s_user_function	*user_function;
+#include "engine.h"
+extern talc_engine	*calc_engine;
 #include "calc_basic.h"
 
 typedef struct {

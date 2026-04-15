@@ -70,6 +70,16 @@ static gboolean cycle_tab_from_key (GdkEventKey *key_event)
     return TRUE;
 }
 
+static void engine_context_from_ui_state (talc_engine_context *ctx)
+{
+	if (!ctx) return;
+	ctx->mode = (talc_engine_mode) prefs.mode;
+	ctx->base = (talc_engine_base) current_status.number;
+	ctx->angle = (talc_engine_angle) current_status.angle;
+	ctx->rpn_notation = (current_status.notation == CS_RPN);
+	ctx->formula_notation = (current_status.notation == CS_FORMULA);
+}
+
 /* File */
 
 void
@@ -119,6 +129,10 @@ on_main_window_destroy               (GtkWidget*         widget,
 
     g_object_unref(main_window_xml);
     main_window_xml = NULL;
+    if (calc_engine) {
+        talc_engine_free (calc_engine);
+        calc_engine = NULL;
+    }
 
     gtk_main_quit();
 }
@@ -1748,12 +1762,18 @@ gboolean on_button_press_event (GtkWidget *widget, GdkEventButton *event, gpoint
 
 void on_formula_entry_activate (GtkEntry *entry, gpointer user_data)
 {
-    s_flex_parser_result     result;
+    talc_engine_context      engine_ctx;
+    talc_engine_eval_result  eval_result = { TRUE, 0 };
     
     ui_bind_active_tab_from_widget (GTK_WIDGET(entry));
-    result = flex_parser(gtk_entry_get_text(entry));
-    ui_formula_entry_state (result.error);
-    if (!result.error) display_result_set_double (result.value, current_status.number);
+    engine_context_from_ui_state (&engine_ctx);
+    if (!calc_engine ||
+        !talc_engine_eval_expression_numeric (calc_engine, &engine_ctx,
+            gtk_entry_get_text(entry), &eval_result)) {
+        eval_result.error = TRUE;
+    }
+    ui_formula_entry_state (eval_result.error);
+    if (!eval_result.error) display_result_set_double (eval_result.value, current_status.number);
 }
 
 void on_formula_entry_changed (GtkEditable *editable, gpointer user_data)
@@ -1764,7 +1784,8 @@ void on_formula_entry_changed (GtkEditable *editable, gpointer user_data)
 
 void on_paper_entry_activate (GtkWidget *activated_widget, gpointer user_data)
 {
-    s_flex_parser_result     result;
+    talc_engine_context      engine_ctx;
+    talc_engine_eval_result  eval_result = { TRUE, 0 };
     GtkEntry                *entry;
     GtkTreeView                *tree_view;
     GtkListStore            *paper_store;
@@ -1780,7 +1801,12 @@ void on_paper_entry_activate (GtkWidget *activated_widget, gpointer user_data)
     
     if (strcmp(gtk_entry_get_text(entry), "") == 0) return;
     /* result.error result.value */
-    result = flex_parser(gtk_entry_get_text(entry));
+    engine_context_from_ui_state (&engine_ctx);
+    if (!calc_engine ||
+        !talc_engine_eval_expression_numeric (calc_engine, &engine_ctx,
+            gtk_entry_get_text(entry), &eval_result)) {
+        eval_result.error = TRUE;
+    }
     
     /* add to tree view */
     tree_view = GTK_TREE_VIEW(gtk_builder_get_object (view_xml, "paper_treeview"));
@@ -1791,15 +1817,15 @@ void on_paper_entry_activate (GtkWidget *activated_widget, gpointer user_data)
     g_free(escaped_input_string);
     
     gtk_list_store_append (paper_store, &iter);
-    result_string = get_display_number_string(result.value, current_status.number);
-    markup_result_string = g_markup_printf_escaped ("<b>%s</b>", result_string);
-    
-    g_free(result_string);
-    if (result.error)
+    if (eval_result.error)
         gtk_list_store_set (paper_store, &iter, 0, "Syntax Error", 1, 1.0, 2, "red", -1);
-    else
+    else {
+        result_string = get_display_number_string(eval_result.value, current_status.number);
+        markup_result_string = g_markup_printf_escaped ("<b>%s</b>", result_string);
         gtk_list_store_set (paper_store, &iter, 0, markup_result_string, 1, 1.0, 2, NULL, -1);
-    g_free(markup_result_string);
+        g_free (result_string);
+        g_free (markup_result_string);
+    }
     
     /* scroll to last row */
     last_row_path = gtk_tree_model_get_path (gtk_tree_view_get_model(tree_view), &iter);
