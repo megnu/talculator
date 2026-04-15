@@ -51,7 +51,6 @@ static void on_tabs_switch_page (GtkNotebook *notebook, GtkWidget *page, guint p
 static void ui_tab_build_content (s_tab_context *ctx, GtkWidget *page);
 static gchar *ui_tab_default_title_new ();
 static void ui_tabs_refresh_actions ();
-static guint ui_tab_title_counter = 1;
 #define UI_MAX_TABS 6
 
 /* active_buttons. bit mask, in which modes the corresponding button is active.
@@ -449,7 +448,43 @@ GtkWidget *ui_main_window_create ()
 
 static gchar *ui_tab_default_title_new ()
 {
-	return g_strdup_printf ("%s %u", _("Tab"), ui_tab_title_counter++);
+	GtkNotebook *notebook;
+	gboolean used[UI_MAX_TABS + 1] = { FALSE };
+	gchar *tab_prefix;
+	guint i;
+
+	notebook = ui_tabs_get_notebook ();
+	tab_prefix = g_strdup_printf ("%s ", _("Tab"));
+
+	if (notebook) {
+		gint n_pages = gtk_notebook_get_n_pages (notebook);
+		for (i = 0; i < (guint) n_pages; i++) {
+			GtkWidget *page = gtk_notebook_get_nth_page (notebook, i);
+			GtkWidget *label = gtk_notebook_get_tab_label (notebook, page);
+			if (label && GTK_IS_LABEL (label)) {
+				const gchar *text = gtk_label_get_text (GTK_LABEL (label));
+				if (text && g_str_has_prefix (text, tab_prefix)) {
+					const gchar *num_text = text + strlen (tab_prefix);
+					gchar *endptr = NULL;
+					gulong nr = g_ascii_strtoull (num_text, &endptr, 10);
+					if (endptr && *endptr == '\0' && nr >= 1 && nr <= UI_MAX_TABS)
+						used[nr] = TRUE;
+				}
+			}
+		}
+	}
+
+	for (i = 1; i <= UI_MAX_TABS; i++) {
+		if (!used[i]) {
+			gchar *title = g_strdup_printf ("%s %u", _("Tab"), i);
+			g_free (tab_prefix);
+			return title;
+		}
+	}
+
+	g_free (tab_prefix);
+	return g_strdup_printf ("%s %d", _("Tab"),
+		notebook ? gtk_notebook_get_n_pages (notebook) + 1 : 1);
 }
 
 static void ui_tabs_refresh_actions ()
