@@ -3,8 +3,7 @@ talculator
 
 a GTK 2  / GTK 3 based scientific calculator 
 
-This project is a fork of galculator.
-Fork upstream: https://github.com/megnu/talculator
+This project is a fork of galculator, supporting tabs for multiple instances.
 
 For installation information see the INSTALL file.
 For a list of shortcuts, see doc/shortcuts
@@ -13,10 +12,6 @@ Information on Formula Entry mode can be found below.
 In general, galculator's homepage galculator.sf.net is the most reliable
 and up2date source of information.
 For talculator-specific development, see https://github.com/megnu/talculator.
-
-RPMs: a spec file is included (talculator.spec). Thanks to Victor. Or
-download at http://dag.wieers.com/packages/talculator/ (thanks to Dag Wieers) 
-DEBs: talculator is in DEBIAN/unstable. Thanks to seb128.
 
 Formula Entry Mode
 ==================

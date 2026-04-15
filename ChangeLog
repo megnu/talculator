@@ -1,4 +1,4 @@
-2026-04-15 talculator maintainers
+2026-04-15 Jared (github.com/megnu)
 	* Forked from galculator and rebranded as talculator
 	* Upstream repository: https://github.com/megnu/talculator
 	* Ported tab support from the earlier tabbed fork series
