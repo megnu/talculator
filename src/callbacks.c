@@ -266,7 +266,7 @@ on_operation_button_clicked(GtkToggleButton *button, gpointer user_data)
             rpn_stack_push (current_token.number);
             stack = rpn_stack_get (RPN_FINITE_STACK);
             display_stack_set_yzt_double (stack, current_status.number);
-            free (stack);
+            g_free (stack);
             /* ENT is a stack lift disabling button */
             current_status.rpn_stack_lift_enabled = FALSE;
             /* display line isn't cleared! */
@@ -275,7 +275,7 @@ on_operation_button_clicked(GtkToggleButton *button, gpointer user_data)
             display_result_set_double (rpn_stack_operation (current_token), current_status.number);
             stack = rpn_stack_get (RPN_FINITE_STACK);
             display_stack_set_yzt_double (stack, current_status.number);
-            free (stack);
+            g_free (stack);
             /* all other operations are stack lift enabling */
             current_status.rpn_stack_lift_enabled = TRUE;
         }

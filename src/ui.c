@@ -857,13 +857,20 @@ static void set_table_child_tip_accel (GtkWidget* button, gpointer user_data)
 	/* get all accelerators (== closures) connected to this button */
 	closure_list = gtk_widget_list_accel_closures (button);
 	if (!closure_list) return;
-	if (!closure_list->data) return;
+	if (!closure_list->data) {
+		g_list_free (closure_list);
+		return;
+	}
 	/* we head for first closure */
 	accel_group = gtk_accel_group_from_accel_closure(closure_list->data);
-	if (!accel_group) return;
+	if (!accel_group) {
+		g_list_free (closure_list);
+		return;
+	}
 	d[0] = (gpointer) closure_list->data;
 	d[1] = (gpointer) button;
 	gtk_accel_group_find(accel_group, (GtkAccelGroupFindFunc)set_table_child_tip_accel_finder, d);
+	g_list_free (closure_list);
 }
 
 /* set_all_dispctrl_buttons_property. calls func with argument data for 
