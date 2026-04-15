@@ -12,6 +12,7 @@ bin_PROGRAMS = talculator
 
 talculator_SOURCES = \
 	main.c talculator.h \
+	engine.c engine.h \
 	math_functions.c math_functions.h \
 	display.c display.h \
 	general_functions.c general_functions.h \
