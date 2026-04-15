@@ -11,7 +11,7 @@
 	* 'make clean' removes auto-generated src/flex-parser.c 
 
 ##############################################
-# 2015-09-05 talculator 2.1.4 released       #
+# 2015-09-05 galculator 2.1.4 released       #
 ##############################################
 
 2015-09-05 Simon Flöry <simon.floery@rechenraum.com>
@@ -40,7 +40,7 @@
 		(fixes sf.net bug #104, thanks to Campbell Barton for reporting)
 
 ##############################################
-# 2013-03-13 talculator 2.1.3 released       #
+# 2013-03-13 galculator 2.1.3 released       #
 ##############################################
 
 2014-03-07 Simon Flöry <simon.floery@rechenraum.com>
@@ -66,7 +66,7 @@
 		reporting).
 
 ##############################################
-# 2013-04-28 talculator 2.1.2 released       #
+# 2013-04-28 galculator 2.1.2 released       #
 ##############################################
 
 2013-04-28 Simon Flöry <simon.floery@rechenraum.com>
@@ -75,7 +75,7 @@
 	* updated German translations
 
 ##############################################
-# 2013-04-27 talculator 2.1.1 released       #
+# 2013-04-27 galculator 2.1.1 released       #
 ##############################################
 
 2013-03-14 Simon Flöry <simon.floery@rechenraum.com>
@@ -93,7 +93,7 @@
 	* display.c - In display_result_feed, allow pasting of e/E in hex mode
 
 ##############################################
-# 2013-02-11 talculator 2.1 released         #
+# 2013-02-11 galculator 2.1 released         #
 ##############################################
 
 2013-02-11 Simon Flöry <simon.floery@rechenraum.com>
@@ -127,7 +127,7 @@
 		contributing, fixes sf.net #86)
 
 ##############################################
-# 2012-10-15 talculator 2.0.1 released       #
+# 2012-10-15 galculator 2.0.1 released       #
 ##############################################
 
 2012-12-15 Simon Flöry <simon.floery@rechenraum.com>
@@ -147,7 +147,7 @@
 	* applied patch to update spec file for RPM (thanks to Dwigth Engen)
 
 ##############################################
-# 2009-10-15 talculator 2.0 released         #
+# 2009-10-15 galculator 2.0 released         #
 ##############################################
 
 2012-10-13 Simon Flöry <simon.floery@rechenraum.com>
@@ -179,26 +179,26 @@
 	* added zh_TW locale
 
 ##############################################
-# 2009-02-08 talculator 1.3.4 released       #
+# 2009-02-08 galculator 1.3.4 released       #
 ##############################################
 
 2009-02-08 Simon Flöry <chimaira@users.sf.net>
 	* src/display.c: fixed display_result_toggle_sign for EE (closes sf.net
 		#2570283).
-	* pixmaps: renamed talculator_48x48.png to talculator.png (closes sf.net
+	* pixmaps: renamed galculator_48x48.png to galculator.png (closes sf.net
 		#2496411, thanks to Marco for reporting)
 	* src/flex_parser.l: parser allows both '.' and ',' as decimal point
 		(closes Debian BTS #513232, thanks to Mario for reporting)
 	* applied 01_hildon_interface.patch from ubuntu (closes sf.net #1831261,
 		thanks to Marco for reporting)
-	* pixmaps: added talculator.xpm
+	* pixmaps: added galculator.xpm
 
 ##############################################
-# 2009-01-11 talculator 1.3.3 released       #
+# 2009-01-11 galculator 1.3.3 released       #
 ##############################################
 
 2009-01-11 Simon Flöry <chimaira@users.sf.net>
-	* talculator.desktop.in: new version (closes sf.net #2496411, 
+	* galculator.desktop.in: new version (closes sf.net #2496411, 
 		thanks to Marco)
 	* src/general_functions.c: workaround for numerical issues (closes sf.net
 		#2496461, Debian BTS #459456)
@@ -206,14 +206,14 @@
 		(thanks to Christian for reporting)
 
 ##############################################
-# 2009-01-06 talculator 1.3.2 released       #
+# 2009-01-06 galculator 1.3.2 released       #
 ##############################################
 
 2009-01-06 Simon Flöry <chimaira@users.sf.net>
-	* talculator.desktop.in: use talculator icon (patch by Omair, thanks; fixes
+	* galculator.desktop.in: use galculator icon (patch by Omair, thanks; fixes
 		also Debian BTS #487177)
-	* src/Makefile.am, pixmaps/Makefile.am: put talculator icon in pixmaps
-		and not in pixmaps/talculator (patch by Omair, thanks)
+	* src/Makefile.am, pixmaps/Makefile.am: put galculator icon in pixmaps
+		and not in pixmaps/galculator (patch by Omair, thanks)
 	* ui/main_frame.glade: about icon (patch by Omair, thanks)
 	* src/main.c: show main window after it was created (fixes sf.net #2286315,
 		#1821281, thanks to Paul for reporting)
@@ -233,7 +233,7 @@
 		manual (thanks to Ferdinand)
 		
 ##############################################
-# 2007-09-28 talculator 1.3.1-win32 released #
+# 2007-09-28 galculator 1.3.1-win32 released #
 ##############################################
 
 2007-09-28 Simon Flöry <chimaira@users.sf.net>
@@ -244,7 +244,7 @@
 		requirement (closes sf.net 1804428,	thanks to Michael for reporting)
 
 ########################################
-# 2007-09-27 talculator 1.3.1 released #
+# 2007-09-27 galculator 1.3.1 released #
 ########################################
 
 2007-09-27 Simon Flöry <chimaira@users.sf.net>
@@ -258,7 +258,7 @@
 	* src/ui.c: paper mode entry gets keyboard focus
 
 ########################################
-# 2007-09-05 talculator 1.3.0 released #
+# 2007-09-05 galculator 1.3.0 released #
 ########################################
 
 2007-09-05 Simon Flöry <chimaira@users.sf.net>
@@ -274,7 +274,7 @@
 	* display.c: display value is now stored in double as well which gives
 		us much better precision. closes sf.net 1479279
 	* flex_parser.l: fixed some compiler warnings
-	* pixmaps/*: created a basic icon for talculator. closes sf.net 1726031 
+	* pixmaps/*: created a basic icon for galculator. closes sf.net 1726031 
 		and sf.net 1702178
 	* po/ru.po: added Russian locale, closes sf.net 1736900
 
@@ -336,14 +336,14 @@
 	* src/*.[ch]: 2004 replaced by 2005
 
 ########################################
-# 2005-05-09 talculator 1.2.5 released #
+# 2005-05-09 galculator 1.2.5 released #
 ########################################
 
 2005-05-06 Simon Flöry <chimaira@users.sf.net>
 	* ui/scientific_buttons.glade: hex buttons with shift modifiers
 
 2005-05-05 Simon Flöry <chimaira@users.sf.net>
-	* src/Makefile.am: added talculator_LDFLAGS = -export-dynamic
+	* src/Makefile.am: added galculator_LDFLAGS = -export-dynamic
 		(thanks to Jim)
 
 2004-11-09 Simon Flöry <chimaira@users.sf.net>
@@ -360,7 +360,7 @@
 	* callbacks.c: on_paste_activate check for NULL pointer (small bugfix)
 
 ########################################
-# 2004-10-21 talculator 1.2.4 released #
+# 2004-10-21 galculator 1.2.4 released #
 ########################################
 
 2004-10-19 Simon Flöry <chimaira@users.sf.net>
@@ -401,7 +401,7 @@
 	* added polish translation. sf.net #971335 (thanks to michal)
 
 ########################################
-# 2004-05-23 talculator 1.2.3 released #
+# 2004-05-23 galculator 1.2.3 released #
 ########################################
 
 2004-05-23 Simon Flöry <chimaira@users.sf.net>
@@ -411,7 +411,7 @@
 	
 2004-05-22 Simon Flöry <chimaira@users.sf.net>
 	* ui/main_frame.glade: fixed "destroy" signal bug (thanks to andrew)
-	* talculator.desktop.in: updates (thanks to dag)
+	* galculator.desktop.in: updates (thanks to dag)
 	* src/ui.c, src/callbacks.c: disable MR and M+ button until there is 
 		sth to display (thanks to christian)
 
@@ -419,7 +419,7 @@
 	* updated ja.po and pt_BR.po
 
 ########################################
-# 2004-04-01 talculator 1.2.2 released #
+# 2004-04-01 galculator 1.2.2 released #
 ########################################
 
 2004-04-01 Simon Flöry <chimaira@users.sf.net>
@@ -431,7 +431,7 @@
 	* updated ja.po, de.po
 
 ########################################
-# 2003-03-20 talculator 1.2.1 released #
+# 2003-03-20 galculator 1.2.1 released #
 ########################################
 
 2004-03-20 Simon Flöry <chimaira@users.sf.net>
@@ -456,7 +456,7 @@
 	* pt_BR.po update
 
 ########################################
-# 2004-03-11 talculator 1.2.0 released #
+# 2004-03-11 galculator 1.2.0 released #
 ########################################
 
 2004-03-11 Simon Flöry <chimaira@users.sf.net>
@@ -494,13 +494,13 @@
 	* patch: lower hex chars to upper chars (thanks to Remi)
 	
 2003-11-15 Simon Flöry <chimaira@users.sf.net>
-	* patch talculator.spec.in (thanks to Filippo)
+	* patch galculator.spec.in (thanks to Filippo)
 
 2003-11-14 Simon Flöry <chimaira@users.sf.net>
 	* fixed sf.net #841527 (typo in de.po)
 
 ########################################
-# 2003-11-10 talculator 1.1.4 released #
+# 2003-11-10 galculator 1.1.4 released #
 ########################################
 
 2003-11-09 Simon Flöry <chimaira@users.sf.net>
@@ -535,7 +535,7 @@
 	* src/calc_basic.c: finite/infinite stack, swap x y, rolldown stack
 
 ########################################
-# 2003-08-31 talculator 1.1.3 released #
+# 2003-08-31 galculator 1.1.3 released #
 ########################################
 
 2003-08-31 Simon Flöry <chimaira@users.sf.net>
@@ -571,7 +571,7 @@
 	* src/calc_basic.c: percent operation
 
 ########################################
-# 2003-07-06 talculator 1.1.2 released #
+# 2003-07-06 galculator 1.1.2 released #
 ########################################
 
 2003-07-05 Simon Flöry <chimaira@users.sf.net>
@@ -596,7 +596,7 @@
 	message.
 
 ########################################
-# 2003-06-23 talculator 1.1.1 released #
+# 2003-06-23 galculator 1.1.1 released #
 ########################################
 
 2003-06-23 Simon Flöry <chimaira@users.sf.net>
@@ -608,7 +608,7 @@
 	* src/general_functions.c: position_menu works with GTK 2.0 again
 
 ########################################
-# 2003-06-22 talculator 1.1.0 released #
+# 2003-06-22 galculator 1.1.0 released #
 ########################################
 
 2003-06-18  Simon Flöry <chimaira@users.sf.net>
@@ -629,12 +629,12 @@
 30-04-2003 added KP_Delete and KP_Separator to key_snooper
 	removed statusbar from GUI
 
-24-04-2003 talculator 1.0 released
+24-04-2003 galculator 1.0 released
 ==================================
 
 21-04-2003 fixed resizing problems with last_arith and bracket modules
 20-04-2003 useless buttons are greyed out depending on current mode
-	added Categories to talculator.desktop
+	added Categories to galculator.desktop
 	GUI updates (first small step towards HIG)
 	use default/custom button font
 19-04-2003 it's possible to save the display value on exit
@@ -643,7 +643,7 @@
 03-04-2003 in RPN mode enter button gets an "ENT" label
 30-03-2003 fixed not working sqrt button
 
-29-03-2003 talculator 1.0rc1 released
+29-03-2003 galculator 1.0rc1 released
 =====================================
 
 29-03-2003 fixed bug #186694
@@ -673,7 +673,7 @@
 24-01-2003 fixed 0%0 bug
 23-01-2003 fixed negative number conversion bug (conversion.patch)
 
-19-01-2003 talculator 0.9 released
+19-01-2003 galculator 0.9 released
 ==================================
 
 17-01-2003 fixed grave calc_tree bug
@@ -694,7 +694,7 @@
 	the INV and HYP button can't be activated both at the same time (there is no asinh!)
 	added mod and lsh operation
 
-14-11-2002 talculator 0.8 released
+14-11-2002 galculator 0.8 released
 ==================================
 
 05-11-2002 display ok and working
@@ -705,5 +705,5 @@
 10-10-2002 added RPN support
 03-10-2002 added spec and gnome menu file [thanks to Victor (gbs@tnss.kharkov.ua)]
 
-02-10-2002 initial talculator 0.7 release
+02-10-2002 initial galculator 0.7 release
 =========================================

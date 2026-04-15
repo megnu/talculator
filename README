@@ -10,8 +10,9 @@ For installation information see the INSTALL file.
 For a list of shortcuts, see doc/shortcuts
 There is a short man page (man talculator)
 Information on Formula Entry mode can be found below.
-In general, talculator's homepage https://github.com/megnu/talculator is the most reliable
+In general, galculator's homepage galculator.sf.net is the most reliable
 and up2date source of information.
+For talculator-specific development, see https://github.com/megnu/talculator.
 
 RPMs: a spec file is included (talculator.spec). Thanks to Victor. Or
 download at http://dag.wieers.com/packages/talculator/ (thanks to Dag Wieers) 
@@ -155,5 +156,5 @@ Shortcuts
 
 doc/shortcuts
 
-http://talculator.sf.net
+http://galculator.sf.net
 simon floery (simon.floery@rechenraum.com)
