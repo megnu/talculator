@@ -1,0 +1,43 @@
+# Local tool state
+.codex
+
+# makepkg artifacts
+/pkg/
+/src/talculator-*/
+/*.pkg.tar.zst
+/*.pkg.tar.zst.sig
+/.SRCINFO
+
+# Autotools / configure generated files (top-level)
+/aclocal.m4
+/autom4te.cache/
+/compile
+/config.guess
+/config.sub
+/config.h
+/config.log
+/config.status
+/configure
+/depcomp
+/install-sh
+/libtool
+/ltmain.sh
+/m4/
+/missing
+/stamp-h1
+/ylwrap
+/Makefile
+
+# Generated Makefiles in subdirs
+/doc/Makefile
+/pixmaps/Makefile
+/po/Makefile
+/src/Makefile
+/ui/Makefile
+
+# Generated files in src build dir
+/src/.deps/
+/src/.libs/
+/src/flex_parser.c
+/src/*.o
+/src/galculator
