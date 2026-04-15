@@ -46,6 +46,10 @@ PKG_CHECK_MODULES(GTK, [$pkg_modules])
 AC_SUBST(GTK_CFLAGS)
 AC_SUBST(GTK_LIBS)
 
+PKG_CHECK_MODULES(LIBQALCULATE, [libqalculate >= 5.0])
+AC_SUBST(LIBQALCULATE_CFLAGS)
+AC_SUBST(LIBQALCULATE_LIBS)
+
 dnl
 dnl double- or quad-precision arithmetics
 dnl
@@ -69,7 +73,6 @@ dnl
 AM_PROG_LEX
 
 AM_PROG_CC_C_O
-AM_PROG_CXX_C_O
 
 GETTEXT_PACKAGE=talculator
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE, "$GETTEXT_PACKAGE", [Name of gettext package])

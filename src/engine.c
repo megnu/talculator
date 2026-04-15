@@ -109,7 +109,7 @@ gboolean talc_engine_eval_expression_numeric (talc_engine *engine,
 		talc_engine_set_error (engine, parsed.error ? "Parse/evaluation error" : "");
 		return TRUE;
 	case TALC_ENGINE_BACKEND_LIBQALCULATE:
-		if (talc_qalc_bridge_eval_numeric (expression, out_result, &bridge_error)) {
+		if (talc_qalc_bridge_eval_numeric (ctx, expression, out_result, &bridge_error)) {
 			talc_engine_set_error (engine, (out_result->error && bridge_error) ? bridge_error : "");
 			return TRUE;
 		}

@@ -13,7 +13,8 @@ extern "C" {
 
 gboolean talc_qalc_bridge_available (void);
 
-gboolean talc_qalc_bridge_eval_numeric (const char *expression,
+gboolean talc_qalc_bridge_eval_numeric (const talc_engine_context *ctx,
+	const char *expression,
 	talc_engine_eval_result *out_result,
 	const char **out_error);
 

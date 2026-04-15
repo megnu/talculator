@@ -25,13 +25,17 @@ talculator_SOURCES = \
 	g_real.h
 
 talculator_CFLAGS = \
-	$(GTK_CFLAGS)
+	$(GTK_CFLAGS) \
+	$(LIBQALCULATE_CFLAGS)
 
 talculator_CXXFLAGS = \
-	$(GTK_CFLAGS)
+	$(GTK_CFLAGS) \
+	$(LIBQALCULATE_CFLAGS)
 
 talculator_LDADD = \
-	$(GTK_LIBS) $(LIBM)
+	$(GTK_LIBS) \
+	$(LIBQALCULATE_LIBS) \
+	$(LIBM)
 
 talculator_LDFLAGS = -export-dynamic
 
