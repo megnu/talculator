@@ -1,6 +1,6 @@
 /*
  *  callbacks.c - functions to handle GUI events.
- *    part of galculator
+ *    part of talculator
  *      (c) 2002-2014 Simon Flöry (simon.floery@rechenraum.com)
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -24,7 +24,7 @@
 #include <math.h>
 
 #include "calc_basic.h"
-#include "galculator.h"
+#include "talculator.h"
 #include "math_functions.h"
 #include "general_functions.h"
 #include "display.h"
@@ -1020,7 +1020,7 @@ void on_prefs_rem_display_toggled (GtkToggleButton *togglebutton,
                 gpointer user_data)
 {
     prefs.rem_display = gtk_toggle_button_get_active (togglebutton);
-    /* only is important when leaving galculator */
+    /* only is important when leaving talculator */
 }
 
 void on_prefs_button_width_changed (GtkSpinButton *spinbutton,

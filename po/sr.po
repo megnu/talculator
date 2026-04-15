@@ -18,7 +18,7 @@ msgstr ""
 "Language: sr\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
-#: ../galculator.desktop.in.h:1
+#: ../talculator.desktop.in.h:1
 msgid "Perform simple and scientific calculations"
 msgstr "Обављајте једноставне и научне прорачуне"
 
@@ -67,7 +67,7 @@ msgid ""
 "location %s.\n"
 msgstr "[%s] датотека подешавања: Преместићемо датотеку подешавања из „%s“ у „%s“. Након што изађете из „%s“, можете да уклоните датотеку подешавања са њеног старог места „%s“.\n"
 
-#: ../src/galculator.h:92
+#: ../src/talculator.h:92
 msgid "Please submit a bugreport."
 msgstr "Пошаљите извештај о грешци."
 
@@ -284,7 +284,7 @@ msgstr "[%s] дужина децималног зареза (у језику) н
 #: ../src/ui.c:89
 #, c-format
 msgid ""
-"[%s] Couldn't load %s. This file is necessary     to build galculator's user"
+"[%s] Couldn't load %s. This file is necessary     to build talculator's user"
 " interface. Make sure you did a make install and the file     is "
 "accessible!\n"
 msgstr "[%s] Не могу да учитам „%s“. Ова датотека је неопходна     за изградњу галкулаторовог корисничког сучеља. Уверите се да сте одрадили „make install“ и да је датотека     приступачна!\n"
@@ -400,7 +400,7 @@ msgid ""
 msgstr "[%s] флекс обрађивач је позван више од %i пута. Да ли знате шта радите? Ако не знате: %s\n"
 
 #: ../ui/about.ui.in.h:1
-msgid "About galculator"
+msgid "About talculator"
 msgstr "О галкулатору"
 
 #: ../ui/about.ui.in.h:2
@@ -826,7 +826,7 @@ msgid "Binary"
 msgstr "Бинарна"
 
 #: ../ui/prefs_gtk2.ui.h:5 ../ui/prefs_gtk3.ui.h:5 ../ui/prefs-ume.ui.h:1
-msgid "galculator - Preferences"
+msgid "talculator - Preferences"
 msgstr "Поставке галкулатора"
 
 #: ../ui/prefs_gtk2.ui.h:6 ../ui/prefs_gtk3.ui.h:6 ../ui/prefs-ume.ui.h:2

@@ -28,7 +28,7 @@
   </object>
   <object class="GtkWindow" id="main_window">
     <property name="can_focus">False</property>
-    <property name="icon_name">galculator</property>
+    <property name="icon_name">talculator</property>
     <child internal-child="accessible">
       <object class="AtkObject" id="main_window-atkobject">
         <property name="AtkObject::accessible-description" translatable="yes">The main program window.</property>

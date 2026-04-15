@@ -20,7 +20,7 @@ msgstr ""
 "Language: uk\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
-#: ../galculator.desktop.in.h:1
+#: ../talculator.desktop.in.h:1
 msgid "Perform simple and scientific calculations"
 msgstr "Виконання простих і наукових розрахунків"
 
@@ -69,7 +69,7 @@ msgid ""
 "location %s.\n"
 msgstr "[%s] файл конфігурації: Ми перемістимо файл конфігурації з %s у %s. Після завершення %s ви можете вилучити файл конфігурації зі старого розташування %s. \n"
 
-#: ../src/galculator.h:92
+#: ../src/talculator.h:92
 msgid "Please submit a bugreport."
 msgstr "Будь ласка, надішліть повідомлення про помилку."
 
@@ -286,10 +286,10 @@ msgstr "[%s] довжина десяткової крапки (у мовах) н
 #: ../src/ui.c:89
 #, c-format
 msgid ""
-"[%s] Couldn't load %s. This file is necessary     to build galculator's user"
+"[%s] Couldn't load %s. This file is necessary     to build talculator's user"
 " interface. Make sure you did a make install and the file     is "
 "accessible!\n"
-msgstr "[%s] Не вдалося завантажити %s. Цей файл є необхідним для створення користувацького інтерфейсу galculator. Переконайтеся, що провели встановлення і файл є доступним!\n"
+msgstr "[%s] Не вдалося завантажити %s. Цей файл є необхідним для створення користувацького інтерфейсу talculator. Переконайтеся, що провели встановлення і файл є доступним!\n"
 
 #: ../src/ui.c:959 ../ui/main_frame.ui.h:17 ../ui/main_frame_hildon.ui.h:16
 msgid "Show _menu bar"
@@ -402,8 +402,8 @@ msgid ""
 msgstr "[%s] парсер гнучкості був викликаний більше, ніж %i разів. Ви знаєте, що робите? Якщо ні: %s\n"
 
 #: ../ui/about.ui.in.h:1
-msgid "About galculator"
-msgstr "Про galculator"
+msgid "About talculator"
+msgstr "Про talculator"
 
 #: ../ui/about.ui.in.h:2
 msgid "Copyright (c) 2002-2014 by Simon Flöry <simon.floery@rechenraum.com>"
@@ -828,8 +828,8 @@ msgid "Binary"
 msgstr "Двійкова"
 
 #: ../ui/prefs_gtk2.ui.h:5 ../ui/prefs_gtk3.ui.h:5 ../ui/prefs-ume.ui.h:1
-msgid "galculator - Preferences"
-msgstr "galculator - Налаштування"
+msgid "talculator - Preferences"
+msgstr "talculator - Налаштування"
 
 #: ../ui/prefs_gtk2.ui.h:6 ../ui/prefs_gtk3.ui.h:6 ../ui/prefs-ume.ui.h:2
 msgid "A dialog that is used to change preferences settings."

@@ -21,7 +21,7 @@ msgstr ""
 "Language: ar\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
 
-#: ../galculator.desktop.in.h:1
+#: ../talculator.desktop.in.h:1
 msgid "Perform simple and scientific calculations"
 msgstr "قم بحسابات بسيطة و علمية "
 
@@ -70,7 +70,7 @@ msgid ""
 "location %s.\n"
 msgstr "[%s] ملف الضبط: سنقوم بنقل ملف الضبط من  %s إلى %s. بعد أن تغادر %s, تستطيع حذف ملف الضبط من مكانه القديم %s.\n"
 
-#: ../src/galculator.h:92
+#: ../src/talculator.h:92
 msgid "Please submit a bugreport."
 msgstr "رجاء بلّغ عن علة."
 
@@ -287,7 +287,7 @@ msgstr ""
 #: ../src/ui.c:89
 #, c-format
 msgid ""
-"[%s] Couldn't load %s. This file is necessary     to build galculator's user"
+"[%s] Couldn't load %s. This file is necessary     to build talculator's user"
 " interface. Make sure you did a make install and the file     is "
 "accessible!\n"
 msgstr ""
@@ -403,7 +403,7 @@ msgid ""
 msgstr ""
 
 #: ../ui/about.ui.in.h:1
-msgid "About galculator"
+msgid "About talculator"
 msgstr "عن الحاسبة"
 
 #: ../ui/about.ui.in.h:2
@@ -829,7 +829,7 @@ msgid "Binary"
 msgstr "ثنائي"
 
 #: ../ui/prefs_gtk2.ui.h:5 ../ui/prefs_gtk3.ui.h:5 ../ui/prefs-ume.ui.h:1
-msgid "galculator - Preferences"
+msgid "talculator - Preferences"
 msgstr ""
 
 #: ../ui/prefs_gtk2.ui.h:6 ../ui/prefs_gtk3.ui.h:6 ../ui/prefs-ume.ui.h:2

@@ -1,7 +1,7 @@
 /*
  *  calc_basic.c - arithmetic precedence handling and computing in basic 
  *			calculator mode.
- *	part of galculator
+ *	part of talculator
  *  	(c) 2002-2014 Simon Flöry (simon.floery@rechenraum.com)
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -34,7 +34,7 @@
 #include <math.h>
 
 #include "calc_basic.h"
-#include "galculator.h"
+#include "talculator.h"
 
 /* i18n */
 
@@ -71,7 +71,7 @@ G_REAL id (G_REAL x)
 
 /* This is a helper function to implement and/or/xor with arguments of up to 
  * 112 bit length. This converts the given G_REAL (which is the type variables
- * are passed around in galculator) to G_HUGEINT2, a struct that is capable of
+ * are passed around in talculator) to G_HUGEINT2, a struct that is capable of
  * storing at least 128 bits. This function is called at the beginning of
  * and/or/xor to obtain integer representation for right and left hand side. 
  * These are subsequently combined and converted back to G_REAL with 

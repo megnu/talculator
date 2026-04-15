@@ -1,6 +1,6 @@
 /*
  *  ui.h - general user interface code.
- *	part of galculator
+ *	part of talculator
  *  	(c) 2002-2014 Simon Flöry (simon.floery@rechenraum.com)
  *
  *  This program is free software; you can redistribute it and/or modify

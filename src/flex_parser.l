@@ -26,7 +26,7 @@ ddc       ([-]?[[:digit:]]+)
 #include <stdlib.h>
 #include <ctype.h>
 
-#include "galculator.h"
+#include "talculator.h"
 #include "calc_basic.h"
 #include "general_functions.h"
 #include "math_functions.h"

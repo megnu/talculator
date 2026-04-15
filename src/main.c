@@ -1,6 +1,6 @@
 /*
  *  main.c
- *	part of galculator
+ *	part of talculator
  *  	(c) 2002-2014 Simon Flöry (simon.floery@rechenraum.com)
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -29,7 +29,7 @@
 #include <errno.h>
 
 #include "calc_basic.h"
-#include "galculator.h"
+#include "talculator.h"
 #include "display.h"
 #include "config_file.h"
 #include "general_functions.h"

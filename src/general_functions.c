@@ -1,6 +1,6 @@
 /*
  *  general_functions.c - this and that.
- *	part of galculator
+ *	part of talculator
  *  	(c) 2002-2014 Simon Flöry (simon.floery@rechenraum.com)
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -26,7 +26,7 @@
 #include <ctype.h>
 #include <locale.h>
 
-#include "galculator.h"
+#include "talculator.h"
 #include "general_functions.h"
 #include "math_functions.h"
 #include "calc_basic.h"
@@ -411,7 +411,7 @@ void activate_menu_item (char *item_name)
         {
             /* PCMan: if the checkbox is already checked, gtk+ won't emit
              * a "toggled" signal again if we call set_active().
-             * so let's trigger "toggled" signal manually since galculator
+             * so let's trigger "toggled" signal manually since talculator
              * relies heavily on this behavior and cannot work without it.
              * FIXME: This is not the right way to use gtk+, though. */
             gtk_check_menu_item_toggled(GTK_CHECK_MENU_ITEM(menu_item));

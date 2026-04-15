@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-uidir = $(datadir)/galculator/ui
+uidir = $(datadir)/talculator/ui
 
 ui_DATA = about.ui \
 		prefs_gtk2.ui \

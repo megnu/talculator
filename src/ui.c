@@ -1,6 +1,6 @@
 /*
  *  ui.c - general user interface code.
- *	part of galculator
+ *	part of talculator
  *  	(c) 2002-2014 Simon Flöry (simon.floery@rechenraum.com)
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "galculator.h"
+#include "talculator.h"
 #include "ui.h"
 #include "display.h"
 #include "math_functions.h"
@@ -98,7 +98,7 @@ static GtkBuilder *gtk_builder_file_open (char *filename, gboolean fatal)
         g_object_unref(xml);
         xml = NULL;
         fprintf (stderr, _("[%s] Couldn't load %s. This file is necessary \
-    to build galculator's user interface. Make sure you did a make install and the file \
+    to build talculator's user interface. Make sure you did a make install and the file \
     is accessible!\n"), PACKAGE, filename);
         if(error)
         {

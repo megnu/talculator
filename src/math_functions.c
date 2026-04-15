@@ -1,6 +1,6 @@
 /*
  *  math_functions.c - some mathematical functions for the calculator
- *	part of galculator
+ *	part of talculator
  *  	(c) 2002-2014 Simon Flöry (simon.floery@rechenraum.com)
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
 
 #include "math_functions.h"
 #include "general_functions.h"
-#include "galculator.h"
+#include "talculator.h"
 
 #include <glib.h>		/* for G_PI etc */
 

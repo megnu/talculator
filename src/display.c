@@ -1,6 +1,6 @@
 /*
  *  display.c - code for this nifty display.
- *	part of galculator
+ *	part of talculator
  *  	(c) 2002-2014 Simon Flöry (simon.floery@rechenraum.com)
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -24,7 +24,7 @@
 #include <math.h>
 #include <ctype.h>
 
-#include "galculator.h"
+#include "talculator.h"
 #include "display.h"
 #include "general_functions.h"
 #include "config_file.h"

@@ -19,7 +19,7 @@ msgstr ""
 "Language: hr\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
 
-#: ../galculator.desktop.in.h:1
+#: ../talculator.desktop.in.h:1
 msgid "Perform simple and scientific calculations"
 msgstr ""
 
@@ -68,7 +68,7 @@ msgid ""
 "location %s.\n"
 msgstr "[%s] konfiguracijska datoteka:Premjestiti ćemo konfiguracijsku datoteku iz %s u %s. Nakon što završite %s, možete ukloniti konfiguracijsku datoteku sa njene stare lokacije %s.\n"
 
-#: ../src/galculator.h:92
+#: ../src/talculator.h:92
 msgid "Please submit a bugreport."
 msgstr ""
 
@@ -285,7 +285,7 @@ msgstr ""
 #: ../src/ui.c:89
 #, c-format
 msgid ""
-"[%s] Couldn't load %s. This file is necessary     to build galculator's user"
+"[%s] Couldn't load %s. This file is necessary     to build talculator's user"
 " interface. Make sure you did a make install and the file     is "
 "accessible!\n"
 msgstr ""
@@ -401,8 +401,8 @@ msgid ""
 msgstr ""
 
 #: ../ui/about.ui.in.h:1
-msgid "About galculator"
-msgstr "O galculatoru"
+msgid "About talculator"
+msgstr "O talculatoru"
 
 #: ../ui/about.ui.in.h:2
 msgid "Copyright (c) 2002-2014 by Simon Flöry <simon.floery@rechenraum.com>"
@@ -827,8 +827,8 @@ msgid "Binary"
 msgstr "Binarni"
 
 #: ../ui/prefs_gtk2.ui.h:5 ../ui/prefs_gtk3.ui.h:5 ../ui/prefs-ume.ui.h:1
-msgid "galculator - Preferences"
-msgstr "galculator - osobitosti"
+msgid "talculator - Preferences"
+msgstr "talculator - osobitosti"
 
 #: ../ui/prefs_gtk2.ui.h:6 ../ui/prefs_gtk3.ui.h:6 ../ui/prefs-ume.ui.h:2
 msgid "A dialog that is used to change preferences settings."

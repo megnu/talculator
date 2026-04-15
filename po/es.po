@@ -22,7 +22,7 @@ msgstr ""
 "Language: es\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: ../galculator.desktop.in.h:1
+#: ../talculator.desktop.in.h:1
 msgid "Perform simple and scientific calculations"
 msgstr "Realizar cálculos sencillos y científicos"
 
@@ -71,7 +71,7 @@ msgid ""
 "location %s.\n"
 msgstr "[%s] archivo de configuración: Moveremos este archivo de configuración de %s a %s. Tras terminar %s, puede borrar el archivo de configuración de su antigua ubicación %s.\n"
 
-#: ../src/galculator.h:92
+#: ../src/talculator.h:92
 msgid "Please submit a bugreport."
 msgstr "Envíe un informe de error."
 
@@ -288,10 +288,10 @@ msgstr "[%s] longitud del punto decimal (en la configuración regional) no es co
 #: ../src/ui.c:89
 #, c-format
 msgid ""
-"[%s] Couldn't load %s. This file is necessary     to build galculator's user"
+"[%s] Couldn't load %s. This file is necessary     to build talculator's user"
 " interface. Make sure you did a make install and the file     is "
 "accessible!\n"
-msgstr "[%s] No se ha podido cargar %s. Este archivo es necesario     para construier la interfaz de usuario de galculator. ¡Asegúrese de que hizo un make install y de que el archivo     es accesible!\n"
+msgstr "[%s] No se ha podido cargar %s. Este archivo es necesario     para construier la interfaz de usuario de talculator. ¡Asegúrese de que hizo un make install y de que el archivo     es accesible!\n"
 
 #: ../src/ui.c:959 ../ui/main_frame.ui.h:17 ../ui/main_frame_hildon.ui.h:16
 msgid "Show _menu bar"
@@ -404,8 +404,8 @@ msgid ""
 msgstr "[%s] analizador flex se ha llamado más de %i veces. ¿Sabes lo que estás haciendo? Si no: %s\n"
 
 #: ../ui/about.ui.in.h:1
-msgid "About galculator"
-msgstr "Acerca de galculator"
+msgid "About talculator"
+msgstr "Acerca de talculator"
 
 #: ../ui/about.ui.in.h:2
 msgid "Copyright (c) 2002-2014 by Simon Flöry <simon.floery@rechenraum.com>"
@@ -830,8 +830,8 @@ msgid "Binary"
 msgstr "Binario"
 
 #: ../ui/prefs_gtk2.ui.h:5 ../ui/prefs_gtk3.ui.h:5 ../ui/prefs-ume.ui.h:1
-msgid "galculator - Preferences"
-msgstr "Preferencias de galculator"
+msgid "talculator - Preferences"
+msgstr "Preferencias de talculator"
 
 #: ../ui/prefs_gtk2.ui.h:6 ../ui/prefs_gtk3.ui.h:6 ../ui/prefs-ume.ui.h:2
 msgid "A dialog that is used to change preferences settings."

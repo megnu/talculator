@@ -3,9 +3,9 @@
 pkgname=talculator
 pkgver=2.1.4
 pkgrel=1
-pkgdesc='GTK3 scientific calculator with tab support (galculator fork)'
+pkgdesc='GTK3 scientific calculator with tab support (talculator fork)'
 arch=('x86_64')
-url='http://galculator.sourceforge.net/'
+url='https://github.com/megnu/talculator'
 license=('GPL')
 depends=('gtk3')
 makedepends=('git' 'intltool' 'autoconf' 'automake' 'libtool')

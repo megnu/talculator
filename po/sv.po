@@ -20,7 +20,7 @@ msgstr ""
 "Language: sv\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: ../galculator.desktop.in.h:1
+#: ../talculator.desktop.in.h:1
 msgid "Perform simple and scientific calculations"
 msgstr "Genomför enkla och vetenskapliga beräkningar"
 
@@ -69,7 +69,7 @@ msgid ""
 "location %s.\n"
 msgstr "[%s] konfigurationsfil: Vi kommer flytta konfigurationsfilen från %s till %s. Efter att du har avslutat %s, kan du ta bort konfigurationsfilen från dess gamla plats %s.\n"
 
-#: ../src/galculator.h:92
+#: ../src/talculator.h:92
 msgid "Please submit a bugreport."
 msgstr "Skicka in en felrapport."
 
@@ -286,10 +286,10 @@ msgstr "[%s] längd för decimalpunkt (i lokalanpassning) stöds inte: >%s<\nDu 
 #: ../src/ui.c:89
 #, c-format
 msgid ""
-"[%s] Couldn't load %s. This file is necessary     to build galculator's user"
+"[%s] Couldn't load %s. This file is necessary     to build talculator's user"
 " interface. Make sure you did a make install and the file     is "
 "accessible!\n"
-msgstr "[%s] Kunde inte läsa in %s. Denna fil är nödvändig för att bygga galculators användargränssnitt. Försäkra dig om att du körde en make install och filen är åtkomlig!\n"
+msgstr "[%s] Kunde inte läsa in %s. Denna fil är nödvändig för att bygga talculators användargränssnitt. Försäkra dig om att du körde en make install och filen är åtkomlig!\n"
 
 #: ../src/ui.c:959 ../ui/main_frame.ui.h:17 ../ui/main_frame_hildon.ui.h:16
 msgid "Show _menu bar"
@@ -402,8 +402,8 @@ msgid ""
 msgstr ""
 
 #: ../ui/about.ui.in.h:1
-msgid "About galculator"
-msgstr "Om galculator"
+msgid "About talculator"
+msgstr "Om talculator"
 
 #: ../ui/about.ui.in.h:2
 msgid "Copyright (c) 2002-2014 by Simon Flöry <simon.floery@rechenraum.com>"
@@ -828,8 +828,8 @@ msgid "Binary"
 msgstr "Binär"
 
 #: ../ui/prefs_gtk2.ui.h:5 ../ui/prefs_gtk3.ui.h:5 ../ui/prefs-ume.ui.h:1
-msgid "galculator - Preferences"
-msgstr "galculator - Inställningar"
+msgid "talculator - Preferences"
+msgstr "talculator - Inställningar"
 
 #: ../ui/prefs_gtk2.ui.h:6 ../ui/prefs_gtk3.ui.h:6 ../ui/prefs-ume.ui.h:2
 msgid "A dialog that is used to change preferences settings."
