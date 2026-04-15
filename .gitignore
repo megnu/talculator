@@ -1,6 +1,9 @@
 # Local tool state
 .codex
 
+# Reference repository
+/reference/
+
 # makepkg artifacts
 /pkg/
 /src/talculator-*/
