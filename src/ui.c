@@ -49,6 +49,7 @@ static s_tab_context *ui_tab_context_new ();
 static void ui_tab_context_free (s_tab_context *ctx);
 static void on_tabs_switch_page (GtkNotebook *notebook, GtkWidget *page, guint page_num, gpointer user_data);
 static void ui_tab_build_content (s_tab_context *ctx, GtkWidget *page);
+static void ui_tabs_set_active_widget_sensitivity (GtkNotebook *notebook, gint active_page);
 static gchar *ui_tab_default_title_new ();
 static void ui_tabs_refresh_actions ();
 #define UI_MAX_TABS 6
@@ -334,11 +335,38 @@ static void on_tabs_switch_page (GtkNotebook *notebook, GtkWidget *page, guint p
 {
 	s_tab_context *ctx;
 	(void) notebook;
-	(void) page_num;
 	(void) user_data;
 	if (!page) return;
 	ctx = g_object_get_data (G_OBJECT(page), "tab-context");
 	if (ctx) active_tab = ctx;
+	ui_tabs_set_active_widget_sensitivity (ui_tabs_get_notebook (), page_num);
+}
+
+static void ui_tabs_set_active_widget_sensitivity (GtkNotebook *notebook, gint active_page)
+{
+	gint i, n_pages;
+
+	if (!notebook) return;
+	n_pages = gtk_notebook_get_n_pages (notebook);
+	for (i = 0; i < n_pages; i++) {
+		GtkWidget *page = gtk_notebook_get_nth_page (notebook, i);
+		s_tab_context *ctx;
+		gboolean is_active;
+
+		if (!page) continue;
+		ctx = g_object_get_data (G_OBJECT(page), "tab-context");
+		if (!ctx) continue;
+		is_active = (i == active_page);
+
+		if (ctx->tab_button_box_xml) {
+			GtkWidget *button_box = GTK_WIDGET(gtk_builder_get_object (ctx->tab_button_box_xml, "button_box"));
+			if (button_box) gtk_widget_set_sensitive (button_box, is_active);
+		}
+		if (ctx->tab_dispctrl_xml) {
+			GtkWidget *dispctrl_table = GTK_WIDGET(gtk_builder_get_object (ctx->tab_dispctrl_xml, "table_dispctrl"));
+			if (dispctrl_table) gtk_widget_set_sensitive (dispctrl_table, is_active);
+		}
+	}
 }
 
 static void ui_tab_build_content (s_tab_context *ctx, GtkWidget *page)
@@ -569,6 +597,7 @@ GtkWidget *ui_tab_create (const gchar *title)
 	gtk_notebook_set_current_page (notebook, page_idx);
 	active_tab = ctx;
 	ui_tab_build_content (ctx, page);
+	ui_tabs_set_active_widget_sensitivity (notebook, gtk_notebook_get_current_page (notebook));
 	ui_tabs_refresh_actions ();
 	if (generated_title) g_free (generated_title);
 	
@@ -610,6 +639,7 @@ gboolean ui_tab_close (gint page_num)
 		ctx = g_object_get_data (G_OBJECT(page), "tab-context");
 		if (ctx) active_tab = ctx;
 	}
+	ui_tabs_set_active_widget_sensitivity (notebook, gtk_notebook_get_current_page (notebook));
 	ui_tabs_refresh_actions ();
 	
 	return TRUE;
