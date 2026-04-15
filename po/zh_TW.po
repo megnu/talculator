@@ -18,7 +18,7 @@ msgstr ""
 "Language: zh_TW\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: ../galculator.desktop.in.h:1
+#: ../talculator.desktop.in.h:1
 msgid "Perform simple and scientific calculations"
 msgstr "進行簡單和科學的計算"
 
@@ -67,7 +67,7 @@ msgid ""
 "location %s.\n"
 msgstr "[%s] 設定檔：我們將會從 %s 移動設定檔到 %s 。在您結束 %s 後，您需要移除舊版位置 %s 的設定檔。\n"
 
-#: ../src/galculator.h:92
+#: ../src/talculator.h:92
 msgid "Please submit a bugreport."
 msgstr "請送出錯誤回報"
 
@@ -284,10 +284,10 @@ msgstr "[%s] 小數點的長度(在語言環境中)不被支援: >%s<\n您必須
 #: ../src/ui.c:89
 #, c-format
 msgid ""
-"[%s] Couldn't load %s. This file is necessary     to build galculator's user"
+"[%s] Couldn't load %s. This file is necessary     to build talculator's user"
 " interface. Make sure you did a make install and the file     is "
 "accessible!\n"
-msgstr "[%s] 無法載入 %s 。這個檔案是構建 galculator 的使用者介面所必須的。請確認您有安裝此檔案且是可以使用的！\n"
+msgstr "[%s] 無法載入 %s 。這個檔案是構建 talculator 的使用者介面所必須的。請確認您有安裝此檔案且是可以使用的！\n"
 
 #: ../src/ui.c:959 ../ui/main_frame.ui.h:17 ../ui/main_frame_hildon.ui.h:16
 msgid "Show _menu bar"
@@ -400,8 +400,8 @@ msgid ""
 msgstr "[%s] flex 解析器被呼叫超過 %i 次。您確定知道您在作什麼嗎？如果不： %s\n"
 
 #: ../ui/about.ui.in.h:1
-msgid "About galculator"
-msgstr "關於 galculator"
+msgid "About talculator"
+msgstr "關於 talculator"
 
 #: ../ui/about.ui.in.h:2
 msgid "Copyright (c) 2002-2014 by Simon Flöry <simon.floery@rechenraum.com>"
@@ -826,8 +826,8 @@ msgid "Binary"
 msgstr "2 進位"
 
 #: ../ui/prefs_gtk2.ui.h:5 ../ui/prefs_gtk3.ui.h:5 ../ui/prefs-ume.ui.h:1
-msgid "galculator - Preferences"
-msgstr "galculator - 偏好設定"
+msgid "talculator - Preferences"
+msgstr "talculator - 偏好設定"
 
 #: ../ui/prefs_gtk2.ui.h:6 ../ui/prefs_gtk3.ui.h:6 ../ui/prefs-ume.ui.h:2
 msgid "A dialog that is used to change preferences settings."

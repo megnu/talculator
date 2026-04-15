@@ -19,7 +19,7 @@ msgstr ""
 "Language: lt\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
-#: ../galculator.desktop.in.h:1
+#: ../talculator.desktop.in.h:1
 msgid "Perform simple and scientific calculations"
 msgstr "Atlikite paprastus ir mokslinius skaičiavimus"
 
@@ -68,7 +68,7 @@ msgid ""
 "location %s.\n"
 msgstr "[%s] konfigūracijos failas: Neperkelsime konfigūracijos failo iš %s į %s. Kai uždarysite %s, galėsite perkelti konfigūracijos failą iš jo senosios vietos %s.\n"
 
-#: ../src/galculator.h:92
+#: ../src/talculator.h:92
 msgid "Please submit a bugreport."
 msgstr "Praneškite apie klaidą."
 
@@ -285,10 +285,10 @@ msgstr "[%s] dešimtainio skaičiaus ilgis nepalaikomas: >%s<\nGalite susidurti 
 #: ../src/ui.c:89
 #, c-format
 msgid ""
-"[%s] Couldn't load %s. This file is necessary     to build galculator's user"
+"[%s] Couldn't load %s. This file is necessary     to build talculator's user"
 " interface. Make sure you did a make install and the file     is "
 "accessible!\n"
-msgstr "[%s] Įkelti %s nepavyko. Šis failas būtinas     sukurti galculator naudotojo sąsają. Įsitikinkite jog įdiegėte failą ir     jis prieinamas!\n"
+msgstr "[%s] Įkelti %s nepavyko. Šis failas būtinas     sukurti talculator naudotojo sąsają. Įsitikinkite jog įdiegėte failą ir     jis prieinamas!\n"
 
 #: ../src/ui.c:959 ../ui/main_frame.ui.h:17 ../ui/main_frame_hildon.ui.h:16
 msgid "Show _menu bar"
@@ -401,8 +401,8 @@ msgid ""
 msgstr "[%s] „flex parser“ buvo iškviestas daugiau nei %i kartus. Ar žinote ką darote? Jei ne: %s\n"
 
 #: ../ui/about.ui.in.h:1
-msgid "About galculator"
-msgstr "Apie galculator"
+msgid "About talculator"
+msgstr "Apie talculator"
 
 #: ../ui/about.ui.in.h:2
 msgid "Copyright (c) 2002-2014 by Simon Flöry <simon.floery@rechenraum.com>"
@@ -827,8 +827,8 @@ msgid "Binary"
 msgstr "Dvejetainis"
 
 #: ../ui/prefs_gtk2.ui.h:5 ../ui/prefs_gtk3.ui.h:5 ../ui/prefs-ume.ui.h:1
-msgid "galculator - Preferences"
-msgstr "galculator - Nustatymai"
+msgid "talculator - Preferences"
+msgstr "talculator - Nustatymai"
 
 #: ../ui/prefs_gtk2.ui.h:6 ../ui/prefs_gtk3.ui.h:6 ../ui/prefs-ume.ui.h:2
 msgid "A dialog that is used to change preferences settings."

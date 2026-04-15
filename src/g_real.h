@@ -7,7 +7,7 @@
 #endif
 
 /* 
- * The basic type in galculator is G_REAL. By default, this is a double 
+ * The basic type in talculator is G_REAL. By default, this is a double 
  * precision floating point number. If we are compiling on gcc 4.6 and later,
  * there is libquadmath available and G_REAL is a quad-precision floating point
  * number.

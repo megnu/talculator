@@ -18,7 +18,7 @@ msgstr ""
 "Language: id\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: ../galculator.desktop.in.h:1
+#: ../talculator.desktop.in.h:1
 msgid "Perform simple and scientific calculations"
 msgstr "Melakukan kalkulasi sederhana dan ilmiah"
 
@@ -67,7 +67,7 @@ msgid ""
 "location %s.\n"
 msgstr "[%s] berkas konfigurasi: Kami akan memindahkan berkas konfigurasi dari %s ke %s. Setelah Anda keluar dari %s, Anda boleh menghapus berkas konfigurasi dari lokasi lamanya %s.\n"
 
-#: ../src/galculator.h:92
+#: ../src/talculator.h:92
 msgid "Please submit a bugreport."
 msgstr "Harap melaporkan laporan kesalahan."
 
@@ -284,10 +284,10 @@ msgstr "[%s] panjang titik desimal (pada lokal) tidak didukung: >%s<\nAnda mungk
 #: ../src/ui.c:89
 #, c-format
 msgid ""
-"[%s] Couldn't load %s. This file is necessary     to build galculator's user"
+"[%s] Couldn't load %s. This file is necessary     to build talculator's user"
 " interface. Make sure you did a make install and the file     is "
 "accessible!\n"
-msgstr "[%s] Tidak bisa memuat %s. Berkas ini penting untuk membangun antarmuka galculator. Pastikan Anda menjalankan make install dan berkas dapat diakases!\n"
+msgstr "[%s] Tidak bisa memuat %s. Berkas ini penting untuk membangun antarmuka talculator. Pastikan Anda menjalankan make install dan berkas dapat diakases!\n"
 
 #: ../src/ui.c:959 ../ui/main_frame.ui.h:17 ../ui/main_frame_hildon.ui.h:16
 msgid "Show _menu bar"
@@ -400,8 +400,8 @@ msgid ""
 msgstr "[%s] parser berkas dipanggil lebih dari %i kali. Apakah Anda tahu apa yang Anda lakukan? Jika tidak: %s\n"
 
 #: ../ui/about.ui.in.h:1
-msgid "About galculator"
-msgstr "Tentang galculator"
+msgid "About talculator"
+msgstr "Tentang talculator"
 
 #: ../ui/about.ui.in.h:2
 msgid "Copyright (c) 2002-2014 by Simon Flöry <simon.floery@rechenraum.com>"
@@ -826,8 +826,8 @@ msgid "Binary"
 msgstr "Biner"
 
 #: ../ui/prefs_gtk2.ui.h:5 ../ui/prefs_gtk3.ui.h:5 ../ui/prefs-ume.ui.h:1
-msgid "galculator - Preferences"
-msgstr "galculator - Preferensi"
+msgid "talculator - Preferences"
+msgstr "talculator - Preferensi"
 
 #: ../ui/prefs_gtk2.ui.h:6 ../ui/prefs_gtk3.ui.h:6 ../ui/prefs-ume.ui.h:2
 msgid "A dialog that is used to change preferences settings."

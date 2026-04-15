@@ -1,6 +1,6 @@
 /*
  *  callbacks.h
- *	part of galculator
+ *	part of talculator
  *  	(c) 2002-2014 Simon Flöry (simon.floery@rechenraum.com)
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -36,6 +36,8 @@ G_MODULE_EXPORT void on_gfunc_button_clicked (GtkToggleButton *button,
 					gpointer user_data);
 G_MODULE_EXPORT void on_main_window_destroy (GtkWidget* widget,
 					gpointer user_data);
+G_MODULE_EXPORT void on_quit_activate (GtkMenuItem *menuitem,
+					gpointer user_data);
 G_MODULE_EXPORT void on_dec_toggled (GtkMenuItem *menuitem,
 					gpointer user_data);
 G_MODULE_EXPORT void on_hex_toggled (GtkMenuItem *menuitem,
@@ -57,6 +59,10 @@ G_MODULE_EXPORT void on_rpn_toggled (GtkMenuItem *menuitem,
 G_MODULE_EXPORT void on_form_toggled (GtkMenuItem *menuitem,
 					gpointer user_data);
 G_MODULE_EXPORT void on_about_activate (GtkMenuItem *menuitem,
+					gpointer user_data);
+G_MODULE_EXPORT void on_new_tab_activate (GtkMenuItem *menuitem,
+					gpointer user_data);
+G_MODULE_EXPORT void on_close_tab_activate (GtkMenuItem *menuitem,
 					gpointer user_data);
 G_MODULE_EXPORT void on_preferences1_activate (GtkMenuItem *menuitem,
 					gpointer user_data);

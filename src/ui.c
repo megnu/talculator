@@ -1,6 +1,6 @@
 /*
  *  ui.c - general user interface code.
- *	part of galculator
+ *	part of talculator
  *  	(c) 2002-2014 Simon Flöry (simon.floery@rechenraum.com)
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "galculator.h"
+#include "talculator.h"
 #include "ui.h"
 #include "display.h"
 #include "math_functions.h"
@@ -32,8 +32,7 @@
 
 #include <gtk/gtk.h>
 
-GtkBuilder	*main_window_xml, *dispctrl_xml, *button_box_xml, *prefs_xml, *view_xml,
-            *classic_view_xml, *paper_view_xml;
+GtkBuilder	*main_window_xml, *prefs_xml;
 char		dec_point[2];
 GtkListStore	*prefs_constant_store, *prefs_user_function_store;
 
@@ -42,6 +41,17 @@ static void set_all_buttons_property (GtkCallback func, gpointer data);
 static void set_all_dispctrl_buttons_property (GtkCallback func, gpointer data);
 static void set_all_normal_buttons_property (GtkCallback func, gpointer data);
 static void set_table_child_callback (GtkWidget	*table_child, gpointer user_data);
+static void clear_cb (GtkToggleButton *button);
+static void backspace_cb (GtkToggleButton *button);
+static void all_clear_cb (GtkToggleButton *button);
+static GtkWidget *ui_get_current_tab_container ();
+static s_tab_context *ui_tab_context_new ();
+static void ui_tab_context_free (s_tab_context *ctx);
+static void on_tabs_switch_page (GtkNotebook *notebook, GtkWidget *page, guint page_num, gpointer user_data);
+static void ui_tab_build_content (s_tab_context *ctx, GtkWidget *page);
+static gchar *ui_tab_default_title_new ();
+static void ui_tabs_refresh_actions ();
+#define UI_MAX_TABS 6
 
 /* active_buttons. bit mask, in which modes the corresponding button is active.
  * assume TRUE for all other bases/modes!
@@ -87,7 +97,7 @@ static GtkBuilder *gtk_builder_file_open (char *filename, gboolean fatal)
         g_object_unref(xml);
         xml = NULL;
         fprintf (stderr, _("[%s] Couldn't load %s. This file is necessary \
-    to build galculator's user interface. Make sure you did a make install and the file \
+    to build talculator's user interface. Make sure you did a make install and the file \
     is accessible!\n"), PACKAGE, filename);
         if(error)
         {
@@ -110,7 +120,6 @@ static void apply_object_data (s_operation_map operation_map[],
 			s_function_map function_map[])
 {
 	int 		counter;
-	gpointer	*func;
 	GObject		*object;
 	
 	counter = 0;
@@ -135,12 +144,10 @@ static void apply_object_data (s_operation_map operation_map[],
 	
 	counter = 0;
 	while (function_map[counter].button_name != NULL) {
-		func = (void *) g_malloc (sizeof (function_map[counter].func));
-		memcpy (func, function_map[counter].func, sizeof (function_map[counter].func));
 		object = G_OBJECT (gtk_builder_get_object (button_box_xml, 
 			function_map[counter].button_name));
 		g_object_set_data (object, "display_names", function_map[counter].display_names);
-		g_object_set_data (object, "func", func);	
+		g_object_set_data (object, "func", function_map[counter].func);	
 		counter++;
 	};
 }
@@ -245,9 +252,9 @@ static void set_disp_ctrl_object_data ()
 	int	counter=0;
 	
 	s_gfunc_map map[] = {\
-		{"button_clr", NULL, clear},\
-		{"button_backspace", NULL, backspace},\
-		{"button_allclr", NULL, all_clear},\
+		{"button_clr", NULL, clear_cb},\
+		{"button_backspace", NULL, backspace_cb},\
+		{"button_allclr", NULL, all_clear_cb},\
 		{NULL}\
 	};
 
@@ -260,6 +267,94 @@ static void set_disp_ctrl_object_data ()
 			"func", map[counter].func);
 		counter++;
 	};
+}
+
+static void clear_cb (GtkToggleButton *button)
+{
+	(void) button;
+	clear();
+}
+
+static void backspace_cb (GtkToggleButton *button)
+{
+	(void) button;
+	backspace();
+}
+
+static void all_clear_cb (GtkToggleButton *button)
+{
+	(void) button;
+	all_clear();
+}
+
+static GtkWidget *ui_get_current_tab_container ()
+{
+	GtkNotebook *notebook;
+	GtkWidget *page;
+	
+	notebook = ui_tabs_get_notebook();
+	if (!notebook) return GTK_WIDGET(gtk_builder_get_object (main_window_xml, "window_vbox"));
+	page = gtk_notebook_get_nth_page (notebook, gtk_notebook_get_current_page (notebook));
+	if (!page) return GTK_WIDGET(gtk_builder_get_object (main_window_xml, "window_vbox"));
+	return page;
+}
+
+static s_tab_context *ui_tab_context_new ()
+{
+	s_tab_context *ctx = g_new0 (s_tab_context, 1);
+	ctx->tab_current_status = (s_current_status){CS_DEC, CS_DEG, prefs.def_notation, 0, FALSE, FALSE, TRUE};
+	ctx->tab_memory.data = NULL;
+	ctx->tab_memory.len = 0;
+	ctx->tab_main_alg = alg_init (0);
+	ctx->tab_display_view = NULL;
+	ctx->tab_display_buffer = NULL;
+	ctx->tab_display_result_counter = 0;
+	ctx->tab_display_result_line = 0;
+	ctx->tab_display_value = 0;
+	ctx->tab_display_last_arith = ' ';
+	ctx->tab_display_brackets = 0;
+	return ctx;
+}
+
+static void ui_tab_context_free (s_tab_context *ctx)
+{
+	if (!ctx) return;
+	if (ctx->tab_main_alg) alg_free (ctx->tab_main_alg);
+	if (ctx->tab_dispctrl_xml) g_object_unref (ctx->tab_dispctrl_xml);
+	if (ctx->tab_button_box_xml) g_object_unref (ctx->tab_button_box_xml);
+	if (ctx->tab_classic_view_xml) g_object_unref (ctx->tab_classic_view_xml);
+	if (ctx->tab_paper_view_xml) g_object_unref (ctx->tab_paper_view_xml);
+	if (ctx->tab_view_xml && (ctx->tab_view_xml != ctx->tab_classic_view_xml) && (ctx->tab_view_xml != ctx->tab_paper_view_xml))
+		g_object_unref (ctx->tab_view_xml);
+	if (ctx->tab_memory.data) g_free (ctx->tab_memory.data);
+	g_free (ctx);
+}
+
+static void on_tabs_switch_page (GtkNotebook *notebook, GtkWidget *page, guint page_num, gpointer user_data)
+{
+	s_tab_context *ctx;
+	(void) notebook;
+	(void) page_num;
+	(void) user_data;
+	if (!page) return;
+	ctx = g_object_get_data (G_OBJECT(page), "tab-context");
+	if (ctx) active_tab = ctx;
+}
+
+static void ui_tab_build_content (s_tab_context *ctx, GtkWidget *page)
+{
+	(void) page;
+	if (!ctx) return;
+	active_tab = ctx;
+	if (prefs.mode == PAPER_MODE) ui_paper_view_create ();
+	else {
+		ui_classic_view_create ();
+		ui_main_window_buttons_create (prefs.mode);
+		/* New tabs must enforce notation-dependent formula row visibility. */
+		set_widget_visibility (view_xml, "formula_entry_hbox",
+			ctx->tab_current_status.notation == CS_FORMULA);
+	}
+	update_dispctrl ();
 }
 
 
@@ -342,8 +437,194 @@ GtkWidget *ui_main_window_create ()
 	/* connect the signals in the interface */
 	gtk_builder_connect_signals(main_window_xml, NULL);
     main_win = GTK_WIDGET(gtk_builder_get_object (main_window_xml, "main_window"));
+	GtkNotebook *notebook = ui_tabs_get_notebook();
+	if (notebook) {
+		g_signal_connect (notebook, "switch-page", G_CALLBACK(on_tabs_switch_page), NULL);
+		ui_tab_create (NULL);
+	}
     /* the gtk builder xml object is freed in on_main_window_destroy() */
 	return main_win;
+}
+
+static gchar *ui_tab_default_title_new ()
+{
+	GtkNotebook *notebook;
+	gboolean used[UI_MAX_TABS + 1] = { FALSE };
+	gchar *tab_prefix;
+	guint i;
+
+	notebook = ui_tabs_get_notebook ();
+	tab_prefix = g_strdup_printf ("%s ", _("Tab"));
+
+	if (notebook) {
+		gint n_pages = gtk_notebook_get_n_pages (notebook);
+		for (i = 0; i < (guint) n_pages; i++) {
+			GtkWidget *page = gtk_notebook_get_nth_page (notebook, i);
+			GtkWidget *label = gtk_notebook_get_tab_label (notebook, page);
+			if (label && GTK_IS_LABEL (label)) {
+				const gchar *text = gtk_label_get_text (GTK_LABEL (label));
+				if (text && g_str_has_prefix (text, tab_prefix)) {
+					const gchar *num_text = text + strlen (tab_prefix);
+					gchar *endptr = NULL;
+					gulong nr = g_ascii_strtoull (num_text, &endptr, 10);
+					if (endptr && *endptr == '\0' && nr >= 1 && nr <= UI_MAX_TABS)
+						used[nr] = TRUE;
+				}
+			}
+		}
+	}
+
+	for (i = 1; i <= UI_MAX_TABS; i++) {
+		if (!used[i]) {
+			gchar *title = g_strdup_printf ("%s %u", _("Tab"), i);
+			g_free (tab_prefix);
+			return title;
+		}
+	}
+
+	g_free (tab_prefix);
+	return g_strdup_printf ("%s %d", _("Tab"),
+		notebook ? gtk_notebook_get_n_pages (notebook) + 1 : 1);
+}
+
+static void ui_tabs_refresh_actions ()
+{
+	GtkNotebook *notebook;
+	GtkWidget *new_tab_item;
+	gboolean can_create;
+
+	notebook = ui_tabs_get_notebook ();
+	if (!notebook || !main_window_xml) return;
+
+	can_create = (gtk_notebook_get_n_pages (notebook) < UI_MAX_TABS);
+	new_tab_item = GTK_WIDGET(gtk_builder_get_object (main_window_xml, "new_tab"));
+	if (new_tab_item) gtk_widget_set_sensitive (new_tab_item, can_create);
+}
+
+GtkNotebook *ui_tabs_get_notebook ()
+{
+	if (!main_window_xml) return NULL;
+	return GTK_NOTEBOOK (gtk_builder_get_object (main_window_xml, "tabs_notebook"));
+}
+
+s_tab_context *ui_tab_context_from_widget (GtkWidget *widget)
+{
+	while (widget != NULL) {
+		s_tab_context *ctx = g_object_get_data (G_OBJECT(widget), "tab-context");
+		if (ctx != NULL) return ctx;
+		widget = gtk_widget_get_parent (widget);
+	}
+	return active_tab;
+}
+
+void ui_bind_active_tab_from_widget (GtkWidget *widget)
+{
+	s_tab_context *ctx = ui_tab_context_from_widget (widget);
+	if (ctx != NULL) active_tab = ctx;
+}
+
+void ui_bind_active_tab_from_menu_item (GtkMenuItem *menuitem)
+{
+	GtkWidget *menu = gtk_widget_get_parent (GTK_WIDGET(menuitem));
+	if (menu != NULL) {
+		s_tab_context *ctx = g_object_get_data (G_OBJECT(menu), "tab-context");
+		if (ctx != NULL) {
+			active_tab = ctx;
+			return;
+		}
+	}
+	ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
+}
+
+GtkWidget *ui_tab_create (const gchar *title)
+{
+	GtkNotebook		*notebook;
+	GtkWidget		*page, *label;
+	s_tab_context	*ctx;
+	gint			n_pages, page_idx;
+	gchar			*generated_title = NULL;
+	
+	notebook = ui_tabs_get_notebook();
+	if (!notebook) return NULL;
+	
+	n_pages = gtk_notebook_get_n_pages (notebook);
+	if (n_pages >= UI_MAX_TABS) {
+		ui_tabs_refresh_actions ();
+		return NULL;
+	}
+	if (n_pages == 0) ctx = active_tab;
+	else ctx = ui_tab_context_new();
+	
+	page = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+	if (title == NULL || *title == '\0') {
+		generated_title = ui_tab_default_title_new ();
+		title = generated_title;
+	}
+	label = gtk_label_new (title);
+	g_object_set_data (G_OBJECT(page), "tab-context", ctx);
+	g_object_set_data (G_OBJECT(page), "tab-context-owned", GINT_TO_POINTER(n_pages > 0));
+	
+	page_idx = gtk_notebook_append_page (notebook, page, label);
+	gtk_widget_show_all (page);
+	gtk_notebook_set_current_page (notebook, page_idx);
+	active_tab = ctx;
+	ui_tab_build_content (ctx, page);
+	ui_tabs_refresh_actions ();
+	if (generated_title) g_free (generated_title);
+	
+	return page;
+}
+
+gboolean ui_tab_select (gint page_num)
+{
+	GtkNotebook *notebook = ui_tabs_get_notebook();
+	if (!notebook) return FALSE;
+	if (page_num < 0 || page_num >= gtk_notebook_get_n_pages (notebook)) return FALSE;
+	gtk_notebook_set_current_page (notebook, page_num);
+	return TRUE;
+}
+
+gboolean ui_tab_close (gint page_num)
+{
+	GtkNotebook		*notebook;
+	GtkWidget		*page;
+	s_tab_context	*ctx;
+	gboolean		owned;
+	
+	notebook = ui_tabs_get_notebook();
+	if (!notebook) return FALSE;
+	if (gtk_notebook_get_n_pages (notebook) <= 1) return FALSE;
+	if (page_num < 0 || page_num >= gtk_notebook_get_n_pages (notebook)) return FALSE;
+	
+	page = gtk_notebook_get_nth_page (notebook, page_num);
+	if (!page) return FALSE;
+	ctx = g_object_get_data (G_OBJECT(page), "tab-context");
+	owned = GPOINTER_TO_INT(g_object_get_data (G_OBJECT(page), "tab-context-owned"));
+	
+	gtk_notebook_remove_page (notebook, page_num);
+	
+	if (owned) ui_tab_context_free (ctx);
+	
+	page = gtk_notebook_get_nth_page (notebook, gtk_notebook_get_current_page (notebook));
+	if (page) {
+		ctx = g_object_get_data (G_OBJECT(page), "tab-context");
+		if (ctx) active_tab = ctx;
+	}
+	ui_tabs_refresh_actions ();
+	
+	return TRUE;
+}
+
+gboolean ui_tab_close_current ()
+{
+	return ui_tab_close (ui_tab_get_current ());
+}
+
+gint ui_tab_get_current ()
+{
+	GtkNotebook *notebook = ui_tabs_get_notebook();
+	if (!notebook) return -1;
+	return gtk_notebook_get_current_page (notebook);
 }
 
 #ifdef WITH_HILDON
@@ -364,35 +645,40 @@ void create_hildon_menu (HildonWindow *main_window)
 
 void ui_main_window_set_dispctrl (int location)
 {
+	s_tab_context	*ctx;
 	GtkWidget	*table_dispctrl, *box;
 	s_signal_cb	signal_cb;
+	
+	ctx = active_tab;
+	if (!ctx || !ctx->tab_view_xml) return;
 	/* destroy any existing display controls */
-	if (dispctrl_xml) {
-        table_dispctrl = GTK_WIDGET(gtk_builder_get_object (dispctrl_xml, "table_dispctrl"));
+	if (ctx->tab_dispctrl_xml) {
+        table_dispctrl = GTK_WIDGET(gtk_builder_get_object (ctx->tab_dispctrl_xml, "table_dispctrl"));
 		if (table_dispctrl) gtk_widget_destroy (table_dispctrl); 
-		g_object_unref (G_OBJECT(dispctrl_xml));
-		dispctrl_xml = NULL;
+		g_object_unref (G_OBJECT(ctx->tab_dispctrl_xml));
+		ctx->tab_dispctrl_xml = NULL;
 	}
 	/* now create the new one at location */
 	switch(location) {
 		case DISPCTRL_BOTTOM:
-            box = GTK_WIDGET(gtk_builder_get_object (view_xml, "display_vbox"));
-			dispctrl_xml = gtk_builder_file_open (DISPCTRL_BOTTOM_GLADE_FILE, TRUE);
-			ui_pack_from_xml (box, 1, dispctrl_xml, "table_dispctrl", TRUE, TRUE);
+            box = GTK_WIDGET(gtk_builder_get_object (ctx->tab_view_xml, "display_vbox"));
+			ctx->tab_dispctrl_xml = gtk_builder_file_open (DISPCTRL_BOTTOM_GLADE_FILE, TRUE);
+			ui_pack_from_xml (box, 1, ctx->tab_dispctrl_xml, "table_dispctrl", TRUE, TRUE);
 			break;
 		case DISPCTRL_RIGHT:
-            box = GTK_WIDGET(gtk_builder_get_object (view_xml, "display_hbox"));
-			dispctrl_xml = gtk_builder_file_open (DISPCTRL_RIGHT_GLADE_FILE, TRUE);
-			ui_pack_from_xml (box, 1, dispctrl_xml, "table_dispctrl", FALSE, FALSE);
+            box = GTK_WIDGET(gtk_builder_get_object (ctx->tab_view_xml, "display_hbox"));
+			ctx->tab_dispctrl_xml = gtk_builder_file_open (DISPCTRL_RIGHT_GLADE_FILE, TRUE);
+			ui_pack_from_xml (box, 1, ctx->tab_dispctrl_xml, "table_dispctrl", FALSE, FALSE);
 			break;
 		case DISPCTRL_RIGHTV:
-            box = GTK_WIDGET(gtk_builder_get_object (view_xml, "display_hbox"));
-			dispctrl_xml = gtk_builder_file_open (DISPCTRL_RIGHTV_GLADE_FILE, TRUE);
-			ui_pack_from_xml (box, 1, dispctrl_xml, "table_dispctrl", FALSE, FALSE);
+            box = GTK_WIDGET(gtk_builder_get_object (ctx->tab_view_xml, "display_hbox"));
+			ctx->tab_dispctrl_xml = gtk_builder_file_open (DISPCTRL_RIGHTV_GLADE_FILE, TRUE);
+			ui_pack_from_xml (box, 1, ctx->tab_dispctrl_xml, "table_dispctrl", FALSE, FALSE);
 			break;
 		default:
 			error_message ("Unknown location %i in \"ui_main_window_set_dispctrl\"", location);
 	}
+	dispctrl_xml = ctx->tab_dispctrl_xml;
 	set_disp_ctrl_object_data ();
 
 	/* finally we connect that signal handler */
@@ -409,13 +695,15 @@ void ui_main_window_set_dispctrl (int location)
 
 void ui_main_window_buttons_destroy ()
 {
+	s_tab_context	*ctx;
 	GtkWidget	*box;
 	
-	if (!button_box_xml) return;
-    box = GTK_WIDGET(gtk_builder_get_object (button_box_xml, "button_box"));
+	ctx = active_tab;
+	if (!ctx || !ctx->tab_button_box_xml) return;
+    box = GTK_WIDGET(gtk_builder_get_object (ctx->tab_button_box_xml, "button_box"));
 	if (box) gtk_widget_destroy (box);
-    g_object_unref(button_box_xml);
-    button_box_xml = NULL;
+    g_object_unref(ctx->tab_button_box_xml);
+    ctx->tab_button_box_xml = NULL;
 }
 
 /* ui_main_window_buttons_create. fills main_window with calculator's buttons,
@@ -424,23 +712,29 @@ void ui_main_window_buttons_destroy ()
 
 void ui_main_window_buttons_create (int mode)
 {
+	s_tab_context	*ctx;
 	GtkWidget	*box, *button;
 	s_signal_cb	signal_cb;
+	
+	ctx = active_tab;
+	if (!ctx || !ctx->tab_view_xml) return;
 
 	switch (mode) {
 	case BASIC_MODE:
-		if (button_box_xml) g_object_unref (G_OBJECT(button_box_xml));
-		button_box_xml = gtk_builder_file_open (BASIC_GLADE_FILE, TRUE);
-        box = GTK_WIDGET(gtk_builder_get_object (view_xml, "classic_view_vbox"));
-		ui_pack_from_xml (box, 2, button_box_xml, "button_box", TRUE, TRUE);
-		set_basic_object_data (button_box_xml);
+		if (ctx->tab_button_box_xml) g_object_unref (G_OBJECT(ctx->tab_button_box_xml));
+		ctx->tab_button_box_xml = gtk_builder_file_open (BASIC_GLADE_FILE, TRUE);
+        box = GTK_WIDGET(gtk_builder_get_object (ctx->tab_view_xml, "classic_view_vbox"));
+		ui_pack_from_xml (box, 2, ctx->tab_button_box_xml, "button_box", TRUE, TRUE);
+		button_box_xml = ctx->tab_button_box_xml;
+		set_basic_object_data ();
 		break;
 	case SCIENTIFIC_MODE:
-		if (button_box_xml) g_object_unref (G_OBJECT(button_box_xml));
-		button_box_xml = gtk_builder_file_open (SCIENTIFIC_GLADE_FILE, TRUE);
-        box = GTK_WIDGET(gtk_builder_get_object (view_xml, "classic_view_vbox"));
-		ui_pack_from_xml (box, 2, button_box_xml, "button_box", TRUE, TRUE);
-		set_scientific_object_data (button_box_xml);
+		if (ctx->tab_button_box_xml) g_object_unref (G_OBJECT(ctx->tab_button_box_xml));
+		ctx->tab_button_box_xml = gtk_builder_file_open (SCIENTIFIC_GLADE_FILE, TRUE);
+        box = GTK_WIDGET(gtk_builder_get_object (ctx->tab_view_xml, "classic_view_vbox"));
+		ui_pack_from_xml (box, 2, ctx->tab_button_box_xml, "button_box", TRUE, TRUE);
+		button_box_xml = ctx->tab_button_box_xml;
+		set_scientific_object_data ();
 		break;
 	case PAPER_MODE:
 		return;
@@ -456,12 +750,12 @@ void ui_main_window_buttons_create (int mode)
 	dec_point[0] = getDecPoint();
 	dec_point[1] = '\0';
     gtk_button_set_label ((GtkButton *) GTK_WIDGET(gtk_builder_get_object (
-        button_box_xml, "button_point")), dec_point);
+        ctx->tab_button_box_xml, "button_point")), dec_point);
         
 	/* disable mr and m+ button if there is nothing to display */
-    button = GTK_WIDGET(gtk_builder_get_object (button_box_xml, "button_MR"));
+    button = GTK_WIDGET(gtk_builder_get_object (ctx->tab_button_box_xml, "button_MR"));
 	gtk_widget_set_sensitive (button, memory.len > 0);
-    button = GTK_WIDGET(gtk_builder_get_object (button_box_xml, "button_Mplus"));
+    button = GTK_WIDGET(gtk_builder_get_object (ctx->tab_button_box_xml, "button_Mplus"));
 	gtk_widget_set_sensitive (button, memory.len > 0);
 	
 	/* apply button specific prefs */
@@ -563,13 +857,20 @@ static void set_table_child_tip_accel (GtkWidget* button, gpointer user_data)
 	/* get all accelerators (== closures) connected to this button */
 	closure_list = gtk_widget_list_accel_closures (button);
 	if (!closure_list) return;
-	if (!closure_list->data) return;
+	if (!closure_list->data) {
+		g_list_free (closure_list);
+		return;
+	}
 	/* we head for first closure */
 	accel_group = gtk_accel_group_from_accel_closure(closure_list->data);
-	if (!accel_group) return;
+	if (!accel_group) {
+		g_list_free (closure_list);
+		return;
+	}
 	d[0] = (gpointer) closure_list->data;
 	d[1] = (gpointer) button;
 	gtk_accel_group_find(accel_group, (GtkAccelGroupFindFunc)set_table_child_tip_accel_finder, d);
+	g_list_free (closure_list);
 }
 
 /* set_all_dispctrl_buttons_property. calls func with argument data for 
@@ -781,6 +1082,8 @@ void update_active_buttons (int number_base, int notation_mode)
 
 void update_dispctrl()
 {
+	s_tab_context *ctx = active_tab;
+	if (!ctx) return;
 	/* just put one here and hide it afterwards. we need the button
 			for working key accelerators. */
 	if (prefs.mode == BASIC_MODE) 
@@ -788,7 +1091,7 @@ void update_dispctrl()
 	else if (current_status.notation == CS_RPN)
 		ui_main_window_set_dispctrl (DISPCTRL_RIGHTV);
 	else ui_main_window_set_dispctrl (DISPCTRL_RIGHT);
-	set_widget_visibility (dispctrl_xml, "table_dispctrl", 
+	set_widget_visibility (ctx->tab_dispctrl_xml, "table_dispctrl", 
 		prefs.vis_dispctrl);
 	set_all_dispctrl_buttons_size (prefs.button_width, prefs.button_height);
 	set_all_dispctrl_buttons_font (prefs.custom_button_font ? prefs.button_font : "");
@@ -927,15 +1230,15 @@ GtkWidget *ui_constants_menu_create (s_constant *constant, GCallback const_handl
 	return menu;
 }
 
-GtkWidget *ui_memory_menu_create (s_array memory, GCallback memory_handler, char *last_item)
+GtkWidget *ui_memory_menu_create (s_array memory_array, GCallback memory_handler, char *last_item)
 {
 	GtkWidget	*menu, *child;
 	int		counter=0;
 	char		*label;
 	
 	menu = gtk_menu_new();
-	for (counter = 0; counter < memory.len; counter++) {
-		label = float2string("%"G_LMOD"f", memory.data[counter]);
+	for (counter = 0; counter < memory_array.len; counter++) {
+		label = float2string("%"G_LMOD"f", memory_array.data[counter]);
 		child = gtk_menu_item_new_with_label(label);
 		g_free (label);
 		gtk_menu_shell_append ((GtkMenuShell *) menu, child);
@@ -1244,59 +1547,76 @@ void ui_relax_fmod_buttons ()
 
 void ui_classic_view_create()
 {
+	s_tab_context	*ctx;
 	GtkWidget	*classic_view_vbox, *box;
+	
+	ctx = active_tab;
+	if (!ctx) return;
 
 	/* at first, check if there is already a classic view */
-	if (classic_view_xml) {
-        classic_view_vbox = GTK_WIDGET(gtk_builder_get_object (classic_view_xml, "classic_view_vbox"));
-        g_assert(classic_view_xml != NULL);
+	if (ctx->tab_classic_view_xml) {
+        classic_view_vbox = GTK_WIDGET(gtk_builder_get_object (ctx->tab_classic_view_xml, "classic_view_vbox"));
+        g_assert(ctx->tab_classic_view_xml != NULL);
 		if (classic_view_vbox) return;
 	}
 
 	/* if not, build one */
-	classic_view_xml = gtk_builder_file_open (CLASSIC_VIEW_GLADE_FILE, TRUE);
-    box = GTK_WIDGET(gtk_builder_get_object (main_window_xml, "window_vbox"));
-	ui_pack_from_xml (box, 1, classic_view_xml, "classic_view_vbox", TRUE, TRUE);
-    view_xml = classic_view_xml;
+	ctx->tab_classic_view_xml = gtk_builder_file_open (CLASSIC_VIEW_GLADE_FILE, TRUE);
+    box = ui_get_current_tab_container();
+	ui_pack_from_xml (box, 1, ctx->tab_classic_view_xml, "classic_view_vbox", TRUE, TRUE);
+    ctx->tab_view_xml = ctx->tab_classic_view_xml;
+    view_xml = ctx->tab_view_xml;
 	
 	display_init ();
 }
 
 void ui_classic_view_destroy()
 {
+	s_tab_context	*ctx;
 	GtkWidget	*classic_view_vbox;
+	GtkBuilder	*old_classic_view;
 	
-	if (!classic_view_xml) return;
-    classic_view_vbox = GTK_WIDGET(gtk_builder_get_object (classic_view_xml, "classic_view_vbox"));
+	ctx = active_tab;
+	if (!ctx) return;
+	
+	if (!ctx->tab_classic_view_xml) return;
+	old_classic_view = ctx->tab_classic_view_xml;
+    classic_view_vbox = GTK_WIDGET(gtk_builder_get_object (old_classic_view, "classic_view_vbox"));
 	if (classic_view_vbox) gtk_widget_destroy (classic_view_vbox);
-    g_object_unref(classic_view_xml);
-    classic_view_xml = NULL;
+    g_object_unref(old_classic_view);
+    ctx->tab_classic_view_xml = NULL;
+    if (ctx->tab_view_xml == old_classic_view) ctx->tab_view_xml = NULL;
 }
 
 void ui_paper_view_create()
 {
+	s_tab_context		*ctx;
 	GtkWidget		*paper_view_vbox, *box, *tree_view;
 	GtkCellRenderer 	*renderer;
 	GtkTreeViewColumn 	*column;
 	GtkListStore		*paper_store;
 	GtkTreeSelection	*select;
+	
+	ctx = active_tab;
+	if (!ctx) return;
 
 	/* at first, check if there is already a ng view */
-	if (paper_view_xml) {
-        paper_view_vbox = GTK_WIDGET(gtk_builder_get_object (paper_view_xml, "paper_view_vbox"));
+	if (ctx->tab_paper_view_xml) {
+        paper_view_vbox = GTK_WIDGET(gtk_builder_get_object (ctx->tab_paper_view_xml, "paper_view_vbox"));
         g_assert(paper_view_vbox != NULL);
 		if (paper_view_vbox) return;
 	}
 	
 	/* if not, build one */
-	paper_view_xml = gtk_builder_file_open (PAPER_VIEW_GLADE_FILE, TRUE);
-    box = GTK_WIDGET(gtk_builder_get_object (main_window_xml, "window_vbox"));
-	ui_pack_from_xml (box, 1, paper_view_xml, "paper_view_vbox", TRUE, TRUE);
-    view_xml = paper_view_xml;
+	ctx->tab_paper_view_xml = gtk_builder_file_open (PAPER_VIEW_GLADE_FILE, TRUE);
+    box = ui_get_current_tab_container();
+	ui_pack_from_xml (box, 1, ctx->tab_paper_view_xml, "paper_view_vbox", TRUE, TRUE);
+    ctx->tab_view_xml = ctx->tab_paper_view_xml;
+    view_xml = ctx->tab_view_xml;
 	
 	/* markup / xalign / foreground */
 	paper_store = gtk_list_store_new (3, G_TYPE_STRING, G_TYPE_FLOAT, G_TYPE_STRING);
-    tree_view = GTK_WIDGET(gtk_builder_get_object (view_xml, "paper_treeview"));
+    tree_view = GTK_WIDGET(gtk_builder_get_object (ctx->tab_view_xml, "paper_treeview"));
 	gtk_tree_view_set_model ((GtkTreeView *) tree_view, GTK_TREE_MODEL (paper_store));
 	
 	renderer = gtk_cell_renderer_text_new ();
@@ -1305,20 +1625,27 @@ void ui_paper_view_create()
 	
 	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (tree_view));
 	gtk_tree_selection_set_mode (select, GTK_SELECTION_SINGLE);
-	g_signal_connect (G_OBJECT (tree_view), "button-press-event",
+    g_signal_connect (G_OBJECT (tree_view), "button-press-event",
                   G_CALLBACK (paper_tree_view_selection_changed_cb),
                   NULL);
                   
-    gtk_widget_grab_focus(GTK_WIDGET(gtk_builder_get_object (view_xml, "paper_entry")));
+    gtk_widget_grab_focus(GTK_WIDGET(gtk_builder_get_object (ctx->tab_view_xml, "paper_entry")));
 }
 
 void ui_paper_view_destroy()
 {
+	s_tab_context	*ctx;
 	GtkWidget	*paper_view_vbox;
+	GtkBuilder	*old_paper_view;
 	
-	if (!paper_view_xml) return;
-    paper_view_vbox = GTK_WIDGET(gtk_builder_get_object (paper_view_xml, "paper_view_vbox"));
+	ctx = active_tab;
+	if (!ctx) return;
+	
+	if (!ctx->tab_paper_view_xml) return;
+	old_paper_view = ctx->tab_paper_view_xml;
+    paper_view_vbox = GTK_WIDGET(gtk_builder_get_object (old_paper_view, "paper_view_vbox"));
 	if (paper_view_vbox) gtk_widget_destroy (paper_view_vbox);
-    g_object_unref(paper_view_xml);
-    paper_view_xml = NULL;
+    g_object_unref(old_paper_view);
+    ctx->tab_paper_view_xml = NULL;
+    if (ctx->tab_view_xml == old_paper_view) ctx->tab_view_xml = NULL;
 }

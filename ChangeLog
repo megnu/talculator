@@ -1,3 +1,8 @@
+2026-04-15 talculator maintainers
+	* Forked from galculator and rebranded as talculator
+	* Upstream repository: https://github.com/megnu/talculator
+	* Ported tab support from the earlier tabbed fork series
+
 2015-09-09 Simon Flöry <simon.floery@rechenraum.com>
 	* renaming 'configure.in' to 'configure.ac', removing some autoconf/automake
 		files from SVN (this and the following thanks to Dmitry for reporting)

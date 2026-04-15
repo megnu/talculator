@@ -2,16 +2,16 @@
 
 AM_CPPFLAGS = \
 	-DPACKAGE_LOCALE_DIR=\""$(datadir)/locale"\" \
-	-DPACKAGE_UI_DIR=\""$(datadir)/galculator/ui"\" \
+	-DPACKAGE_UI_DIR=\""$(datadir)/talculator/ui"\" \
 	-DPACKAGE_PIXMAPS_DIR=\""$(datadir)/pixmaps"\" \
 	-DGDK_DISABLE_DEPRECATED \
 	-DGTK_DISABLE_DEPRECATED \
 	-DGSEAL_ENABLE
 
-bin_PROGRAMS = galculator
+bin_PROGRAMS = talculator
 
-galculator_SOURCES = \
-	main.c galculator.h \
+talculator_SOURCES = \
+	main.c talculator.h \
 	math_functions.c math_functions.h \
 	display.c display.h \
 	general_functions.c general_functions.h \
@@ -22,13 +22,13 @@ galculator_SOURCES = \
 	flex_parser.l flex_parser.h \
 	g_real.h
 
-galculator_CFLAGS = \
+talculator_CFLAGS = \
 	$(GTK_CFLAGS)
 
-galculator_LDADD = \
+talculator_LDADD = \
 	$(GTK_LIBS) $(LIBM)
 
-galculator_LDFLAGS = -export-dynamic
+talculator_LDFLAGS = -export-dynamic
 
 ## added on 20150909, the auto-generated files is not removed
 CLEANFILES = flex_parser.c

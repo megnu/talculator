@@ -5,18 +5,18 @@
   <object class="GtkAboutDialog" id="about_dialog">
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
-    <property name="title" translatable="yes">About galculator</property>
-    <property name="icon_name">galculator</property>
+    <property name="title" translatable="yes">About talculator</property>
+    <property name="icon_name">talculator</property>
     <property name="type_hint">dialog</property>
-    <property name="program_name">galculator</property>
+    <property name="program_name">talculator</property>
     <property name="version">@VERSION@</property>
     <property name="copyright" translatable="yes">Copyright (c) 2002-2014 by Simon Flöry &lt;simon.floery@rechenraum.com&gt;</property>
     <property name="comments" translatable="yes">a GTK+ based scientific calculator</property>
-    <property name="website">http://galculator.sourceforge.net/</property>
+    <property name="website">http://talculator.sourceforge.net/</property>
     <property name="authors">Simon Flöry &lt;simon.floery@rechenraum.com&gt;
 Hong Jen Yee (PCMan) &lt;pcman.tw@gmail.com&gt; (GTK3 port)
 John Williams &lt;john@pond-weed.com&gt; (libquadmath support)</property>
-    <property name="logo_icon_name">galculator</property>
+    <property name="logo_icon_name">talculator</property>
     <signal name="response" handler="gtk_widget_destroy" swapped="no"/>
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox2">

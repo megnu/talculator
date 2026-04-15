@@ -25,8 +25,9 @@ ddc       ([-]?[[:digit:]]+)
 %{
 #include <stdlib.h>
 #include <ctype.h>
+#include <string.h>
 
-#include "galculator.h"
+#include "talculator.h"
 #include "calc_basic.h"
 #include "general_functions.h"
 #include "math_functions.h"
@@ -234,14 +235,14 @@ s_flex_parser_result flex_parser (const char *string)
 know what you are doing? If not: %s\n"), PROG_NAME, FLEX_PARSER_NR_RECURSIONS, BUG_REPORT);
 	/* create a '=' terminated copy of string */
 	string_length = strlen(string);
-	if (string[string_length-1] != '=') {
-		my_string = (char *) malloc ((string_length + 2) * sizeof(char));
-		strcpy(my_string, string);
+	if ((string_length == 0) || (string[string_length-1] != '=')) {
+		my_string = (char *) g_malloc ((string_length + 2) * sizeof(char));
+		memcpy (my_string, string, string_length);
 		my_string[string_length] = '=';
 		my_string[string_length + 1] = '\0';
 	} else {
-		my_string = (char *) malloc ((string_length+ 1) * sizeof(char));
-		strcpy (my_string, string);
+		my_string = (char *) g_malloc ((string_length + 1) * sizeof(char));
+		memcpy (my_string, string, string_length + 1);
 	}
 	/* initialize */
 	bracket_level = bracket_counter;
@@ -255,7 +256,7 @@ know what you are doing? If not: %s\n"), PROG_NAME, FLEX_PARSER_NR_RECURSIONS, B
         yy_delete_buffer(YY_CURRENT_BUFFER);
 	yy_switch_to_buffer (flex_buffer_stack->data);
 	flex_buffer_stack = g_slist_delete_link (flex_buffer_stack, flex_buffer_stack);
-	free (my_string);
+	g_free (my_string);
 	alg_free (alg_object_stack->data);
 	alg_object_stack = g_slist_delete_link (alg_object_stack, alg_object_stack);
 	/* after finishing a buffer we insert a number, so state is OP?!?!? */

@@ -1,6 +1,6 @@
 /*
  *  main.c
- *	part of galculator
+ *	part of talculator
  *  	(c) 2002-2014 Simon Flöry (simon.floery@rechenraum.com)
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -29,7 +29,7 @@
 #include <errno.h>
 
 #include "calc_basic.h"
-#include "galculator.h"
+#include "talculator.h"
 #include "display.h"
 #include "config_file.h"
 #include "general_functions.h"
@@ -50,11 +50,26 @@
 #define MASK_NUMLOCK GDK_MOD2_MASK
 
 s_preferences		prefs;
-s_current_status 	current_status = {0, 0, 0, 0, FALSE, FALSE, TRUE};
-s_array				memory;
 s_constant 			*constant;
 s_user_function		*user_function;
-ALG_OBJECT			*main_alg;
+s_tab_context		default_tab_context = {
+	.tab_current_status = {0, 0, 0, 0, FALSE, FALSE, TRUE},
+	.tab_memory = {NULL, 0},
+	.tab_main_alg = NULL,
+	.tab_display_view = NULL,
+	.tab_display_buffer = NULL,
+	.tab_display_result_counter = 0,
+	.tab_display_result_line = 0,
+	.tab_display_value = 0,
+	.tab_display_last_arith = ' ',
+	.tab_display_brackets = 0,
+	.tab_view_xml = NULL,
+	.tab_button_box_xml = NULL,
+	.tab_dispctrl_xml = NULL,
+	.tab_classic_view_xml = NULL,
+	.tab_paper_view_xml = NULL
+};
+s_tab_context		*active_tab = &default_tab_context;
 
 void print_usage ()
 {
@@ -198,7 +213,7 @@ int main (int argc, char *argv[])
 				fprintf (stderr, _("[%s] configuration file: Failed to create directory %s.\n"), PACKAGE, path);
 			g_free(path);
 			/* check old file location */
-			char *config_file_name_old = g_strdup_printf("%s/%s", getenv ("HOME"), CONFIG_FILE_NAME_OLD);
+			char *config_file_name_old = g_strdup_printf("%s/%s", g_get_home_dir(), CONFIG_FILE_NAME_OLD);
 			if (g_file_test(config_file_name_old, G_FILE_TEST_IS_REGULAR)) {
 				fprintf (stderr, _("[%s] configuration file: We will move the configuration \
 file from %s to %s. After you quit %s, you may remove the configuration file from its old location %s.\n"), 

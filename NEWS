@@ -1,5 +1,10 @@
 see ChangeLog
 
+talculator 2.1.4+tabs (fork update)
+	* this project is now maintained as a fork of galculator
+	* upstream moved to https://github.com/megnu/talculator
+	* adds tabbed calculator workflow and related UX updates
+
 galculator 1.3.1
 	* some minor bugfixes
 

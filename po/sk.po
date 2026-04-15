@@ -19,7 +19,7 @@ msgstr ""
 "Language: sk\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 
-#: ../galculator.desktop.in.h:1
+#: ../talculator.desktop.in.h:1
 msgid "Perform simple and scientific calculations"
 msgstr "Kalkulačka na jednoduché i vedecké výpočty"
 
@@ -68,7 +68,7 @@ msgid ""
 "location %s.\n"
 msgstr "[%s] konfiguračný súbor: Tento konfiguračný súbor sa presunie z %s do %s. Po ukončení %s môžete konfiguračný súbor zo starého umiestnenia %s odstrániť.\n"
 
-#: ../src/galculator.h:92
+#: ../src/talculator.h:92
 msgid "Please submit a bugreport."
 msgstr "Prosím nahláste chybu."
 
@@ -285,10 +285,10 @@ msgstr "[%s] dĺžka desatinného miesta (v národných nastaveniach) nie je pod
 #: ../src/ui.c:89
 #, c-format
 msgid ""
-"[%s] Couldn't load %s. This file is necessary     to build galculator's user"
+"[%s] Couldn't load %s. This file is necessary     to build talculator's user"
 " interface. Make sure you did a make install and the file     is "
 "accessible!\n"
-msgstr "[%s] Nepodarilo sa načítať %s. Súbor je potrebný na zostavenie používateľského rozhrania galculator. Uistite sa, že ste použili „make install“ a že je súbor dostupný!\n"
+msgstr "[%s] Nepodarilo sa načítať %s. Súbor je potrebný na zostavenie používateľského rozhrania talculator. Uistite sa, že ste použili „make install“ a že je súbor dostupný!\n"
 
 #: ../src/ui.c:959 ../ui/main_frame.ui.h:17 ../ui/main_frame_hildon.ui.h:16
 msgid "Show _menu bar"
@@ -401,8 +401,8 @@ msgid ""
 msgstr "[%s] flex parser bol volaným viac ako %i krát. Viete, čo robíte? Ak nie: %s\n"
 
 #: ../ui/about.ui.in.h:1
-msgid "About galculator"
-msgstr "O programe galculator"
+msgid "About talculator"
+msgstr "O programe talculator"
 
 #: ../ui/about.ui.in.h:2
 msgid "Copyright (c) 2002-2014 by Simon Flöry <simon.floery@rechenraum.com>"
@@ -827,8 +827,8 @@ msgid "Binary"
 msgstr "dvojkovú"
 
 #: ../ui/prefs_gtk2.ui.h:5 ../ui/prefs_gtk3.ui.h:5 ../ui/prefs-ume.ui.h:1
-msgid "galculator - Preferences"
-msgstr "Nastavenia programu galculator"
+msgid "talculator - Preferences"
+msgstr "Nastavenia programu talculator"
 
 #: ../ui/prefs_gtk2.ui.h:6 ../ui/prefs_gtk3.ui.h:6 ../ui/prefs-ume.ui.h:2
 msgid "A dialog that is used to change preferences settings."

@@ -21,7 +21,7 @@ msgstr ""
 "Language: da\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: ../galculator.desktop.in.h:1
+#: ../talculator.desktop.in.h:1
 msgid "Perform simple and scientific calculations"
 msgstr "Udfør simple og videnskabelige beregninger"
 
@@ -70,7 +70,7 @@ msgid ""
 "location %s.\n"
 msgstr "[%s] konfigurationsfil: Vi vil flytte konfigurationsfilen fra %s til %s. Efter du har afsluttet %s, kan du fjerne konfigurationsfilen fra dets gamle placering %s.\n"
 
-#: ../src/galculator.h:92
+#: ../src/talculator.h:92
 msgid "Please submit a bugreport."
 msgstr "Indsend venligst en fejlreapport."
 
@@ -287,10 +287,10 @@ msgstr "[%s] længde på decimaltal (i sproget) er ikke understøttet: >%s<\nDu 
 #: ../src/ui.c:89
 #, c-format
 msgid ""
-"[%s] Couldn't load %s. This file is necessary     to build galculator's user"
+"[%s] Couldn't load %s. This file is necessary     to build talculator's user"
 " interface. Make sure you did a make install and the file     is "
 "accessible!\n"
-msgstr "[%s] Kunne ikke indlæse %s. Denne fil er nødvendigfor at bgyge galculators brugergrænseflade. Sikr dig at du udførte en make install og filen kan tilgås!\n"
+msgstr "[%s] Kunne ikke indlæse %s. Denne fil er nødvendigfor at bgyge talculators brugergrænseflade. Sikr dig at du udførte en make install og filen kan tilgås!\n"
 
 #: ../src/ui.c:959 ../ui/main_frame.ui.h:17 ../ui/main_frame_hildon.ui.h:16
 msgid "Show _menu bar"
@@ -403,8 +403,8 @@ msgid ""
 msgstr "[%s] flex-fortolker blev kaldt mere end %i gange. Ved du hvad du laver? Hvis ikke: %s\n"
 
 #: ../ui/about.ui.in.h:1
-msgid "About galculator"
-msgstr "Om galculator"
+msgid "About talculator"
+msgstr "Om talculator"
 
 #: ../ui/about.ui.in.h:2
 msgid "Copyright (c) 2002-2014 by Simon Flöry <simon.floery@rechenraum.com>"
@@ -829,8 +829,8 @@ msgid "Binary"
 msgstr "Binær"
 
 #: ../ui/prefs_gtk2.ui.h:5 ../ui/prefs_gtk3.ui.h:5 ../ui/prefs-ume.ui.h:1
-msgid "galculator - Preferences"
-msgstr "galculator - præferencer"
+msgid "talculator - Preferences"
+msgstr "talculator - præferencer"
 
 #: ../ui/prefs_gtk2.ui.h:6 ../ui/prefs_gtk3.ui.h:6 ../ui/prefs-ume.ui.h:2
 msgid "A dialog that is used to change preferences settings."

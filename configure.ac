@@ -1,11 +1,11 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT([galculator], [2.1.5devel])
+AC_INIT([talculator], [2.1.5devel])
 AC_CONFIG_SRCDIR([configure.ac])
 AM_INIT_AUTOMAKE
 
 dnl AC_INIT(configure.ac)
-dnl AM_INIT_AUTOMAKE([galculator], [2.1.5devel])
+dnl AM_INIT_AUTOMAKE([talculator], [2.1.5devel])
 AM_MAINTAINER_MODE
 
 AC_CONFIG_MACRO_DIR([m4])
@@ -30,7 +30,7 @@ dnl
 
 AC_ARG_ENABLE([gtk3],
     [AC_HELP_STRING([--enable-gtk3],
-        [compile galculator against gtk+ 3.0 (default: yes)])],
+        [compile talculator against gtk+ 3.0 (default: yes)])],
     [enable_gtk3="${enableval}"],
     [enable_gtk3="yes"]
 )
@@ -69,7 +69,7 @@ AM_PROG_LEX
 
 AM_PROG_CC_C_O
 
-GETTEXT_PACKAGE=galculator
+GETTEXT_PACKAGE=talculator
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE, "$GETTEXT_PACKAGE", [Name of gettext package])
 AC_SUBST(GETTEXT_PACKAGE)
 
@@ -86,7 +86,7 @@ if test x$MSGFMT = xno
 then
         AC_ERROR([
 
-The msgfmt command is required to build galculator.  If it is installed
+The msgfmt command is required to build talculator.  If it is installed
 on your system, ensure that it is in your path.  If it is not, install
 GNU gettext to continue.
 ])
@@ -104,7 +104,7 @@ changequote([,])dnl
 
 dnl m4/Makefile
 AC_OUTPUT([Makefile
-galculator.spec
+talculator.spec
 src/Makefile
 po/Makefile.in 
 ui/Makefile

@@ -23,7 +23,7 @@ msgstr ""
 "Language: tr\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: ../galculator.desktop.in.h:1
+#: ../talculator.desktop.in.h:1
 msgid "Perform simple and scientific calculations"
 msgstr "Basit ve bilimsel hesaplamalar gerçekleştir"
 
@@ -72,7 +72,7 @@ msgid ""
 "location %s.\n"
 msgstr "[%s] yapılandırma dosyası: Yapılandırma dosyasını %s konumundan %s konumuna taşıyacağız. %s kapatıldıktan sonra, eski %s konumundan yapılandırma dosyasını kaldırabilirsiniz.\n"
 
-#: ../src/galculator.h:92
+#: ../src/talculator.h:92
 msgid "Please submit a bugreport."
 msgstr "Lütfen bir hata kaydı gönderin."
 
@@ -289,7 +289,7 @@ msgstr "[%s] Ondalık noktanın uzunluğu (yerel içerisinde) desteklenmemektedi
 #: ../src/ui.c:89
 #, c-format
 msgid ""
-"[%s] Couldn't load %s. This file is necessary     to build galculator's user"
+"[%s] Couldn't load %s. This file is necessary     to build talculator's user"
 " interface. Make sure you did a make install and the file     is "
 "accessible!\n"
 msgstr "[%s] %s yüklenemedi. Bu dosya gcalculator kullanıcı arayüzünü oluşturmak için gereklidir. make install komutunu çalıştırdığınızdan ve dosyanın erişilebilir olduğundan emin olun!\n"
@@ -405,8 +405,8 @@ msgid ""
 msgstr "[%s] flex ayrıştırıcısı %i kereden daha fazla çağrıldı. Ne yaptığınızı biliyor musunuz? Bilmiyorsanız: %s\n"
 
 #: ../ui/about.ui.in.h:1
-msgid "About galculator"
-msgstr "galculator Hakkında"
+msgid "About talculator"
+msgstr "talculator Hakkında"
 
 #: ../ui/about.ui.in.h:2
 msgid "Copyright (c) 2002-2014 by Simon Flöry <simon.floery@rechenraum.com>"
@@ -831,8 +831,8 @@ msgid "Binary"
 msgstr "İkilik"
 
 #: ../ui/prefs_gtk2.ui.h:5 ../ui/prefs_gtk3.ui.h:5 ../ui/prefs-ume.ui.h:1
-msgid "galculator - Preferences"
-msgstr "galculator - Tercihler"
+msgid "talculator - Preferences"
+msgstr "talculator - Tercihler"
 
 #: ../ui/prefs_gtk2.ui.h:6 ../ui/prefs_gtk3.ui.h:6 ../ui/prefs-ume.ui.h:2
 msgid "A dialog that is used to change preferences settings."

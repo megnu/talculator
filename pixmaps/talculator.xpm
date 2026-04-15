@@ -1,5 +1,5 @@
 /* XPM */
-static char *galculator[] = {
+static char *talculator[] = {
 /* columns rows colors chars-per-pixel */
 "48 48 15 1",
 "  c #4B79BA",
