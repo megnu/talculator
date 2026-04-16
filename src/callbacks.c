@@ -100,27 +100,22 @@ static void engine_context_from_ui_state (talc_engine_context *ctx)
 }
 
 static gboolean engine_eval_expression (const char *expression,
-	G_REAL *out_value,
 	char **out_display)
 {
 	talc_engine_context engine_ctx;
-	talc_engine_eval_result eval_result = { TRUE, 0 };
 	char *display_string = NULL;
 
-	if (!expression || !out_value || !calc_engine) return FALSE;
+	if (!expression || !calc_engine) return FALSE;
 	if (out_display) *out_display = NULL;
 
 	engine_context_from_ui_state (&engine_ctx);
-	if (!talc_engine_eval_expression_numeric (calc_engine, &engine_ctx, expression, &eval_result)) {
+	display_string = talc_engine_eval_expression (calc_engine, &engine_ctx, expression);
+	if (!display_string || display_string[0] == '\0') {
+		if (display_string) g_free (display_string);
 		return FALSE;
 	}
-	if (eval_result.error) return FALSE;
-	*out_value = eval_result.value;
-	if (out_display) {
-		display_string = talc_engine_eval_expression (calc_engine, &engine_ctx, expression);
-		if (display_string && display_string[0] != '\0') *out_display = display_string;
-		else if (display_string) g_free (display_string);
-	}
+	if (out_display) *out_display = display_string;
+	else g_free (display_string);
 	return TRUE;
 }
 
@@ -267,32 +262,14 @@ static void pan_expr_record_operation (char operation)
 	else g_string_append_c (active_tab->tab_pan_expr, operation);
 }
 
-static gboolean pan_expr_evaluate_equal (G_REAL *out_value, char **out_display)
+static gboolean pan_expr_evaluate_equal (char **out_display)
 {
-	talc_engine_context engine_ctx;
-	talc_engine_eval_result eval_result = { TRUE, 0 };
-	char *display_string = NULL;
-
-	if (!out_value) return FALSE;
 	if (out_display) *out_display = NULL;
 	if (!pan_expr_should_track_with_engine ()) return FALSE;
 	if (!active_tab || !active_tab->tab_pan_expr) return FALSE;
 	if (!active_tab->tab_pan_expr_compatible) return FALSE;
 	if (active_tab->tab_pan_expr->len <= 0) return FALSE;
-
-	engine_context_from_ui_state (&engine_ctx);
-	if (!talc_engine_eval_expression_numeric (calc_engine, &engine_ctx,
-		active_tab->tab_pan_expr->str, &eval_result)) return FALSE;
-	if (eval_result.error) return FALSE;
-
-	*out_value = eval_result.value;
-	if (out_display) {
-		display_string = talc_engine_eval_expression (calc_engine, &engine_ctx,
-			active_tab->tab_pan_expr->str);
-		if (display_string && display_string[0] != '\0') *out_display = display_string;
-		else if (display_string) g_free (display_string);
-	}
-	return TRUE;
+	return engine_eval_expression (active_tab->tab_pan_expr->str, out_display);
 }
 
 /* File */
@@ -415,7 +392,9 @@ void
 on_operation_button_clicked(GtkToggleButton *button, gpointer user_data)
 {
     char              current_operation;
-    G_REAL            current_number, *stack;
+    char             *current_number = NULL;
+    char            **stack = NULL;
+    char             *rpn_result = NULL;
     GtkWidget        *tbutton;
     
     ui_bind_active_tab_from_widget (GTK_WIDGET(button));
@@ -453,12 +432,11 @@ on_operation_button_clicked(GtkToggleButton *button, gpointer user_data)
     }
     
     /* current number, get it from the display! */
-    current_number = display_result_get_double (current_status.number);
+    current_number = display_result_get ();
     
     /* notation specific interface code */
     
     if (current_status.notation == CS_PAN) {
-        G_REAL engine_value = 0;
         char *engine_display = NULL;
         /* '(' doesn't pay respect to allow_arith_op but sets it: a+((((((b-...
          * ')' pays respect to allow_arith_op but doesn't set it: ...+a)))))-...
@@ -473,13 +451,9 @@ on_operation_button_clicked(GtkToggleButton *button, gpointer user_data)
             ((current_operation != ')') || (display_module_bracket_label_update (GET) > 0))) {
             pan_expr_record_operation (current_operation);
             if ((current_operation == '=') &&
-                pan_expr_evaluate_equal (&engine_value, &engine_display)) {
-                if (engine_display) {
-                    display_result_set (engine_display, TRUE, engine_value);
-                    g_free (engine_display);
-                } else {
-                    display_result_set_double (engine_value, current_status.number);
-                }
+                pan_expr_evaluate_equal (&engine_display)) {
+                display_result_set (engine_display, TRUE);
+                g_free (engine_display);
             }
             display_module_arith_label_update (current_operation);
             
@@ -503,16 +477,24 @@ on_operation_button_clicked(GtkToggleButton *button, gpointer user_data)
         case '=':
             rpn_stack_push (current_number);
             stack = rpn_stack_get (RPN_FINITE_STACK);
-            display_stack_set_yzt_double (stack, current_status.number);
+            display_stack_set_yzt (stack);
+            g_free (stack[0]);
+            g_free (stack[1]);
+            g_free (stack[2]);
             g_free (stack);
             /* ENT is a stack lift disabling button */
             current_status.rpn_stack_lift_enabled = FALSE;
             /* display line isn't cleared! */
             break;
         default:
-            display_result_set_double (rpn_stack_operation (current_operation, current_number), current_status.number);
+            rpn_result = rpn_stack_operation (current_operation, current_number);
+            display_result_set (rpn_result, TRUE);
+            g_free (rpn_result);
             stack = rpn_stack_get (RPN_FINITE_STACK);
-            display_stack_set_yzt_double (stack, current_status.number);
+            display_stack_set_yzt (stack);
+            g_free (stack[0]);
+            g_free (stack[1]);
+            g_free (stack[2]);
             g_free (stack);
             /* all other operations are stack lift enabling */
             current_status.rpn_stack_lift_enabled = TRUE;
@@ -520,6 +502,7 @@ on_operation_button_clicked(GtkToggleButton *button, gpointer user_data)
     } else error_message ("on_operation_button_clicked: unknown status");
 
     current_status.calc_entry_start_new = TRUE;
+    if (current_number) g_free (current_number);
     return;
 }
 
@@ -537,7 +520,6 @@ on_function_button_clicked             (GtkToggleButton    *button,
     char          *operand = NULL;
     char          *expression = NULL;
     char          *display_result = NULL;
-    G_REAL         numeric_result = 0;
 
     ui_bind_active_tab_from_widget (GTK_WIDGET(button));
     if (gtk_toggle_button_get_active(button) == FALSE) return;
@@ -556,13 +538,11 @@ on_function_button_clicked             (GtkToggleButton    *button,
     fn_text = display_name[current_status.fmod];
     operand = display_result_get ();
     expression = build_unary_function_expression (fn_text, operand);
-    if (!expression || !engine_eval_expression (expression, &numeric_result, &display_result)) {
+    if (!expression || !engine_eval_expression (expression, &display_result)) {
         error_message ("Engine failed to evaluate function expression");
-    } else if (display_result) {
-        display_result_set (display_result, TRUE, numeric_result);
-        g_free (display_result);
     } else {
-        display_result_set_double (numeric_result, current_status.number);
+        display_result_set (display_result, TRUE);
+        g_free (display_result);
     }
     if (operand) g_free (operand);
     if (expression) g_free (expression);
@@ -790,16 +770,16 @@ on_basic_mode_toggled (GtkMenuItem     *menuitem,
             gpointer         user_data)
 {
     GtkWidget    *menu_item;
+    char *display_value = NULL;
     
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem)) == FALSE) return;
 
-	G_REAL display_value = 0;
     if (prefs.mode == SCIENTIFIC_MODE) {
         /* remember number and angle. notation is active in basic mode */
         prefs.def_number = current_status.number;
         prefs.def_angle = current_status.angle;
-        display_value = display_result_get_double(current_status.number);
+        display_value = display_result_get();
     }
     prefs.mode = BASIC_MODE;
     
@@ -841,7 +821,10 @@ on_basic_mode_toggled (GtkMenuItem     *menuitem,
     
     set_window_size_minimal();
     
-    display_result_set_double(display_value, current_status.number);
+    if (display_value != NULL) {
+        display_result_set(display_value, current_status.number);
+        g_free(display_value);
+    }
 }
 
 void
@@ -849,13 +832,13 @@ on_scientific_mode_toggled (GtkMenuItem *menuitem,
                 gpointer user_data)
 {
     GtkWidget    *menu_item;
+    char *display_value = NULL;
     
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem)) == FALSE) return;
 
-	G_REAL display_value = 0;
     if (prefs.mode == BASIC_MODE)
-		display_value = display_result_get_double(current_status.number);
+		display_value = display_result_get();
 		
     prefs.mode = SCIENTIFIC_MODE;
 
@@ -902,7 +885,10 @@ on_scientific_mode_toggled (GtkMenuItem *menuitem,
     
     set_window_size_minimal();
     
-    display_result_set_double(display_value, current_status.number);
+    if (display_value != NULL) {
+        display_result_set(display_value, current_status.number);
+        g_free(display_value);
+    }
 }
 
 void
@@ -1307,7 +1293,6 @@ void on_prefs_button_height_changed (GtkSpinButton *spinbutton,
 void user_functions_menu_handler (GtkMenuItem *menuitem, gpointer user_data)
 {
     int             index;
-    G_REAL          result_value = 0;
     char           *display_value = NULL;
     char           *substituted_expr = NULL;
     char           *current_value = NULL;
@@ -1318,13 +1303,9 @@ void user_functions_menu_handler (GtkMenuItem *menuitem, gpointer user_data)
     substituted_expr = substitute_user_variable (user_function[index].expression,
         user_function[index].variable, current_value ? current_value : "0");
     if (substituted_expr &&
-        engine_eval_expression (substituted_expr, &result_value, &display_value)) {
-        if (display_value) {
-            display_result_set (display_value, TRUE, result_value);
-            g_free (display_value);
-        } else {
-            display_result_set_double (result_value, current_status.number);
-        }
+        engine_eval_expression (substituted_expr, &display_value)) {
+        display_result_set (display_value, TRUE);
+        g_free (display_value);
         current_status.calc_entry_start_new = TRUE;    
         if (current_status.notation == CS_RPN) 
             current_status.rpn_stack_lift_enabled = TRUE;
@@ -1362,8 +1343,8 @@ void constants_menu_handler (GtkMenuItem *menuitem, gpointer user_data)
     /* push current display value */
     current_status.rpn_stack_lift_enabled = TRUE;
     rpn_stack_lift();
-    const_value = user_data;
-    display_result_set (const_value, TRUE, string2double(const_value, current_status.number));
+	const_value = user_data;
+    display_result_set (const_value, TRUE);
     current_status.rpn_stack_lift_enabled = TRUE;
     current_status.calc_entry_start_new = TRUE;
 }
@@ -1392,15 +1373,19 @@ void ms_menu_handler (GtkMenuItem *menuitem, gpointer user_data)
 {
     GtkWidget    *button;
     int        index;
+    char      *current_value;
     
     ui_bind_active_tab_from_menu_item (menuitem);
     index = GPOINTER_TO_INT(user_data);
     if (index >= memory.len) {
         index = memory.len;
-        memory.data = (G_REAL *) g_realloc (memory.data, (index + 1) * sizeof(G_REAL));
+        memory.data = (char **) g_realloc (memory.data, (index + 1) * sizeof(char *));
         memory.len++;
+        memory.data[index] = NULL;
     }
-    memory.data[index] = display_result_get_double(current_status.number);
+    current_value = display_result_get ();
+    if (memory.data[index]) g_free (memory.data[index]);
+    memory.data[index] = current_value;
     
     /* at startup, mr and m+ button are disabled as there is nothing
      * to show. now, as there is sth, enable them. see also 
@@ -1436,7 +1421,7 @@ void mr_menu_handler (GtkMenuItem *menuitem, gpointer user_data)
     current_status.rpn_stack_lift_enabled = TRUE;
     rpn_stack_lift();
     index = GPOINTER_TO_INT(user_data);
-    display_result_set_double(memory.data[index], current_status.number);
+    display_result_set(memory.data[index], TRUE);
     current_status.rpn_stack_lift_enabled = TRUE;
     current_status.calc_entry_start_new = TRUE;
 }
@@ -1458,10 +1443,24 @@ void on_mr_button_clicked (GtkToggleButton *button, gpointer user_data)
 void mplus_menu_handler (GtkMenuItem *menuitem, gpointer user_data)
 {
     int        index;
+    char      *current_value;
+    char      *expression;
+    char      *sum_value = NULL;
     
     ui_bind_active_tab_from_menu_item (menuitem);
     index = GPOINTER_TO_INT(user_data);
-    memory.data[index] += display_result_get_double(current_status.number);
+    current_value = display_result_get ();
+    expression = g_strdup_printf ("(%s)+(%s)",
+        memory.data[index] ? memory.data[index] : CLEARED_DISPLAY,
+        current_value ? current_value : CLEARED_DISPLAY);
+    if (expression && engine_eval_expression (expression, &sum_value)) {
+        if (memory.data[index]) g_free (memory.data[index]);
+        memory.data[index] = sum_value;
+    } else if (sum_value) {
+        g_free (sum_value);
+    }
+    if (current_value) g_free (current_value);
+    if (expression) g_free (expression);
 }
 
 void on_mplus_button_clicked (GtkToggleButton *button, gpointer user_data)
@@ -1485,14 +1484,23 @@ void mc_menu_handler (GtkMenuItem *menuitem, gpointer user_data)
     ui_bind_active_tab_from_menu_item (menuitem);
     index = GPOINTER_TO_INT(user_data);
     if (index >= memory.len) {
-        if (memory.len > 0) free (memory.data);
+        for (counter = 0; counter < memory.len; counter++) {
+            if (memory.data[counter]) g_free (memory.data[counter]);
+        }
+        if (memory.len > 0) g_free (memory.data);
         memory.data = NULL;
         memory.len = 0;
     } else {
+        if (memory.data[index]) g_free (memory.data[index]);
         for (counter = index; counter < (memory.len - 1); counter++) 
             memory.data[counter] = memory.data[counter + 1];
         memory.len--;
-        memory.data = (G_REAL *) g_realloc (memory.data, memory.len * sizeof(G_REAL));
+        if (memory.len > 0)
+            memory.data = (char **) g_realloc (memory.data, memory.len * sizeof(char *));
+        else {
+            g_free (memory.data);
+            memory.data = NULL;
+        }
     }
 }
 
@@ -1514,13 +1522,18 @@ on_mc_button_clicked             (GtkToggleButton       *button,
 
 void mx_menu_handler (GtkMenuItem *menuitem, gpointer user_data)
 {
-    int        index, temp;
+    int        index;
+    char      *temp;
+    char      *current_value;
     
     ui_bind_active_tab_from_menu_item (menuitem);
     index = GPOINTER_TO_INT(user_data);
-    temp = memory.data[index];
-    memory.data[index] = display_result_get_double(current_status.number);
-    display_result_set_double (temp, current_status.number);
+    temp = memory.data[index] ? g_strdup (memory.data[index]) : g_strdup (CLEARED_DISPLAY);
+    current_value = display_result_get ();
+    if (memory.data[index]) g_free (memory.data[index]);
+    memory.data[index] = current_value;
+    display_result_set (temp, TRUE);
+    g_free (temp);
 }
 
 void
@@ -2014,26 +2027,16 @@ gboolean on_button_press_event (GtkWidget *widget, GdkEventButton *event, gpoint
 void on_formula_entry_activate (GtkEntry *entry, gpointer user_data)
 {
     talc_engine_context      engine_ctx;
-    talc_engine_eval_result  eval_result = { TRUE, 0 };
     char                    *formatted_result = NULL;
     
     ui_bind_active_tab_from_widget (GTK_WIDGET(entry));
     engine_context_from_ui_state (&engine_ctx);
-    if (!calc_engine ||
-        !talc_engine_eval_expression_numeric (calc_engine, &engine_ctx,
-            gtk_entry_get_text(entry), &eval_result)) {
-        eval_result.error = TRUE;
-    }
-    ui_formula_entry_state (eval_result.error);
-    if (!eval_result.error) {
-        formatted_result = talc_engine_eval_expression (calc_engine, &engine_ctx,
-            gtk_entry_get_text(entry));
-        if (formatted_result) {
-            display_result_set (formatted_result, TRUE, eval_result.value);
-            g_free (formatted_result);
-        } else {
-            display_result_set_double (eval_result.value, current_status.number);
-        }
+    formatted_result = calc_engine ?
+        talc_engine_eval_expression (calc_engine, &engine_ctx, gtk_entry_get_text(entry)) : NULL;
+    ui_formula_entry_state (formatted_result == NULL);
+    if (formatted_result) {
+        display_result_set (formatted_result, TRUE);
+        g_free (formatted_result);
     }
 }
 
@@ -2046,12 +2049,11 @@ void on_formula_entry_changed (GtkEditable *editable, gpointer user_data)
 void on_paper_entry_activate (GtkWidget *activated_widget, gpointer user_data)
 {
     talc_engine_context      engine_ctx;
-    talc_engine_eval_result  eval_result = { TRUE, 0 };
     GtkEntry                *entry;
     GtkTreeView                *tree_view;
     GtkListStore            *paper_store;
     GtkTreeIter               iter;
-    char                    *escaped_input_string, *result_string, *markup_result_string, *formatted_result;
+    char                    *escaped_input_string, *result_string, *markup_result_string;
     GtkTreePath*             last_row_path;
     
     ui_bind_active_tab_from_widget (activated_widget);
@@ -2061,13 +2063,9 @@ void on_paper_entry_activate (GtkWidget *activated_widget, gpointer user_data)
         entry = GTK_ENTRY(activated_widget);
     
     if (strcmp(gtk_entry_get_text(entry), "") == 0) return;
-    /* result.error result.value */
     engine_context_from_ui_state (&engine_ctx);
-    if (!calc_engine ||
-        !talc_engine_eval_expression_numeric (calc_engine, &engine_ctx,
-            gtk_entry_get_text(entry), &eval_result)) {
-        eval_result.error = TRUE;
-    }
+    result_string = calc_engine ?
+        talc_engine_eval_expression (calc_engine, &engine_ctx, gtk_entry_get_text(entry)) : NULL;
     
     /* add to tree view */
     tree_view = GTK_TREE_VIEW(gtk_builder_get_object (view_xml, "paper_treeview"));
@@ -2078,13 +2076,9 @@ void on_paper_entry_activate (GtkWidget *activated_widget, gpointer user_data)
     g_free(escaped_input_string);
     
     gtk_list_store_append (paper_store, &iter);
-    if (eval_result.error)
+    if (!result_string)
         gtk_list_store_set (paper_store, &iter, 0, "Syntax Error", 1, 1.0, 2, "red", -1);
     else {
-        formatted_result = talc_engine_eval_expression (calc_engine, &engine_ctx,
-            gtk_entry_get_text(entry));
-        if (formatted_result) result_string = formatted_result;
-        else result_string = get_display_number_string(eval_result.value, current_status.number);
         markup_result_string = g_markup_printf_escaped ("<b>%s</b>", result_string);
         gtk_list_store_set (paper_store, &iter, 0, markup_result_string, 1, 1.0, 2, NULL, -1);
         g_free (result_string);

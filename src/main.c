@@ -60,7 +60,6 @@ s_tab_context		default_tab_context = {
 	.tab_display_buffer = NULL,
 	.tab_display_result_counter = 0,
 	.tab_display_result_line = 0,
-	.tab_display_value = 0,
 	.tab_display_last_arith = ' ',
 	.tab_display_brackets = 0,
 	.tab_view_xml = NULL,

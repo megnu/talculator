@@ -38,16 +38,68 @@
 #define buffer (active_tab->tab_display_buffer)
 #define display_result_counter (active_tab->tab_display_result_counter)
 #define display_result_line (active_tab->tab_display_result_line)
-#define display_value (active_tab->tab_display_value)
 
 static char	*number_mod_labels[5] = {" DEC ", " HEX ", " OCT ", " BIN ", NULL}, 
 		*angle_mod_labels[4] = {" DEG ", " RAD ", " GRAD ", NULL},
 		*notation_mod_labels[4] = {" ALG ", " RPN ", " FORM ", NULL};	
 
 /* no one outside display.c should need to call these functions */
-static void display_set_line_double (G_REAL value, int line, char *tag, int number_base_status);
 static void display_set_line (char *string, int line, char *tag);
 static char *display_get_line (int line_nr);
+static void display_engine_context_for_base (talc_engine_context *ctx, int number_base_status);
+static char *display_convert_base_string (const char *value, int from_base, int to_base);
+
+static void display_engine_context_for_base (talc_engine_context *ctx, int number_base_status)
+{
+	if (!ctx) return;
+	ctx->mode = (talc_engine_mode) prefs.mode;
+	ctx->base = (talc_engine_base) number_base_status;
+	ctx->angle = (talc_engine_angle) current_status.angle;
+	ctx->rpn_notation = (current_status.notation == CS_RPN);
+	ctx->formula_notation = (current_status.notation == CS_FORMULA);
+	ctx->display_precision = get_display_number_length (number_base_status);
+	ctx->decimal_point = dec_point[0];
+	ctx->base_bits = 0;
+	ctx->base_signed = FALSE;
+	switch (number_base_status) {
+	case CS_HEX:
+		ctx->base_bits = prefs.hex_bits;
+		ctx->base_signed = prefs.hex_signed;
+		break;
+	case CS_OCT:
+		ctx->base_bits = prefs.oct_bits;
+		ctx->base_signed = prefs.oct_signed;
+		break;
+	case CS_BIN:
+		ctx->base_bits = prefs.bin_bits;
+		ctx->base_signed = prefs.bin_signed;
+		break;
+	case CS_DEC:
+	default:
+		break;
+	}
+}
+
+static char *display_convert_base_string (const char *value, int from_base, int to_base)
+{
+	talc_engine_context parse_ctx;
+	talc_engine_context print_ctx;
+	char *converted;
+
+	if (!value || value[0] == '\0') return g_strdup (CLEARED_DISPLAY);
+	if (!calc_engine) return g_strdup (value);
+	if (from_base == to_base) return g_strdup (value);
+
+	display_engine_context_for_base (&parse_ctx, from_base);
+	display_engine_context_for_base (&print_ctx, to_base);
+	converted = talc_engine_eval_expression_with_contexts (calc_engine,
+		&parse_ctx, &print_ctx, value);
+	if (!converted || converted[0] == '\0') {
+		if (converted) g_free (converted);
+		return g_strdup (value);
+	}
+	return converted;
+}
 
 /*
  * display.c mainly consists of two parts: first display setup code
@@ -552,27 +604,28 @@ void display_module_base_delete (char *mark_name, char **text)
 
 void display_change_option (int old_status, int new_status, int opt_group)
 {
-	G_REAL	current_display_value=0;
-	G_REAL 	*stack;
+	char	*current_display_value = NULL;
+	char	**stack = NULL;
 	int 	counter;
+	char	*converted = NULL;
 	
 	switch (opt_group) {
 		case DISPLAY_OPT_NUMBER:
 			update_active_buttons (new_status, current_status.notation);
-			current_display_value = display_result_get_double (old_status);
-			stack = display_stack_get_yzt_double (old_status);
-			/* In case we convert from decimal to integer, we round display 
-			 * values to integers. As in ftoax we use G_FLOOR, we use it here as
-			 * well.
-			 */
-			if ((old_status == CS_DEC) && (new_status != CS_DEC)) {
-				current_display_value = G_FLOOR(current_display_value);
-				for (counter = 0; counter < display_result_line; counter++)
-					stack[counter] = G_FLOOR(stack[counter]);
+			current_display_value = display_result_get ();
+			stack = display_stack_get_yzt ();
+			converted = display_convert_base_string (current_display_value, old_status, new_status);
+			display_result_set (converted, TRUE);
+			g_free (converted);
+			for (counter = 0; counter < display_result_line; counter++) {
+				char *stack_converted = display_convert_base_string (stack[counter], old_status, new_status);
+				g_free (stack[counter]);
+				stack[counter] = stack_converted;
 			}
-			display_result_set_double (current_display_value, new_status);
-			display_stack_set_yzt_double (stack, new_status);
+			display_stack_set_yzt (stack);
+			for (counter = 0; counter < display_result_line; counter++) g_free (stack[counter]);
 			g_free (stack);
+			g_free (current_display_value);
 			if ((prefs.vis_number) && (prefs.mode == SCIENTIFIC_MODE)) {
 				display_module_base_delete (DISPLAY_MARK_NUMBER, number_mod_labels);
 				display_module_base_create (number_mod_labels, DISPLAY_MARK_NUMBER, new_status);
@@ -691,15 +744,6 @@ static void display_set_line (char *string, int line, char *tag)
 	}
 }
 
-static void display_set_line_double (G_REAL value, int line, char *tag, int number_base_status)
-{
-	char		*string_value;
-	
-	string_value = get_display_number_string (value, current_status.number);
-	display_set_line (string_value, line, tag);
-	g_free (string_value);
-}
-
 /*
  * display_result_add_digit. appends the given digit to the current entry, 
  * handles zeros, decimal points. call e.g. with *(gtk_button_get_label (button))
@@ -710,7 +754,7 @@ void display_result_add_digit (char digit, int number_base_status)
 
 	/* fool the following code */
 	if (current_status.calc_entry_start_new == TRUE) {
-		display_result_set (CLEARED_DISPLAY, TRUE, 0.);
+		display_result_set (CLEARED_DISPLAY, TRUE);
 		current_status.calc_entry_start_new = FALSE;
 		display_result_counter = 1;
 	}
@@ -733,31 +777,17 @@ void display_result_add_digit (char digit, int number_base_status)
 			display_result_counter++;
 		}
 	}
-	if (new_display_string) display_result_set (new_display_string, TRUE, 
-		string2double(new_display_string, number_base_status));
+	if (new_display_string) display_result_set (new_display_string, TRUE);
 	if (display_string) g_free (display_string);
 	if (new_display_string) g_free (new_display_string);
 }
 
-/*
- * display_result_set_double. set text of calc_entry to string given by float value.
- *	the float value is manipulated (rounded, ...)
- */
-void display_result_set_double (G_REAL value, int number_base_status)
-{	
-	current_status.allow_arith_op = TRUE;
-	display_module_arith_label_update (' ');
-	display_set_line_double (value, display_result_line, "result", number_base_status);
-	display_value = value;
-}
-
-void display_result_set (char *string_value, int update_display_value, G_REAL value)
+void display_result_set (char *string_value, int update_result_counter)
 {
 	current_status.allow_arith_op = TRUE;
 	display_module_arith_label_update (' ');
 	display_set_line (string_value, display_result_line, "result");
-	/* this should be an exceptional case and never be done to results of operations */
-	if (update_display_value) display_value = value;
+	if (!update_result_counter) return;
 }
 
 void display_result_feed (char *string, int number_base_status)
@@ -816,20 +846,6 @@ char *display_result_get ()
 	return display_get_line (display_result_line);
 }
 
-/* display_result_get_double. a display_result_get plus conversion to G_REAL
- */
-G_REAL display_result_get_double (int number_base_status)
-{
-/*	char 	*result_string;
-	G_REAL	ret_val;
-	
-	result_string = display_result_get();
-	ret_val = string2double (result_string, number_base_status);
-	g_free (result_string);
-*/		
-	return display_value;
-}	
-
 void display_append_e (GtkToggleButton *button)
 {
 	/* we have kind of a shortcut. we don't set to 0e+ but 1e+ */
@@ -842,13 +858,13 @@ void display_append_e (GtkToggleButton *button)
 			gtk_text_buffer_insert_with_tags_by_name (buffer, &end, "e+", -1, "result", NULL);
 			*/
 			char *display_string = g_strdup_printf ("%se+", display_result_get());
-			display_result_set (display_string, FALSE, -1);
-			g_free (display_string);
+				display_result_set (display_string, FALSE);
+				g_free (display_string);
+			}
+		} else {
+			display_result_set ("1e+", TRUE);
+			current_status.calc_entry_start_new = FALSE;
 		}
-	} else {
-		display_result_set ("1e+", TRUE, 1.);
-		current_status.calc_entry_start_new = FALSE;
-	}
 	display_result_counter = get_display_number_length(current_status.number) - DISPLAY_RESULT_E_LENGTH;
 }
 
@@ -872,18 +888,12 @@ void display_result_toggle_sign (GtkToggleButton *button)
 		{
 			result_field = g_strdup_printf ("-%s", result_field);
 		}
-		display_value *= (-1);
-	} else {
-		if (*(++e_pointer) == '-') *e_pointer = '+';
-		else *e_pointer = '-';
-		/* this has to be done by retrieving the exponent. believe me.
-		 * (try 0.001e-3 for example).
-		 */
-		if (strlen(e_pointer) > 1) 
-			display_value *= pow(10., 2*string2double(e_pointer, CS_DEC));
-	}
-	display_result_set (result_field, FALSE, -1.);
-	g_free (result_field);
+		} else {
+			if (*(++e_pointer) == '-') *e_pointer = '+';
+			else *e_pointer = '-';
+		}
+		display_result_set (result_field, FALSE);
+		g_free (result_field);
 }
 
 /* display_result_backspace - deletes the tail of the display.
@@ -896,19 +906,19 @@ void display_result_backspace (int number_base_status)
 {															
 	char	*current_entry;
 
-	if (current_status.calc_entry_start_new == TRUE) {
-		current_status.calc_entry_start_new = FALSE;
-		display_result_set (CLEARED_DISPLAY, TRUE, 0.);
-	} else {
+		if (current_status.calc_entry_start_new == TRUE) {
+			current_status.calc_entry_start_new = FALSE;
+			display_result_set (CLEARED_DISPLAY, TRUE);
+		} else {
 		current_entry = display_result_get();
 		/* to avoid an empty/senseless result field */
 		if (strlen(current_entry) == 1) current_entry[0] = '0';
         else if ((strlen(current_entry) == 2) && (*current_entry == '-')) strcpy(current_entry, "0");
 		else if (current_entry[strlen(current_entry) - 2] == 'e') current_entry[strlen(current_entry) - 2] = '\0';
 		else current_entry[strlen(current_entry) - 1] = '\0';
-		display_result_set (current_entry, TRUE, string2double (current_entry, number_base_status));
-		g_free (current_entry);
-	}
+			display_result_set (current_entry, TRUE);
+			g_free (current_entry);
+		}
 }
 
 /* display_result_getset. kind of display result redraw. use this to get and
@@ -925,7 +935,7 @@ void display_result_getset ()
 	
 	result = display_result_get();
 	stack = display_stack_get_yzt();
-	display_result_set(result, FALSE, -1);
+	display_result_set(result, FALSE);
 	display_stack_set_yzt(stack);
 	g_free(result);
 	for (i = 0; i < 3; i++) g_free (stack[i]);
@@ -959,22 +969,8 @@ void display_stack_remove ()
 	display_result_line = 0;
 }
 
-/* 
- * display_stack_set_yzt_double - stack must be a 3 dimensional array. stack in
- *	calc_basic IS NOT modified.
- */
-
-void display_stack_set_yzt_double (G_REAL *stack, int number_base_status)
-{
-	int		counter;
-
-	for (counter = 0; counter < display_result_line; counter++)
-		display_set_line_double (stack[counter], 
-			display_result_line - counter - 1, "stack", number_base_status);
-}
-
-/* 
- * display_stack_set_yzt_double - stack in calc_basic IS NOT modified.
+/*
+ * display_stack_set_yzt - stack in calc_basic IS NOT modified.
  */
 
 void display_stack_set_yzt (char **stack)
@@ -1006,25 +1002,4 @@ char **display_stack_get_yzt ()
 		stack[counter] = display_get_line(display_result_line - counter - 1);
 	}
 	return stack;
-}
-
-/*
- * display_stack_get_yzt_double - returns the string array of display_stack_get_yzt
- * 	as G_REAL array.
- */
-
-G_REAL *display_stack_get_yzt_double (int number_base_status)
-{
-	char 	**string_stack;
-	G_REAL	*G_REAL_stack;
-	int	counter, stack_len = 3;
-	
-	G_REAL_stack = (G_REAL *) g_malloc (stack_len * sizeof(G_REAL));
-	string_stack = display_stack_get_yzt();
-	for (counter = 0; counter < stack_len; counter++) {
-		G_REAL_stack[counter] = string2double (string_stack[counter], number_base_status);
-		g_free (string_stack[counter]);
-	}
-	g_free (string_stack);
-	return G_REAL_stack;
 }

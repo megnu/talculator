@@ -22,7 +22,6 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-#include <math.h>
 #include <ctype.h>
 #include <locale.h>
 
@@ -35,18 +34,6 @@
 #include "ui.h"
 
 #include <gtk/gtk.h>
-
-G_REAL error_unsupported_inv (G_REAL dummy)
-{
-	error_message (_("unsupported inverse function"));
-	return dummy;
-}
-
-G_REAL error_unsupported_hyp (G_REAL dummy)
-{
-	error_message (_("unsupported hyperbolic function"));
-	return dummy;
-}
 
 void error_message (char *format_string, ...)
 {	
@@ -69,7 +56,7 @@ void clear_for_tab (s_tab_context *ctx)
 {
 	s_tab_context *prev_tab = active_tab;
 	if (ctx != NULL) active_tab = ctx;
-	display_result_set (CLEARED_DISPLAY, TRUE, 0.);
+	display_result_set (CLEARED_DISPLAY, TRUE);
 	if (current_status.notation == CS_FORMULA) ui_formula_entry_set ("");
 	active_tab = prev_tab;
 }
@@ -136,90 +123,6 @@ void all_clear ()
 	all_clear_for_tab (active_tab);
 }
 
-/* axtof: convert string to float 
- *	works up to base 19. only for integers!
- *  a number is called negative, if its msb is set!
- */
-
-G_REAL axtof (char *bin_string, int base, int nr_bits, gboolean is_signed)
-{
-	G_REAL 		return_value=0;
-	int		counter;
-	char		*lower_bin_string;
-	
-	lower_bin_string = g_ascii_strdown(bin_string, -1);
-	/* according to man strtod, inf should be there in every case */
-	if (strstr (lower_bin_string, "inf") != NULL) return INFINITY;
-
-	for (counter = strlen (lower_bin_string) - 1; counter >= 0; counter--) {
-		if (lower_bin_string[counter] - '0' < 10) \
-			return_value += (lower_bin_string[counter] - '0') * G_POW (base, strlen (lower_bin_string) - 1 - counter);
-		else if (lower_bin_string[counter] - 'a' < 10) \
-			return_value += (lower_bin_string[counter] - 'a' + 10) * G_POW (base, strlen (lower_bin_string) - 1 - counter);
-		else fprintf (stderr, _("[%s] failed to convert char %c in function \"axtof\". %s\n"), PROG_NAME, lower_bin_string[counter], BUG_REPORT);
-	}
-	
-	g_free (lower_bin_string);
-	
-	/* handle negative numbers. */
-
-	/* if most significant bit is set, its a negative number. using */
-	if (is_signed == TRUE) 
-		if (return_value >= G_POW (2, nr_bits - 1))
-			return_value = (-1) * (G_POW (2, nr_bits) - return_value);
-	return return_value;
-}
-
-/* rem: my own remainder function to deal with precision problems */
-
-int rem (G_REAL x, G_HUGEINT y)
-{
-	return x - G_FLOOR(x / (G_REAL)y) * y;
-}
-
-/* ftoax - number to string conversion.
- *	works up to base 19. only for integers!
- *  see axtof for details about what is a negative number.
- */
-
-char *ftoax (G_REAL x, int base, int nr_bits, gboolean is_signed)
-{
-	char		*return_string;
-	int		length=0, counter, remainder;
-	G_REAL		localx;
-	
-	/* handle huge values --> infinity */
-	if (is_signed == TRUE) {
-		if (x < (-1)*G_POW (2, nr_bits - 1)) return g_strdup(MY_INFINITY_STRING);
-		if (x >= G_POW (2, nr_bits - 1)) return g_strdup(MY_INFINITY_STRING);
-		/* handle negative numbers */
-		if (x < 0) x = G_POW (2, nr_bits) + x;
-	} else {
-		if (x >= G_POW (2, nr_bits)) return g_strdup(MY_INFINITY_STRING);
-		if (x < 0) return g_strdup(MY_INFINITY_STRING);
-	}
-	/* doing it this way and not with logs as this is much more numerical stable */
-	localx = x;
-	while ((localx=G_FLOOR(localx/(G_REAL)base)) >= 1) length++;
-	length+=2;
-	
-	localx = x;
-	return_string = (char *) g_malloc (length * sizeof(char));
-	return_string [length-1] = '\0';
-	for (counter = length-2; counter >= 0; counter--) {
-		remainder = rem (localx, base);
-		if (remainder < 10) return_string[counter] = '0' + remainder;
-		else if (remainder < 20) return_string[counter] = 'A' + remainder - 10;
-		else {
-			char *sx = float2string("%"G_LMOD"f", x);
-			fprintf (stderr, _("[%s] failed to convert %s in function \"ftoax\". %s\n"), PROG_NAME, sx, BUG_REPORT);
-			g_free(sx);
-		}
-		localx = G_FLOOR (localx / (G_REAL)base);
-	}
-	return return_string;
-}
-
 char *add_leading_zeros (char *string, int multiple)
 {
 	char	*new_string;
@@ -274,7 +177,7 @@ void set_spinbutton (GtkBuilder *xml, char *spinbutton_name, void *value)
 	int		*int_var;
 	
 	int_var = value;
-	/*d_var = (G_REAL) *int_var;*/
+	/* historical float conversion removed */
 	spin_button = (GtkSpinButton *) gtk_builder_get_object (xml, spinbutton_name);
 	if (spin_button) gtk_spin_button_set_value (spin_button, *int_var);
 }
@@ -419,51 +322,6 @@ void activate_menu_item (char *item_name)
 	else fprintf (stderr, _("[%s] failed to find widget %s in function \"activate_menu_item\". %s\n"), PROG_NAME, item_name, BUG_REPORT);
 }
 
-/* get_number_string - converts value to a string, with repect to base. returned
- *	string should be freed.
- */
-
-char *get_display_number_string (G_REAL value, int base)
-{
-	char 	*string_value, *string_value0, *string_value1;
-	
-	switch (base) {
-		case CS_DEC:
-			/* this is a work around for numerical issues. When
-			 * get_display_number_length(current_status.number) = 12, 
-			 * 1000.11 - 1000.10 returns 0.0099999999999999. We round for two
-			 * different precision levels and check whether one result is
-			 * significantly shorter than the other.
-			 */
-			string_value0 = float2stringP("%.*"G_LMOD"g", get_display_number_length(current_status.number) - 1, value);
-			string_value1 = float2stringP("%.*"G_LMOD"g", get_display_number_length(current_status.number), value);
-			if (strlen(string_value0) + 1 < strlen(string_value1)) {
-				string_value = string_value0;
-				g_free(string_value1);
-			} else {
-				string_value = string_value1;
-				g_free(string_value0);
-			}
-			break;
-		case CS_HEX:
-			string_value = ftoax (value, 16, prefs.hex_bits, prefs.hex_signed);
-			break;
-		case CS_OCT:
-			string_value = ftoax (value, 8, prefs.oct_bits, prefs.oct_signed);
-			break;
-		case CS_BIN:
-			string_value = ftoax (value, 2, prefs.bin_bits, prefs.bin_signed);
-			if (prefs.bin_fixed == TRUE) 
-				string_value = add_leading_zeros (string_value, 
-					prefs.bin_length);
-			break;
-		default:
-			string_value = g_strdup(_("unknown number base"));
-			fprintf (stderr, _("[%s] unknown number base in function \"get_display_number_string\". %s\n"), PROG_NAME, BUG_REPORT);
-	}
-	return string_value;
-}
-
 /* get_display_number_length - returns the maximum length of a number in current
  * 	mode.
  */
@@ -496,15 +354,23 @@ int get_display_number_length (int base)
 
 void gfunc_f1 (GtkToggleButton *button)
 {
-	G_REAL		*stack;
+	char		**stack;
+	char		*display_value;
+	char		*result;
 	
 	if (current_status.notation == CS_PAN) 
 		on_operation_button_clicked (button, NULL);
 	else {
-		display_result_set_double (rpn_stack_swapxy(
-			display_result_get_double(current_status.number)), current_status.number);
+		display_value = display_result_get ();
+		result = rpn_stack_swapxy (display_value);
+		display_result_set (result, TRUE);
 		stack = rpn_stack_get (RPN_FINITE_STACK);
-		display_stack_set_yzt_double (stack, current_status.number);
+		display_stack_set_yzt (stack);
+		g_free (display_value);
+		g_free (result);
+		g_free (stack[0]);
+		g_free (stack[1]);
+		g_free (stack[2]);
 		g_free (stack);
 		current_status.rpn_stack_lift_enabled = TRUE;
 		current_status.calc_entry_start_new = TRUE;
@@ -516,15 +382,23 @@ void gfunc_f1 (GtkToggleButton *button)
 
 void gfunc_f2 (GtkToggleButton *button)
 {
-	G_REAL 		*stack;
+	char 		**stack;
+	char		*display_value;
+	char		*result;
 	
 	if (current_status.notation == CS_PAN)
 		on_operation_button_clicked (button, NULL);
 	else {
-		display_result_set_double (rpn_stack_rolldown(
-			display_result_get_double(current_status.number)), current_status.number);
-				stack = rpn_stack_get (RPN_FINITE_STACK);
-		display_stack_set_yzt_double (stack, current_status.number);
+		display_value = display_result_get ();
+		result = rpn_stack_rolldown (display_value);
+		display_result_set (result, TRUE);
+		stack = rpn_stack_get (RPN_FINITE_STACK);
+		display_stack_set_yzt (stack);
+		g_free (display_value);
+		g_free (result);
+		g_free (stack[0]);
+		g_free (stack[1]);
+		g_free (stack[2]);
 		g_free (stack);
 		current_status.rpn_stack_lift_enabled = TRUE;
 		current_status.calc_entry_start_new = TRUE;
@@ -543,13 +417,19 @@ void rpn_stack_lift_for_tab (s_tab_context *ctx)
 {
 	s_tab_context *prev_tab = active_tab;
 	if (ctx != NULL) active_tab = ctx;
-	G_REAL	*stack;
+	char	*display_value;
+	char	**stack;
 	
 	if ((current_status.notation == CS_RPN) && 
 		(current_status.rpn_stack_lift_enabled == TRUE)) {
-		rpn_stack_push (display_result_get_double (current_status.number));
+		display_value = display_result_get ();
+		rpn_stack_push (display_value);
 		stack = rpn_stack_get (RPN_FINITE_STACK);
-		display_stack_set_yzt_double (stack, current_status.number);
+		display_stack_set_yzt (stack);
+		g_free (display_value);
+		g_free (stack[0]);
+		g_free (stack[1]);
+		g_free (stack[2]);
 		g_free (stack);
 		current_status.rpn_stack_lift_enabled = FALSE;
 	}
@@ -567,8 +447,8 @@ void remember_display_values_for_tab (s_tab_context *ctx)
 	if (ctx != NULL) active_tab = ctx;
 	char 	*stack[3];
 	
-    if (prefs.rem_display == TRUE) {
-		display_result_set (prefs.rem_valuex, TRUE, string2double(prefs.rem_valuex, current_status.number));
+	if (prefs.rem_display == TRUE) {
+		display_result_set (prefs.rem_valuex, TRUE);
 		/* for the result setting the display string is enough */
 		if (current_status.notation == CS_RPN) {
 			stack[0] = prefs.rem_valuey;
@@ -576,9 +456,9 @@ void remember_display_values_for_tab (s_tab_context *ctx)
 			stack[2] = prefs.rem_valuet;
 			display_stack_set_yzt (stack);
 			/* for the stack we have to update calc_basic */
-			rpn_stack_push (string2double(stack[2], current_status.number));
-			rpn_stack_push (string2double(stack[1], current_status.number));
-			rpn_stack_push (string2double(stack[0], current_status.number));
+			rpn_stack_push (stack[2]);
+			rpn_stack_push (stack[1]);
+			rpn_stack_push (stack[0]);
 		}
 	}
 	active_tab = prev_tab;
@@ -587,45 +467,6 @@ void remember_display_values_for_tab (s_tab_context *ctx)
 void remember_display_values()
 {
 	remember_display_values_for_tab (active_tab);
-}
-
-/*
- * string2double - this function makes a string to G_REAL conversion with 
- * 	respect to supplied number base. if number base < 0 we try to 
- *	determine from string which should have then a 0? prefix.
- *	it uses axtof.
- */
-
-G_REAL string2double (char *string, int number_base)
-{
-	char 	*end_ptr;
-	G_REAL	ret_val;
-	
-	switch (number_base) {
-		case CS_DEC:
-			ret_val = strtod(string, &end_ptr);
-			if (*end_ptr != '\0')
-				fprintf (stderr, _("[%s] failed to convert %s to a number properly \
-in function \"string2double\". Have you changed your locales? \
-Deleting your configuration file might solve this problem. %s\n"), PACKAGE, string, BUG_REPORT);
-			return ret_val;
-			break;
-		case CS_HEX:
-			return axtof(string, 16, prefs.hex_bits, 
-				prefs.hex_signed);
-			break;
-		case CS_OCT:
-			return axtof(string, 8, prefs.oct_bits, 
-				prefs.oct_signed);
-			break;
-		case CS_BIN:
-			return axtof(string, 2, prefs.bin_bits, 
-				prefs.bin_signed);
-			break;
-		default:
-			fprintf (stderr, _("[%s] unknown number base in function \"string2double\". %s\n"), PROG_NAME, BUG_REPORT);
-	}
-	return 0;
 }
 
 /* string_separator. insert separator.
@@ -747,36 +588,6 @@ GtkWidget *formula_entry_is_active_no_toplevel_check ()
 	return NULL;
 }
 
-G_REAL x2rad (G_REAL x)
-{
-	switch (current_status.angle){
-	case CS_DEG:
-		return x * ((G_REAL) M_PI / (G_REAL) 180.);
-	case CS_RAD:
-		return x;
-	case CS_GRAD:
-		return x * ((G_REAL) M_PI / (G_REAL) 200.);
-	default:
-		fprintf (stderr, _("[%s] unknown angle base in function \"x2rad\". %s\n"), PROG_NAME, BUG_REPORT);
-	}
-	return x;
-}	
-
-G_REAL rad2x (G_REAL rad)
-{
-	switch (current_status.angle) {
-	case CS_DEG:
-		return rad * ((G_REAL) 180. / (G_REAL) M_PI);
-	case CS_RAD:
-		return rad;
-	case CS_GRAD:
-		return rad * ((G_REAL) 200. / (G_REAL) M_PI);
-	default:
-		fprintf (stderr, _("[%s] unknown angle base in function \"rad2x\". %s\n"), PROG_NAME, BUG_REPORT);
-	}
-	return rad;
-}
-
 gboolean get_sep (int number_base)
 {
 	switch (number_base) {
@@ -851,7 +662,7 @@ void prefs_sep_char_changed (GtkEditable *editable, char **prefs_sep, int number
 			
 			if (prefs.mode != PAPER_MODE && result && stack) {
 				if (number_base == current_status.number) {
-					display_result_set(result, FALSE, -1.);
+					display_result_set(result, FALSE);
 					display_stack_set_yzt(stack);
 				}
 				g_free (result);

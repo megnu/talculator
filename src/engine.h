@@ -4,7 +4,6 @@
 #define TALCULATOR_ENGINE_H
 
 #include <glib.h>
-#include "g_real.h"
 
 typedef enum {
 	TALC_ENGINE_MODE_BASIC = 0,
@@ -38,10 +37,6 @@ typedef struct {
 } talc_engine_context;
 
 typedef struct talc_engine talc_engine;
-typedef struct {
-	gboolean error;
-	G_REAL value;
-} talc_engine_eval_result;
 
 talc_engine *talc_engine_new (void);
 void talc_engine_free (talc_engine *engine);
@@ -56,19 +51,19 @@ char *talc_engine_eval_expression (talc_engine *engine,
 	const char *expression);
 
 /*
+ * Evaluate expression with parse semantics from parse_ctx and formatting from
+ * print_ctx. Returns a newly allocated result string on success, NULL on
+ * backend failure. Evaluation errors are reported via talc_engine_last_error.
+ */
+char *talc_engine_eval_expression_with_contexts (talc_engine *engine,
+	const talc_engine_context *parse_ctx,
+	const talc_engine_context *print_ctx,
+	const char *expression);
+
+/*
  * Returns a pointer to an internal, human-readable error string.
  * The pointer remains valid until the next engine call.
  */
 const char *talc_engine_last_error (const talc_engine *engine);
-
-/*
- * Evaluate expression and return numerical result.
- * Returns TRUE when evaluation was performed (with error flag in out_result),
- * FALSE when backend is unavailable or invocation is invalid.
- */
-gboolean talc_engine_eval_expression_numeric (talc_engine *engine,
-	const talc_engine_context *ctx,
-	const char *expression,
-	talc_engine_eval_result *out_result);
 
 #endif /* TALCULATOR_ENGINE_H */

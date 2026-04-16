@@ -13,12 +13,14 @@ extern "C" {
 
 gboolean talc_qalc_bridge_available (void);
 
-gboolean talc_qalc_bridge_eval_numeric (const talc_engine_context *ctx,
+gboolean talc_qalc_bridge_eval_formatted (const talc_engine_context *ctx,
 	const char *expression,
-	talc_engine_eval_result *out_result,
+	char **out_result,
 	const char **out_error);
 
-gboolean talc_qalc_bridge_eval_formatted (const talc_engine_context *ctx,
+gboolean talc_qalc_bridge_eval_formatted_with_contexts (
+	const talc_engine_context *parse_ctx,
+	const talc_engine_context *print_ctx,
 	const char *expression,
 	char **out_result,
 	const char **out_error);

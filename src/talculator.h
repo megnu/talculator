@@ -24,8 +24,6 @@
 #include <gtk/gtk.h>
 #include <glib.h>
 
-#include "g_real.h"
-
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
@@ -209,7 +207,7 @@ typedef struct {
 } s_user_function;
 
 typedef struct {
-	G_REAL		*data;
+	char		**data;
 	int		len;
 } s_array;
 
@@ -228,7 +226,6 @@ typedef struct {
 	GtkTextBuffer		*tab_display_buffer;
 	int			tab_display_result_counter;
 	int			tab_display_result_line;
-	G_REAL			tab_display_value;
 	char			tab_display_last_arith;
 	int			tab_display_brackets;
 	GtkBuilder		*tab_view_xml;
@@ -236,7 +233,7 @@ typedef struct {
 	GtkBuilder		*tab_dispctrl_xml;
 	GtkBuilder		*tab_classic_view_xml;
 	GtkBuilder		*tab_paper_view_xml;
-	G_REAL			*tab_rpn_stack;
+	char			**tab_rpn_stack;
 	int			tab_rpn_stack_len;
 	GString			*tab_pan_expr;
 	gboolean		tab_pan_expr_compatible;

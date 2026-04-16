@@ -311,7 +311,6 @@ static s_tab_context *ui_tab_context_new ()
 	ctx->tab_display_buffer = NULL;
 	ctx->tab_display_result_counter = 0;
 	ctx->tab_display_result_line = 0;
-	ctx->tab_display_value = 0;
 	ctx->tab_display_last_arith = ' ';
 	ctx->tab_display_brackets = 0;
 	ctx->tab_rpn_stack = NULL;
@@ -323,6 +322,7 @@ static s_tab_context *ui_tab_context_new ()
 
 static void ui_tab_context_free (s_tab_context *ctx)
 {
+	int i;
 	if (!ctx) return;
 	if (ctx->tab_dispctrl_xml) g_object_unref (ctx->tab_dispctrl_xml);
 	if (ctx->tab_button_box_xml) g_object_unref (ctx->tab_button_box_xml);
@@ -330,8 +330,18 @@ static void ui_tab_context_free (s_tab_context *ctx)
 	if (ctx->tab_paper_view_xml) g_object_unref (ctx->tab_paper_view_xml);
 	if (ctx->tab_view_xml && (ctx->tab_view_xml != ctx->tab_classic_view_xml) && (ctx->tab_view_xml != ctx->tab_paper_view_xml))
 		g_object_unref (ctx->tab_view_xml);
-	if (ctx->tab_memory.data) g_free (ctx->tab_memory.data);
-	if (ctx->tab_rpn_stack) g_free (ctx->tab_rpn_stack);
+	if (ctx->tab_memory.data) {
+		for (i = 0; i < ctx->tab_memory.len; i++) {
+			if (ctx->tab_memory.data[i]) g_free (ctx->tab_memory.data[i]);
+		}
+		g_free (ctx->tab_memory.data);
+	}
+	if (ctx->tab_rpn_stack) {
+		for (i = 0; i < ctx->tab_rpn_stack_len; i++) {
+			if (ctx->tab_rpn_stack[i]) g_free (ctx->tab_rpn_stack[i]);
+		}
+		g_free (ctx->tab_rpn_stack);
+	}
 	if (ctx->tab_pan_expr) g_string_free (ctx->tab_pan_expr, TRUE);
 	g_free (ctx);
 }
@@ -339,9 +349,13 @@ static void ui_tab_context_free (s_tab_context *ctx)
 static void ui_tab_store_runtime_state (s_tab_context *ctx)
 {
 	int stack_len;
+	int i;
 
 	if (!ctx) return;
 	if (ctx->tab_rpn_stack) {
+		for (i = 0; i < ctx->tab_rpn_stack_len; i++) {
+			if (ctx->tab_rpn_stack[i]) g_free (ctx->tab_rpn_stack[i]);
+		}
 		g_free (ctx->tab_rpn_stack);
 		ctx->tab_rpn_stack = NULL;
 	}
@@ -1314,7 +1328,7 @@ GtkWidget *ui_memory_menu_create (s_array memory_array, GCallback memory_handler
 	
 	menu = gtk_menu_new();
 	for (counter = 0; counter < memory_array.len; counter++) {
-		label = float2string("%"G_LMOD"f", memory_array.data[counter]);
+		label = g_strdup (memory_array.data[counter] ? memory_array.data[counter] : CLEARED_DISPLAY);
 		child = gtk_menu_item_new_with_label(label);
 		g_free (label);
 		gtk_menu_shell_append ((GtkMenuShell *) menu, child);

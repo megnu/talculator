@@ -1,242 +1,69 @@
 /*
- *  calc_basic.c - arithmetic precedence handling and computing in basic 
- *			calculator mode.
- *	part of talculator
- *  	(c) 2002-2014 Simon Flöry (simon.floery@rechenraum.com)
- *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU Library General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ *  calc_basic.c - RPN stack runtime for talculator.
  */
- 
-/*
- * compile with:
- * gcc calc_basic.c `pkg-config --cflags --libs glib-2.0` -Wall -lm
- *
- * this is calc_basic version 2.
- */
- 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+
 #include <glib.h>
-#include <math.h>
+#include <string.h>
 
 #include "calc_basic.h"
 #include "talculator.h"
+#include "engine.h"
 
-/* i18n */
+static GPtrArray *rpn_stack;
+static int rpn_stack_size;
+static int rpn_debug;
 
-#include <libintl.h>
-#define _(String) gettext (String)
-#define gettext_noop(String) String
-#define N_(String) gettext_noop (String)
-
-static GArray	*rpn_stack;
-static int		rpn_stack_size;
-static int		rpn_debug = 0;
-
-
-/*
- * binary arithmetic
- */
-
-#if USE_LIBQUADMATH
-
-/* This is a helper function to implement and/or/xor with arguments of up to 
- * 112 bit length. This converts the given G_REAL (which is the type variables
- * are passed around in talculator) to G_HUGEINT2, a struct that is capable of
- * storing at least 128 bits. This function is called at the beginning of
- * and/or/xor to obtain integer representation for right and left hand side. 
- * These are subsequently combined and converted back to G_REAL with 
- * hugeint2greal.
- */
-G_HUGEINT2 greal2hugeint(G_REAL d)
+static void rpn_ensure_init (void)
 {
-	G_HUGEINT2 h;
-	int bits = 112;
-
-	if (d < 0) {
-		switch (current_status.number)
-		{
-		case CS_HEX:
-			bits = prefs.hex_bits;
-			break;
-		case CS_OCT:
-			bits = prefs.oct_bits;
-			break;
-		case CS_BIN:
-			bits = prefs.bin_bits;
-			break;
-		}
-		d += scalbnq(1.0Q, bits);
+	if (!rpn_stack) {
+		rpn_stack = g_ptr_array_new_with_free_func (g_free);
 	}
-
-	/* The first 128-56=56 bits */
-	h.a = truncq(d / 0x100000000000000L);
-	/* The remainding 56 bits */
-	h.b = fmodq(d, 0x100000000000000L);
-	/* this makes 112 bits in total */
-	
-	return h;
 }
 
-
-/* This is a helper function to implement and/or/xor with arguments of up to 
- * 112 bit length. This converts the given G_HUGEINT2 back to G_REAL.
- * 
- * See greal2hugeint for more information.
- */
-G_REAL hugeint2greal(G_HUGEINT2 h)
+static void engine_context_from_ui_state (talc_engine_context *ctx)
 {
-	G_REAL d;
-	G_REAL mask;
-	G_HUGEINT2 maskh;
-	int is_signed = 1;
-	int bits = 112;
-
-	switch (current_status.number)
-	{
-	case CS_HEX:
-		is_signed = prefs.hex_signed;
-		bits = prefs.hex_bits;
-		break;
-	case CS_OCT:
-		is_signed = prefs.oct_signed;
-		bits = prefs.oct_bits;
-		break;
-	case CS_BIN:
-		is_signed = prefs.bin_signed;
-		bits = prefs.bin_bits;
-		break;
-	}
-
-	/* d = h.a*2^56 + h.b */
-	d = scalbnq((__float128)(h.a & 0xffffffffffffffL), 56) +
-		(__float128)(h.b & 0xffffffffffffffL);
-
-	if (is_signed) {
-		mask = scalbnq(1.0Q, bits - 1);
-		maskh = greal2hugeint(mask);
-		if ((h.a & maskh.a) | (h.b & maskh.b))
-			d -= scalbnq(1.0Q, bits);
-	}
-
-	return d;
-}
-
-/* See greal2hugeint for more information. */
-static G_REAL and(G_REAL left_hand, G_REAL right_hand)
-{
-	G_HUGEINT2 hl, hr, h;
-	hl = greal2hugeint(left_hand);
-	hr = greal2hugeint(right_hand);
-	h.a = hl.a & hr.a;
-	h.b = hl.b & hr.b;
-	return hugeint2greal(h);
-}
-
-/* See greal2hugeint for more information. */
-static G_REAL or(G_REAL left_hand, G_REAL right_hand)
-{
-	G_HUGEINT2 hl, hr, h;
-	hl = greal2hugeint(left_hand);
-	hr = greal2hugeint(right_hand);
-	h.a = hl.a | hr.a;
-	h.b = hl.b | hr.b;
-	return hugeint2greal(h);
-}
-
-/* See greal2hugeint for more information. */
-static G_REAL xor(G_REAL left_hand, G_REAL right_hand)
-{
-	G_HUGEINT2 hl, hr, h;
-	hl = greal2hugeint(left_hand);
-	hr = greal2hugeint(right_hand);
-	h.a = hl.a ^ hr.a;
-	h.b = hl.b ^ hr.b;
-	return hugeint2greal(h);
-}
-
-#else // USE_LIBQUADMATH
-
-static G_REAL and(G_REAL left_hand, G_REAL right_hand)
-{
-	return (G_HUGEINT)left_hand & (G_HUGEINT)right_hand;
-}
-
-static G_REAL or(G_REAL left_hand, G_REAL right_hand)
-{
-	return (G_HUGEINT)left_hand | (G_HUGEINT)right_hand;
-}
-
-static G_REAL xor(G_REAL left_hand, G_REAL right_hand)
-{
-	return (G_HUGEINT)left_hand ^ (G_HUGEINT)right_hand;
-}
-
-#endif // USE_LIBQUADMATH
-
-/* compute_expression. here, the real copmputation is done.
- */
-
-static G_REAL compute_expression (G_REAL left_hand, 
-				char operator, 
-				G_REAL right_hand)
-{
-	talc_engine_context engine_ctx;
-	talc_engine_eval_result eval_result = { TRUE, 0 };
-	char *expr = NULL;
-	char *left_string = NULL;
-	char *right_string = NULL;
-	const char *op_text = NULL;
-	G_REAL result = left_hand;
-
-	if (!calc_engine) return left_hand;
-
-	engine_ctx.mode = (talc_engine_mode) prefs.mode;
-	engine_ctx.base = (talc_engine_base) current_status.number;
-	engine_ctx.angle = (talc_engine_angle) current_status.angle;
-	engine_ctx.rpn_notation = (current_status.notation == CS_RPN);
-	engine_ctx.formula_notation = (current_status.notation == CS_FORMULA);
-	engine_ctx.display_precision = 24;
-	engine_ctx.decimal_point = DEFAULT_DEC_POINT;
-	engine_ctx.base_bits = 0;
-	engine_ctx.base_signed = FALSE;
+	if (!ctx) return;
+	ctx->mode = (talc_engine_mode) prefs.mode;
+	ctx->base = (talc_engine_base) current_status.number;
+	ctx->angle = (talc_engine_angle) current_status.angle;
+	ctx->rpn_notation = (current_status.notation == CS_RPN);
+	ctx->formula_notation = (current_status.notation == CS_FORMULA);
+	ctx->display_precision = 24;
+	ctx->decimal_point = DEFAULT_DEC_POINT;
+	ctx->base_bits = 0;
+	ctx->base_signed = FALSE;
 	switch (current_status.number) {
 	case CS_HEX:
-		engine_ctx.base_bits = prefs.hex_bits;
-		engine_ctx.base_signed = prefs.hex_signed;
+		ctx->base_bits = prefs.hex_bits;
+		ctx->base_signed = prefs.hex_signed;
 		break;
 	case CS_OCT:
-		engine_ctx.base_bits = prefs.oct_bits;
-		engine_ctx.base_signed = prefs.oct_signed;
+		ctx->base_bits = prefs.oct_bits;
+		ctx->base_signed = prefs.oct_signed;
 		break;
 	case CS_BIN:
-		engine_ctx.base_bits = prefs.bin_bits;
-		engine_ctx.base_signed = prefs.bin_signed;
+		ctx->base_bits = prefs.bin_bits;
+		ctx->base_signed = prefs.bin_signed;
 		break;
 	case CS_DEC:
 	default:
 		break;
 	}
+}
 
-	left_string = float2stringP ("%.*"G_LMOD"g", engine_ctx.display_precision, left_hand);
-	right_string = float2stringP ("%.*"G_LMOD"g", engine_ctx.display_precision, right_hand);
-	if (!left_string || !right_string) goto cleanup;
+static char *rpn_eval_binary_expression (const char *left_hand,
+	char operation,
+	const char *right_hand)
+{
+	talc_engine_context engine_ctx;
+	char *expr = NULL;
+	char *result = NULL;
+	const char *op_text;
 
-	switch (operator) {
+	if (!calc_engine) return NULL;
+	if (!left_hand || !right_hand) return NULL;
+
+	switch (operation) {
 	case '<':
 		op_text = "<<";
 		break;
@@ -254,74 +81,42 @@ static G_REAL compute_expression (G_REAL left_hand,
 		break;
 	}
 
-	if (operator == '%') {
-		expr = g_strdup_printf ("((%s)*(%s))/100", left_string, right_string);
+	if (operation == '%') {
+		expr = g_strdup_printf ("((%s)*(%s))/100", left_hand, right_hand);
 	} else if (op_text) {
-		expr = g_strdup_printf ("(%s)%s(%s)", left_string, op_text, right_string);
+		expr = g_strdup_printf ("(%s)%s(%s)", left_hand, op_text, right_hand);
 	} else {
-		expr = g_strdup_printf ("(%s)%c(%s)", left_string, operator, right_string);
+		expr = g_strdup_printf ("(%s)%c(%s)", left_hand, operation, right_hand);
 	}
-	if (!expr) goto cleanup;
+	if (!expr) return NULL;
 
-	if (!talc_engine_eval_expression_numeric (calc_engine, &engine_ctx, expr, &eval_result)) {
-		goto cleanup;
-	}
-	if (eval_result.error) goto cleanup;
-	result = eval_result.value;
-
-cleanup:
-	if (left_string) g_free (left_string);
-	if (right_string) g_free (right_string);
-	if (expr) g_free (expr);
-
-	if (rpn_debug > 0) {
-		char *slh = float2string("%"G_LMOD"f", left_hand);
-		char *srh = float2string("%"G_LMOD"f", right_hand);
-		char *sr = float2string("%"G_LMOD"f", result);
-		fprintf (stderr, "[%s] computing: %s %c %s = %s\n", PROG_NAME, slh, operator, srh, sr);
-		g_free(slh);
-		g_free(srh);
-		g_free(sr);
-	}
+	engine_context_from_ui_state (&engine_ctx);
+	result = talc_engine_eval_expression (calc_engine, &engine_ctx, expr);
+	g_free (expr);
 	return result;
 }
 
-/* implement truncate with floor function:
- * 	x > 0 --> trunc(x) = floor(x)			trunc(0.4) = floor(0.4) = 0
- *  x < 0 --> trunc(x) = floor(x) + 1		trunc(-0.4) = 0 = floor(-0.4) + 1 = -1 + 1 = 0
- */
-
-G_REAL g_trunc(G_REAL x)
-{
-	return G_FLOOR(x) + (x < 0);
-}
-
-/*
- * RPN
- */
-
-/* rpn_init. initializes everything from stack to sizes and debug.
- */
-
 void rpn_init (int size, int debug_level)
 {
-	rpn_stack = g_array_new (FALSE, FALSE, sizeof(G_REAL));
+	rpn_free ();
+	rpn_stack = g_ptr_array_new_with_free_func (g_free);
 	rpn_stack_size = size;
 	rpn_debug = debug_level;
+	(void) rpn_debug;
 }
 
-void rpn_stack_set_array (G_REAL *values, int length)
+void rpn_stack_set_array (char **values, int length)
 {
-	int counter;
+	int i;
 
-	if (!rpn_stack) return;
-	g_array_set_size (rpn_stack, 0);
+	rpn_ensure_init ();
+	g_ptr_array_set_size (rpn_stack, 0);
 	if (!values || length <= 0) return;
-	for (counter = 0; counter < length; counter++) {
-		rpn_stack = g_array_append_val (rpn_stack, values[counter]);
+	for (i = 0; i < length; i++) {
+		g_ptr_array_add (rpn_stack, g_strdup (values[i] ? values[i] : CLEARED_DISPLAY));
 	}
 	if ((rpn_stack_size > 0) && ((int) rpn_stack->len > rpn_stack_size)) {
-		g_array_set_size (rpn_stack, rpn_stack_size);
+		g_ptr_array_set_size (rpn_stack, rpn_stack_size);
 	}
 }
 
@@ -331,230 +126,130 @@ int rpn_stack_length (void)
 	return (int) rpn_stack->len;
 }
 
-/* debug_rpn_stack_print. printf stack to stderr
- */
-
-void debug_rpn_stack_print ()
+void rpn_stack_push (const char *number)
 {
-	int 	counter;
-	G_REAL	*stack;
-	char *str;
-	
-	stack = rpn_stack_get (rpn_stack_size);
-	for (counter = 0; counter < MAX(rpn_stack_size, (int)rpn_stack->len); counter++) {
-		str = float2string("%"G_LMOD"f", stack[counter]);
-		fprintf (stderr, "[%s]\t %02i: %s\n", PROG_NAME, counter, str);
-		g_free(str);
+	int i;
+	char *copy;
+
+	rpn_ensure_init ();
+	copy = g_strdup ((number && number[0] != '\0') ? number : CLEARED_DISPLAY);
+	g_ptr_array_add (rpn_stack, NULL);
+	for (i = (int) rpn_stack->len - 1; i > 0; i--) {
+		rpn_stack->pdata[i] = rpn_stack->pdata[i - 1];
 	}
-	g_free (stack);
-}
+	rpn_stack->pdata[0] = copy;
 
-/* rpn_stack_push. new values is prepended! then, if finite stack size, 
- * remove last one. in the end some debugs.
- */
-
-void rpn_stack_push (G_REAL number)
-{
-	rpn_stack = g_array_prepend_val (rpn_stack, number);
-	if (((int)rpn_stack->len > rpn_stack_size) && (rpn_stack_size > 0))
-		rpn_stack = g_array_remove_index (rpn_stack, rpn_stack_size);
-	if (rpn_debug > 0) fprintf (stderr, "[%s] RPN stack size is %i.\n", 
-		PROG_NAME, (int)rpn_stack->len);
-	if (rpn_debug > 1) debug_rpn_stack_print();
-}
-
-/* rpn_stack_operation. does some operation. This is also the place where the
- * stack is popped!
- */
-
-G_REAL rpn_stack_operation (char operation, G_REAL number)
-{
-	G_REAL	return_value;
-	G_REAL	left_hand;
-	G_REAL	last_on_stack;
-
-	if (!rpn_stack) rpn_init (rpn_stack_size, rpn_debug);
-	
-	/* this function only serves binary operations. therefore, we need at 
-	 * least one element on the stack. if this is not the case, work with 0.
-	 */
-	if (rpn_stack->len < 1) left_hand = 0;
-	else {
-		/* retrieve left_hand from stack */
-		left_hand = g_array_index (rpn_stack, G_REAL, 0);
-		last_on_stack = g_array_index (rpn_stack, G_REAL, (int)rpn_stack->len-1);
-		rpn_stack = g_array_remove_index (rpn_stack, 0);
-		/* last register is kept, if stack size is finite */
-		if (((int) rpn_stack->len == rpn_stack_size-1) && (rpn_stack_size > 0))
-			rpn_stack = g_array_append_val (rpn_stack, last_on_stack);
+	if (((int) rpn_stack->len > rpn_stack_size) && (rpn_stack_size > 0)) {
+		g_free (rpn_stack->pdata[rpn_stack_size]);
+		g_ptr_array_set_size (rpn_stack, rpn_stack_size);
 	}
-	/* compute it */
-	return_value = compute_expression (left_hand, operation, number);
-	if (rpn_debug > 0) fprintf (stderr, "[%s] RPN stack size is %i.\n", 
-		PROG_NAME, (int)rpn_stack->len);
-	if (rpn_debug > 1) debug_rpn_stack_print();
-	return return_value;
 }
 
-/* rpn_stack_swapxy. swap first and second register. there are some special cases.
- */
-
-G_REAL rpn_stack_swapxy (G_REAL x)
+char *rpn_stack_operation (char operation, const char *number)
 {
-	G_REAL	*y, ret_val;
+	char *left_hand;
+	char *last_on_stack = NULL;
+	char *result;
 
-	if (!rpn_stack) rpn_init (rpn_stack_size, rpn_debug);
-	
-	if ((int)rpn_stack->len < 1) { 
-		ret_val = 0.;
-		rpn_stack = g_array_append_val (rpn_stack, x);
+	rpn_ensure_init ();
+
+	if (rpn_stack->len < 1) {
+		left_hand = g_strdup (CLEARED_DISPLAY);
 	} else {
-		y = &g_array_index (rpn_stack, G_REAL, 0);
-		ret_val = *y;
-		*y = x;
+		left_hand = g_strdup ((char *) rpn_stack->pdata[0]);
+		last_on_stack = g_strdup ((char *) rpn_stack->pdata[rpn_stack->len - 1]);
+		g_free (rpn_stack->pdata[0]);
+		g_ptr_array_remove_index (rpn_stack, 0);
+		if (((int) rpn_stack->len == rpn_stack_size - 1) && (rpn_stack_size > 0)) {
+			g_ptr_array_add (rpn_stack, last_on_stack);
+			last_on_stack = NULL;
+		}
 	}
-	if (rpn_debug > 0) fprintf (stderr, "[%s] RPN stack size is %i.\n", 
-		PROG_NAME, (int)rpn_stack->len);
-	if (rpn_debug > 1) debug_rpn_stack_print();
+
+	result = rpn_eval_binary_expression (left_hand, operation,
+		(number && number[0] != '\0') ? number : CLEARED_DISPLAY);
+	g_free (left_hand);
+	if (last_on_stack) g_free (last_on_stack);
+	if (!result) return g_strdup (CLEARED_DISPLAY);
+	return result;
+}
+
+char *rpn_stack_swapxy (const char *x)
+{
+	char *ret_val;
+
+	rpn_ensure_init ();
+	if ((int) rpn_stack->len < 1) {
+		g_ptr_array_add (rpn_stack, g_strdup ((x && x[0] != '\0') ? x : CLEARED_DISPLAY));
+		return g_strdup (CLEARED_DISPLAY);
+	}
+
+	ret_val = g_strdup ((char *) rpn_stack->pdata[0]);
+	g_free (rpn_stack->pdata[0]);
+	rpn_stack->pdata[0] = g_strdup ((x && x[0] != '\0') ? x : CLEARED_DISPLAY);
 	return ret_val;
 }
 
-/* rpn_stack_rolldown. y->x, z->y, ..., x->t
- * return value ret_val is new result.
- */
-
-G_REAL rpn_stack_rolldown (G_REAL x)
+char *rpn_stack_rolldown (const char *x)
 {
-	G_REAL	*a, ret_val;
-	int	counter;
+	char *ret_val;
+	int i;
 
-	if (!rpn_stack) rpn_init (rpn_stack_size, rpn_debug);
-	
-	if (rpn_stack_size <= 0) return x;
-	ret_val = 0.;
-	/* in the following case we have to fill up with zeros. thus this is
-	 * done virtually in rpn_stack_get.
-	 */
-	if ((rpn_stack_size > 0) && ((int)rpn_stack->len < rpn_stack_size))
-		for (counter = rpn_stack->len; counter < rpn_stack_size; counter++)
-			rpn_stack = g_array_append_val (rpn_stack, ret_val);
-	ret_val = g_array_index (rpn_stack, G_REAL, 0);
-	for (counter = 0; counter < (int) rpn_stack->len - 1; counter++) {
-		a = &g_array_index (rpn_stack, G_REAL, counter);
-		*a = g_array_index (rpn_stack, G_REAL, counter + 1);
+	rpn_ensure_init ();
+	if (rpn_stack_size <= 0) return g_strdup ((x && x[0] != '\0') ? x : CLEARED_DISPLAY);
+
+	while ((int) rpn_stack->len < rpn_stack_size) {
+		g_ptr_array_add (rpn_stack, g_strdup (CLEARED_DISPLAY));
 	}
-	a = &g_array_index (rpn_stack, G_REAL, rpn_stack->len - 1);
-	*a = x;
+
+	ret_val = g_strdup ((char *) rpn_stack->pdata[0]);
+	for (i = 0; i < (int) rpn_stack->len - 1; i++) {
+		g_free (rpn_stack->pdata[i]);
+		rpn_stack->pdata[i] = g_strdup ((char *) rpn_stack->pdata[i + 1]);
+	}
+	g_free (rpn_stack->pdata[rpn_stack->len - 1]);
+	rpn_stack->pdata[rpn_stack->len - 1] = g_strdup ((x && x[0] != '\0') ? x : CLEARED_DISPLAY);
 	return ret_val;
 }
 
-/* rpn_stack_get. returns a G_REAL array with the first length elements of
- * stack. returned array should be freed.
- */
-
-G_REAL *rpn_stack_get (int length)
+char **rpn_stack_get (int length)
 {
-	G_REAL		*return_array;
-	int		counter;
+	char **return_array;
+	int i;
+	int used_len;
 
-	if (!rpn_stack) {
-		if (length <= 0) return NULL;
-		return_array = (G_REAL *) g_malloc (length*sizeof(G_REAL));
-		for (counter = 0; counter < length; counter++) return_array[counter] = 0.;
-		return return_array;
+	used_len = length;
+	if (used_len <= 0) used_len = rpn_stack ? (int) rpn_stack->len : 0;
+	if (used_len <= 0) return NULL;
+
+	return_array = g_new0 (char *, used_len);
+	for (i = 0; i < used_len; i++) {
+		if (rpn_stack && i < (int) rpn_stack->len)
+			return_array[i] = g_strdup ((char *) rpn_stack->pdata[i]);
+		else
+			return_array[i] = g_strdup (CLEARED_DISPLAY);
 	}
-	
-	if (length <= 0) length = (int)rpn_stack->len;
-	return_array = (G_REAL *) g_malloc (length*sizeof(G_REAL));
-	for (counter = 0; counter < MIN (length, (int)rpn_stack->len); counter++)
-		return_array[counter] = g_array_index (rpn_stack, G_REAL, counter);
-	for (; counter < length; counter++) 
-		return_array[counter] = 0.;
 	return return_array;
 }
 
-/* rpn_stack_set_size. write rpn_stack_size.
- */
-
 void rpn_stack_set_size (int size)
 {
-	int	counter;
+	int i;
 
-	if ((size > 0) && ((size < rpn_stack_size) || (rpn_stack_size == -1)))
-		for (counter = ((int)rpn_stack->len-1); counter >= size; counter--)
-			rpn_stack = g_array_remove_index (rpn_stack, counter);
+	rpn_ensure_init ();
+	if ((size > 0) && ((size < rpn_stack_size) || (rpn_stack_size == -1))) {
+		for (i = (int) rpn_stack->len - 1; i >= size; i--) {
+			g_free (rpn_stack->pdata[i]);
+			g_ptr_array_remove_index (rpn_stack, i);
+		}
+	}
 	rpn_stack_size = size;
 }
-/* rpn_free. the finalizer.
- */
 
-void rpn_free ()
+void rpn_free (void)
 {
-	if (rpn_stack) 
-	{
-		g_array_free (rpn_stack, TRUE);
+	if (rpn_stack) {
+		g_ptr_array_free (rpn_stack, TRUE);
 		rpn_stack = NULL;
 	}
-}
-
-/*! \brief Convert floating point number to string.
- * 
- * With quad precision support the printing of numbers is a bit tricky. 
- * libquadmath documentation says the Q modifier should be supported for all
- * variants of printf, but it turned out this was not the case. Hence, this
- * work-around.
- * 
- * We implement this here in calc_basic as we don't want to include any further
- * files in here.
- * 
- * \param x Number to convert
- * 
- * \return Pointer to newly allocated memory storing a string representation
- * 		of given argument. Caller must free the code!
- */ 
-char *float2string(const char* formatString, G_REAL x)
-{
-	char *s = (char *) g_malloc(128*sizeof(char));
-	int len = 0;
-
-#if USE_LIBQUADMATH
-	len = quadmath_snprintf(s, 128*sizeof(char), formatString, x); 
-#else // USE_LIBQUADMATH
-	len = snprintf(s, 128*sizeof(char), formatString, x); 
-#endif // USE_LIBQUADMATH
-
-	if (len >= 128)
-		fprintf (stderr, _("[%s] Conversion of floating point number in float2string \
-failed because buffer was too small. %s\n)"), PACKAGE, BUG_REPORT);
-
-	return s;
-}
-
-/*! \brief Convert floating point number to string of given precision
- * 
- * This is an add-on to float2string assuming the format string allows us 
- * to define the precision of the string representation.
- * 
- * \param prec Number of digits
- * \param x Number to convert
- * 
- * \return Pointer to newly allocated memory storing a string representation
- * 		of given argument. Caller must free the code!
- */ 
-char *float2stringP(const char* formatString, int prec, G_REAL x)
-{
-	char *s = (char *) g_malloc(128*sizeof(char));
-	int len = 0;
-
-#if USE_LIBQUADMATH
-	len = quadmath_snprintf(s, 128*sizeof(char), formatString, prec, x); 
-#else // USE_LIBQUADMATH
-	len = snprintf(s, 128*sizeof(char), formatString, prec, x); 
-#endif // USE_LIBQUADMATH
-
-	if (len >= 128)
-		fprintf (stderr, _("[%s] Conversion of floating point number in float2stringP \
-failed because buffer was too small. %s\n)"), PACKAGE, BUG_REPORT);
-
-	return s;
 }

@@ -26,8 +26,6 @@
 #define BIT(val, index) ((val & (1 << index)) >> index)
 
 void statusbar_init (GtkWidget *a_parent_widget);
-G_REAL error_unsupported_inv (G_REAL dummy);
-G_REAL error_unsupported_hyp (G_REAL dummy);
 void error_message (char *format_string, ...);
 void clear_for_tab (s_tab_context *ctx);
 void clear ();
@@ -35,9 +33,6 @@ void backspace_for_tab (s_tab_context *ctx);
 void backspace ();
 void all_clear_for_tab (s_tab_context *ctx);
 void all_clear ();
-
-G_REAL axtof (char *bin_string, int base, int nr_bits, gboolean is_signed);
-char *ftoax (G_REAL x, int base, int nr_bits, gboolean is_signedh);
 
 char *add_leading_zeros (char *string, int multiple);
 
@@ -58,7 +53,6 @@ gboolean is_valid_number (int number_base, char number);
 
 void activate_menu_item (char *item_name);
 
-char *get_display_number_string (G_REAL value, int base);
 int get_display_number_length (int base);
 
 void gfunc_f1 (GtkToggleButton *button);
@@ -70,8 +64,6 @@ void rpn_stack_lift_for_tab (s_tab_context *ctx);
 void remember_display_values();
 void remember_display_values_for_tab (s_tab_context *ctx);
 
-G_REAL string2double (char *string, int number_base);
-
 char *string_add_separator (char *string, gboolean separate, int block_length, char separator, char dpoint);
 char *string_del_separator (char *string, char separator);
 
@@ -80,9 +72,6 @@ void set_button_label_and_tooltip (GtkBuilder *xml, char *button_name,
 	
 GtkWidget *formula_entry_is_active (GtkWidget *window_widget);
 GtkWidget *formula_entry_is_active_no_toplevel_check ();
-
-G_REAL x2rad (G_REAL x);
-G_REAL rad2x (G_REAL x);
 
 gboolean get_sep (int number_base);
 int get_sep_length (int number_base);
@@ -94,8 +83,6 @@ void change_option (int new_status, int opt_group);
 void change_option_for_tab (s_tab_context *ctx, int new_status, int opt_group);
 
 void set_window_size_minimal();
-
-int rem (G_REAL, G_HUGEINT);
 
 char getDecPoint();
 

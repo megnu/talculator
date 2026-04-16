@@ -39,27 +39,15 @@
 
 #include <glib.h>
 
-#include "g_real.h"
-
-G_REAL g_trunc(G_REAL x);
-
-#if USE_LIBQUADMATH
-G_HUGEINT2 greal2hugeint(G_REAL d);
-G_REAL hugeint2greal(G_HUGEINT2 h);
-#endif 
-
 void rpn_init (int size, int debug_level);
-void rpn_stack_set_array (G_REAL *values, int length);
+void rpn_stack_set_array (char **values, int length);
 int rpn_stack_length (void);
-void rpn_stack_push (G_REAL number);
-G_REAL rpn_stack_operation (char operation, G_REAL number);
-G_REAL rpn_stack_rolldown (G_REAL x);
-G_REAL rpn_stack_swapxy (G_REAL x);
-G_REAL *rpn_stack_get (int length);
+void rpn_stack_push (const char *number);
+char *rpn_stack_operation (char operation, const char *number);
+char *rpn_stack_rolldown (const char *x);
+char *rpn_stack_swapxy (const char *x);
+char **rpn_stack_get (int length);
 void rpn_stack_set_size (int size);
 void rpn_free ();
-
-char* float2string(const char*, G_REAL);
-char* float2stringP(const char*, int, G_REAL);
 
 #endif /* calc_basic.h */
