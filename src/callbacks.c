@@ -86,7 +86,6 @@ static gboolean pan_expr_should_track_with_engine (void)
 {
 	if (!active_tab || !calc_engine) return FALSE;
 	if (current_status.notation != CS_PAN) return FALSE;
-	if (current_status.number != CS_DEC) return FALSE;
 	return talc_engine_backend_get (calc_engine) == TALC_ENGINE_BACKEND_LIBQALCULATE;
 }
 
@@ -98,11 +97,33 @@ static gboolean pan_expr_is_supported_operation (char operation)
 	case '*':
 	case '/':
 	case '^':
+	case '<':
+	case '>':
+	case '&':
+	case '|':
+	case 'x':
+	case 'm':
 	case '(':
 	case ')':
 		return TRUE;
 	default:
 		return FALSE;
+	}
+}
+
+static const char *operation_expr_text (char operation)
+{
+	switch (operation) {
+	case '<':
+		return "<<";
+	case '>':
+		return ">>";
+	case 'x':
+		return " xor ";
+	case 'm':
+		return " mod ";
+	default:
+		return NULL;
 	}
 }
 
@@ -126,6 +147,8 @@ static void pan_expr_append_current_operand (void)
 
 static void pan_expr_record_operation (char operation)
 {
+	const char *op_text;
+
 	if (!pan_expr_should_track_with_engine ()) {
 		pan_expr_reset ();
 		return;
@@ -147,8 +170,9 @@ static void pan_expr_record_operation (char operation)
 		active_tab->tab_pan_expr_compatible = FALSE;
 		return;
 	}
-
-	g_string_append_c (active_tab->tab_pan_expr, operation);
+	op_text = operation_expr_text (operation);
+	if (op_text) g_string_append (active_tab->tab_pan_expr, op_text);
+	else g_string_append_c (active_tab->tab_pan_expr, operation);
 }
 
 static gboolean pan_expr_evaluate_equal (G_REAL *out_value, char **out_display)
@@ -323,10 +347,9 @@ on_operation_button_clicked(GtkToggleButton *button, gpointer user_data)
          *    g_object_get_data (G_OBJECT (button), "display_string"));
          */
         else {
-			if (current_token.operation == '<')
-				ui_formula_entry_insert("<<");
-			else if (current_token.operation == '>')
-				ui_formula_entry_insert(">>");
+			const char *op_text = operation_expr_text (current_token.operation);
+			if (op_text)
+				ui_formula_entry_insert(op_text);
 			else {
 				char text[2];
 				text[0] = current_token.operation;
