@@ -59,6 +59,12 @@ Phase 3 compatibility policy:
 - Map RPN stack operations to libqalculate RPN APIs (or emulate via MathStructure stack).
 - Preserve current tab-local memory and per-tab runtime state.
 
+Phase 4 status (completed on `libqalculate` branch):
+- RPN runtime state is now persisted per tab context and restored on tab activation (instead of sharing one global transient stack across tabs).
+- Tab switching/binding paths now snapshot active-tab RPN stack and rehydrate target-tab RPN stack when the target notation is RPN.
+- Tab close flow now safely snapshots/remaps RPN runtime when removing the active page.
+- Memory behavior remains tab-local via `tab_memory` and was preserved unchanged.
+
 ### Phase 5: Cleanup
 - Remove obsolete `G_REAL`-dependent evaluation paths once parity is accepted.
 

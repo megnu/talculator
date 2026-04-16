@@ -238,6 +238,8 @@ typedef struct {
 	GtkBuilder		*tab_dispctrl_xml;
 	GtkBuilder		*tab_classic_view_xml;
 	GtkBuilder		*tab_paper_view_xml;
+	G_REAL			*tab_rpn_stack;
+	int			tab_rpn_stack_len;
 	GString			*tab_pan_expr;
 	gboolean		tab_pan_expr_compatible;
 } s_tab_context;

@@ -507,6 +507,27 @@ void rpn_init (int size, int debug_level)
 	rpn_debug = debug_level;
 }
 
+void rpn_stack_set_array (G_REAL *values, int length)
+{
+	int counter;
+
+	if (!rpn_stack) return;
+	g_array_set_size (rpn_stack, 0);
+	if (!values || length <= 0) return;
+	for (counter = 0; counter < length; counter++) {
+		rpn_stack = g_array_append_val (rpn_stack, values[counter]);
+	}
+	if ((rpn_stack_size > 0) && ((int) rpn_stack->len > rpn_stack_size)) {
+		g_array_set_size (rpn_stack, rpn_stack_size);
+	}
+}
+
+int rpn_stack_length (void)
+{
+	if (!rpn_stack) return 0;
+	return (int) rpn_stack->len;
+}
+
 /* debug_rpn_stack_print. printf stack to stderr
  */
 
@@ -548,6 +569,8 @@ G_REAL rpn_stack_operation (s_cb_token current_token)
 	G_REAL	return_value;
 	G_REAL	left_hand;
 	G_REAL	last_on_stack;
+
+	if (!rpn_stack) rpn_init (rpn_stack_size, rpn_debug);
 	
 	/* this function only serves binary operations. therefore, we need at 
 	 * least one element on the stack. if this is not the case, work with 0.
@@ -577,6 +600,8 @@ G_REAL rpn_stack_operation (s_cb_token current_token)
 G_REAL rpn_stack_swapxy (G_REAL x)
 {
 	G_REAL	*y, ret_val;
+
+	if (!rpn_stack) rpn_init (rpn_stack_size, rpn_debug);
 	
 	if ((int)rpn_stack->len < 1) { 
 		ret_val = 0.;
@@ -600,6 +625,8 @@ G_REAL rpn_stack_rolldown (G_REAL x)
 {
 	G_REAL	*a, ret_val;
 	int	counter;
+
+	if (!rpn_stack) rpn_init (rpn_stack_size, rpn_debug);
 	
 	if (rpn_stack_size <= 0) return x;
 	ret_val = 0.;
@@ -627,6 +654,13 @@ G_REAL *rpn_stack_get (int length)
 {
 	G_REAL		*return_array;
 	int		counter;
+
+	if (!rpn_stack) {
+		if (length <= 0) return NULL;
+		return_array = (G_REAL *) g_malloc (length*sizeof(G_REAL));
+		for (counter = 0; counter < length; counter++) return_array[counter] = 0.;
+		return return_array;
+	}
 	
 	if (length <= 0) length = (int)rpn_stack->len;
 	return_array = (G_REAL *) g_malloc (length*sizeof(G_REAL));

@@ -47,6 +47,9 @@ static void all_clear_cb (GtkToggleButton *button);
 static GtkWidget *ui_get_current_tab_container ();
 static s_tab_context *ui_tab_context_new ();
 static void ui_tab_context_free (s_tab_context *ctx);
+static void ui_tab_store_runtime_state (s_tab_context *ctx);
+static void ui_tab_restore_runtime_state (s_tab_context *ctx);
+static void ui_set_active_tab_context (s_tab_context *ctx);
 static void on_tabs_switch_page (GtkNotebook *notebook, GtkWidget *page, guint page_num, gpointer user_data);
 static void ui_tab_build_content (s_tab_context *ctx, GtkWidget *page);
 static void ui_tabs_set_active_widget_sensitivity (GtkNotebook *notebook, gint active_page);
@@ -314,6 +317,8 @@ static s_tab_context *ui_tab_context_new ()
 	ctx->tab_display_value = 0;
 	ctx->tab_display_last_arith = ' ';
 	ctx->tab_display_brackets = 0;
+	ctx->tab_rpn_stack = NULL;
+	ctx->tab_rpn_stack_len = 0;
 	ctx->tab_pan_expr = g_string_new ("");
 	ctx->tab_pan_expr_compatible = TRUE;
 	return ctx;
@@ -330,8 +335,46 @@ static void ui_tab_context_free (s_tab_context *ctx)
 	if (ctx->tab_view_xml && (ctx->tab_view_xml != ctx->tab_classic_view_xml) && (ctx->tab_view_xml != ctx->tab_paper_view_xml))
 		g_object_unref (ctx->tab_view_xml);
 	if (ctx->tab_memory.data) g_free (ctx->tab_memory.data);
+	if (ctx->tab_rpn_stack) g_free (ctx->tab_rpn_stack);
 	if (ctx->tab_pan_expr) g_string_free (ctx->tab_pan_expr, TRUE);
 	g_free (ctx);
+}
+
+static void ui_tab_store_runtime_state (s_tab_context *ctx)
+{
+	int stack_len;
+
+	if (!ctx) return;
+	if (ctx->tab_rpn_stack) {
+		g_free (ctx->tab_rpn_stack);
+		ctx->tab_rpn_stack = NULL;
+	}
+	ctx->tab_rpn_stack_len = 0;
+	if (ctx->tab_current_status.notation != CS_RPN) return;
+
+	stack_len = rpn_stack_length ();
+	if (stack_len <= 0) return;
+	ctx->tab_rpn_stack = rpn_stack_get (RPN_INFINITE_STACK);
+	if (ctx->tab_rpn_stack) ctx->tab_rpn_stack_len = stack_len;
+}
+
+static void ui_tab_restore_runtime_state (s_tab_context *ctx)
+{
+	if (!ctx) return;
+	if (ctx->tab_current_status.notation != CS_RPN) return;
+	rpn_free ();
+	rpn_init (prefs.stack_size, 0);
+	if (ctx->tab_rpn_stack && (ctx->tab_rpn_stack_len > 0)) {
+		rpn_stack_set_array (ctx->tab_rpn_stack, ctx->tab_rpn_stack_len);
+	}
+}
+
+static void ui_set_active_tab_context (s_tab_context *ctx)
+{
+	if (!ctx || (ctx == active_tab)) return;
+	ui_tab_store_runtime_state (active_tab);
+	active_tab = ctx;
+	ui_tab_restore_runtime_state (active_tab);
 }
 
 static void on_tabs_switch_page (GtkNotebook *notebook, GtkWidget *page, guint page_num, gpointer user_data)
@@ -341,7 +384,7 @@ static void on_tabs_switch_page (GtkNotebook *notebook, GtkWidget *page, guint p
 	(void) user_data;
 	if (!page) return;
 	ctx = g_object_get_data (G_OBJECT(page), "tab-context");
-	if (ctx) active_tab = ctx;
+	if (ctx) ui_set_active_tab_context (ctx);
 	ui_tabs_set_active_widget_sensitivity (ui_tabs_get_notebook (), page_num);
 }
 
@@ -376,7 +419,7 @@ static void ui_tab_build_content (s_tab_context *ctx, GtkWidget *page)
 {
 	(void) page;
 	if (!ctx) return;
-	active_tab = ctx;
+	ui_set_active_tab_context (ctx);
 	if (prefs.mode == PAPER_MODE) ui_paper_view_create ();
 	else {
 		ui_classic_view_create ();
@@ -551,7 +594,7 @@ s_tab_context *ui_tab_context_from_widget (GtkWidget *widget)
 void ui_bind_active_tab_from_widget (GtkWidget *widget)
 {
 	s_tab_context *ctx = ui_tab_context_from_widget (widget);
-	if (ctx != NULL) active_tab = ctx;
+	if (ctx != NULL) ui_set_active_tab_context (ctx);
 }
 
 void ui_bind_active_tab_from_menu_item (GtkMenuItem *menuitem)
@@ -560,7 +603,7 @@ void ui_bind_active_tab_from_menu_item (GtkMenuItem *menuitem)
 	if (menu != NULL) {
 		s_tab_context *ctx = g_object_get_data (G_OBJECT(menu), "tab-context");
 		if (ctx != NULL) {
-			active_tab = ctx;
+			ui_set_active_tab_context (ctx);
 			return;
 		}
 	}
@@ -598,7 +641,7 @@ GtkWidget *ui_tab_create (const gchar *title)
 	page_idx = gtk_notebook_append_page (notebook, page, label);
 	gtk_widget_show_all (page);
 	gtk_notebook_set_current_page (notebook, page_idx);
-	active_tab = ctx;
+	ui_set_active_tab_context (ctx);
 	ui_tab_build_content (ctx, page);
 	ui_tabs_set_active_widget_sensitivity (notebook, gtk_notebook_get_current_page (notebook));
 	ui_tabs_refresh_actions ();
@@ -622,6 +665,7 @@ gboolean ui_tab_close (gint page_num)
 	GtkWidget		*page;
 	s_tab_context	*ctx;
 	gboolean		owned;
+	gboolean		closing_active;
 	
 	notebook = ui_tabs_get_notebook();
 	if (!notebook) return FALSE;
@@ -632,15 +676,18 @@ gboolean ui_tab_close (gint page_num)
 	if (!page) return FALSE;
 	ctx = g_object_get_data (G_OBJECT(page), "tab-context");
 	owned = GPOINTER_TO_INT(g_object_get_data (G_OBJECT(page), "tab-context-owned"));
+	closing_active = (ctx == active_tab);
+	if (closing_active) ui_tab_store_runtime_state (ctx);
 	
 	gtk_notebook_remove_page (notebook, page_num);
 	
 	if (owned) ui_tab_context_free (ctx);
+	if (closing_active) active_tab = NULL;
 	
 	page = gtk_notebook_get_nth_page (notebook, gtk_notebook_get_current_page (notebook));
 	if (page) {
 		ctx = g_object_get_data (G_OBJECT(page), "tab-context");
-		if (ctx) active_tab = ctx;
+		if (ctx) ui_set_active_tab_context (ctx);
 	}
 	ui_tabs_set_active_widget_sensitivity (notebook, gtk_notebook_get_current_page (notebook));
 	ui_tabs_refresh_actions ();
