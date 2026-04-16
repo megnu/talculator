@@ -105,7 +105,7 @@ static gboolean pan_expr_should_track_with_engine (void)
 {
 	if (!active_tab || !calc_engine) return FALSE;
 	if (current_status.notation != CS_PAN) return FALSE;
-	return talc_engine_backend_get (calc_engine) == TALC_ENGINE_BACKEND_LIBQALCULATE;
+	return TRUE;
 }
 
 static gboolean pan_expr_is_supported_operation (char operation)

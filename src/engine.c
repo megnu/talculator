@@ -8,7 +8,6 @@
 #include "engine_qalc_bridge.h"
 
 struct talc_engine {
-	talc_engine_backend backend;
 	char *last_error;
 };
 
@@ -19,10 +18,9 @@ static void talc_engine_set_error (talc_engine *engine, const char *message)
 	engine->last_error = g_strdup (message ? message : "");
 }
 
-talc_engine *talc_engine_new (talc_engine_backend backend)
+talc_engine *talc_engine_new (void)
 {
 	talc_engine *engine = g_new0 (talc_engine, 1);
-	engine->backend = backend;
 	return engine;
 }
 
@@ -33,18 +31,9 @@ void talc_engine_free (talc_engine *engine)
 	g_free (engine);
 }
 
-talc_engine_backend talc_engine_backend_get (const talc_engine *engine)
+gboolean talc_engine_available (void)
 {
-	if (!engine) return TALC_ENGINE_BACKEND_LIBQALCULATE;
-	return engine->backend;
-}
-
-gboolean talc_engine_backend_available (talc_engine_backend backend)
-{
-	if (backend == TALC_ENGINE_BACKEND_LIBQALCULATE)
-		return talc_qalc_bridge_available ();
-	if (backend == TALC_ENGINE_BACKEND_LEGACY) return FALSE;
-	return FALSE;
+	return talc_qalc_bridge_available ();
 }
 
 char *talc_engine_eval_expression (talc_engine *engine,
@@ -64,21 +53,12 @@ char *talc_engine_eval_expression (talc_engine *engine,
 		return NULL;
 	}
 
-	switch (engine->backend) {
-	case TALC_ENGINE_BACKEND_LEGACY:
-		talc_engine_set_error (engine, "Legacy backend has been removed");
-		return NULL;
-	case TALC_ENGINE_BACKEND_LIBQALCULATE:
-		if (talc_qalc_bridge_eval_formatted (ctx, expression, &formatted, &bridge_error)) {
-			talc_engine_set_error (engine, bridge_error ? bridge_error : "");
-			return formatted;
-		}
-		talc_engine_set_error (engine, bridge_error ? bridge_error : "libqalculate backend failed");
-		return NULL;
-	default:
-		talc_engine_set_error (engine, "Unknown backend");
-		return NULL;
+	if (talc_qalc_bridge_eval_formatted (ctx, expression, &formatted, &bridge_error)) {
+		talc_engine_set_error (engine, bridge_error ? bridge_error : "");
+		return formatted;
 	}
+	talc_engine_set_error (engine, bridge_error ? bridge_error : "libqalculate backend failed");
+	return NULL;
 }
 
 const char *talc_engine_last_error (const talc_engine *engine)
@@ -99,19 +79,10 @@ gboolean talc_engine_eval_expression_numeric (talc_engine *engine,
 		return FALSE;
 	}
 
-	switch (engine->backend) {
-	case TALC_ENGINE_BACKEND_LEGACY:
-		talc_engine_set_error (engine, "Legacy backend has been removed");
-		return FALSE;
-	case TALC_ENGINE_BACKEND_LIBQALCULATE:
-		if (talc_qalc_bridge_eval_numeric (ctx, expression, out_result, &bridge_error)) {
-			talc_engine_set_error (engine, (out_result->error && bridge_error) ? bridge_error : "");
-			return TRUE;
-		}
-		talc_engine_set_error (engine, bridge_error ? bridge_error : "libqalculate backend failed");
-		return FALSE;
-	default:
-		talc_engine_set_error (engine, "Unknown backend");
-		return FALSE;
+	if (talc_qalc_bridge_eval_numeric (ctx, expression, out_result, &bridge_error)) {
+		talc_engine_set_error (engine, (out_result->error && bridge_error) ? bridge_error : "");
+		return TRUE;
 	}
+	talc_engine_set_error (engine, bridge_error ? bridge_error : "libqalculate backend failed");
+	return FALSE;
 }

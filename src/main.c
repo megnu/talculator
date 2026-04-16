@@ -171,7 +171,6 @@ int main (int argc, char *argv[])
 {
     char		*config_file_name;
 	GtkWidget 	*main_window;
-	talc_engine_backend backend = TALC_ENGINE_BACKEND_LIBQALCULATE;
 
 #ifdef WITH_HILDON
 	HildonProgram   *hildon_program;
@@ -194,11 +193,11 @@ int main (int argc, char *argv[])
 		return EXIT_SUCCESS;
 	}
 
-	if (!talc_engine_backend_available (backend)) {
+	if (!talc_engine_available ()) {
 		fprintf (stderr, _("[%s] libqalculate backend unavailable; exiting.\n"), PACKAGE);
 		return EXIT_FAILURE;
 	}
-	calc_engine = talc_engine_new (backend);
+	calc_engine = talc_engine_new ();
 	
     /* get config file. 
      * 

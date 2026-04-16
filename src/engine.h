@@ -1,21 +1,10 @@
-/*
- * engine.h - calculator engine abstraction for talculator.
- *
- * Initial goal: define a stable seam between GTK/UI code and evaluation code
- * so we can swap the legacy G_REAL core for a libqalculate backend
- * incrementally.
- */
+/* engine.h - calculator engine abstraction for talculator. */
 
 #ifndef TALCULATOR_ENGINE_H
 #define TALCULATOR_ENGINE_H
 
 #include <glib.h>
 #include "g_real.h"
-
-typedef enum {
-	TALC_ENGINE_BACKEND_LEGACY = 0,
-	TALC_ENGINE_BACKEND_LIBQALCULATE = 1
-} talc_engine_backend;
 
 typedef enum {
 	TALC_ENGINE_MODE_BASIC = 0,
@@ -54,11 +43,9 @@ typedef struct {
 	G_REAL value;
 } talc_engine_eval_result;
 
-talc_engine *talc_engine_new (talc_engine_backend backend);
+talc_engine *talc_engine_new (void);
 void talc_engine_free (talc_engine *engine);
-
-talc_engine_backend talc_engine_backend_get (const talc_engine *engine);
-gboolean talc_engine_backend_available (talc_engine_backend backend);
+gboolean talc_engine_available (void);
 
 /*
  * Evaluate a full expression and return a newly allocated canonical result
