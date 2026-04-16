@@ -249,59 +249,85 @@ static G_REAL compute_expression (G_REAL left_hand,
 				char operator, 
 				G_REAL right_hand)
 {
-	G_REAL result;
-	
+	talc_engine_context engine_ctx;
+	talc_engine_eval_result eval_result = { TRUE, 0 };
+	char *expr = NULL;
+	char *left_string = NULL;
+	char *right_string = NULL;
+	const char *op_text = NULL;
+	G_REAL result = left_hand;
+
+	if (!calc_engine) return left_hand;
+
+	engine_ctx.mode = (talc_engine_mode) prefs.mode;
+	engine_ctx.base = (talc_engine_base) current_status.number;
+	engine_ctx.angle = (talc_engine_angle) current_status.angle;
+	engine_ctx.rpn_notation = (current_status.notation == CS_RPN);
+	engine_ctx.formula_notation = (current_status.notation == CS_FORMULA);
+	engine_ctx.display_precision = 24;
+	engine_ctx.decimal_point = DEFAULT_DEC_POINT;
+	engine_ctx.base_bits = 0;
+	engine_ctx.base_signed = FALSE;
+	switch (current_status.number) {
+	case CS_HEX:
+		engine_ctx.base_bits = prefs.hex_bits;
+		engine_ctx.base_signed = prefs.hex_signed;
+		break;
+	case CS_OCT:
+		engine_ctx.base_bits = prefs.oct_bits;
+		engine_ctx.base_signed = prefs.oct_signed;
+		break;
+	case CS_BIN:
+		engine_ctx.base_bits = prefs.bin_bits;
+		engine_ctx.base_signed = prefs.bin_signed;
+		break;
+	case CS_DEC:
+	default:
+		break;
+	}
+
+	left_string = float2stringP ("%.*"G_LMOD"g", engine_ctx.display_precision, left_hand);
+	right_string = float2stringP ("%.*"G_LMOD"g", engine_ctx.display_precision, right_hand);
+	if (!left_string || !right_string) goto cleanup;
+
 	switch (operator) {
-	case '+':
-		result = left_hand + right_hand;
-		break;
-	case '-':
-		result = left_hand - right_hand;
-		break;
-	case '*':
-		result = left_hand * right_hand;
-		break;
-	case '/':
-		result = left_hand / right_hand;
-		break;
-	case '^':
-		result = G_POW (left_hand, right_hand);
-		break;
 	case '<':
-		/* left shift x*2^n */
-		result = G_LDEXP (left_hand, (int) G_FLOOR(right_hand));
-		/* truncate result to have integers as result only. negative exponent
-		 * makes left shifitng a right shifting.
-		 */
-		result = g_trunc(result);
+		op_text = "<<";
 		break;
 	case '>':
-		/* right shift x*2^(-n). */
-		result = G_LDEXP (left_hand, ((int) G_FLOOR(right_hand))*(-1));
-		/* truncate result to have integers as result only */
-		result = g_trunc(result);
-		break;
-    case 'm':
-        result = G_FMOD (left_hand, right_hand);
-		break;
-	case '&':
-		result = and(left_hand, right_hand);
-		break;
-	case '|':
-		result = or(left_hand, right_hand);
+		op_text = ">>";
 		break;
 	case 'x':
-		result = xor(left_hand, right_hand);
+		op_text = " xor ";
 		break;
-	case '%':
-		result = left_hand * right_hand/100.;
+	case 'm':
+		op_text = " mod ";
 		break;
-	default: 
-		if (alg_debug+rpn_debug > 0) fprintf (stderr, _("[%s] %c - unknown operation \
-character. %s\n"), PROG_NAME, operator, BUG_REPORT);
-		result = left_hand;
+	default:
+		op_text = NULL;
 		break;
-	}	
+	}
+
+	if (operator == '%') {
+		expr = g_strdup_printf ("((%s)*(%s))/100", left_string, right_string);
+	} else if (op_text) {
+		expr = g_strdup_printf ("(%s)%s(%s)", left_string, op_text, right_string);
+	} else {
+		expr = g_strdup_printf ("(%s)%c(%s)", left_string, operator, right_string);
+	}
+	if (!expr) goto cleanup;
+
+	if (!talc_engine_eval_expression_numeric (calc_engine, &engine_ctx, expr, &eval_result)) {
+		goto cleanup;
+	}
+	if (eval_result.error) goto cleanup;
+	result = eval_result.value;
+
+cleanup:
+	if (left_string) g_free (left_string);
+	if (right_string) g_free (right_string);
+	if (expr) g_free (expr);
+
 	if (alg_debug + rpn_debug > 0) {
 		char *slh = float2string("%"G_LMOD"f", left_hand);
 		char *srh = float2string("%"G_LMOD"f", right_hand);

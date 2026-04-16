@@ -25,13 +25,11 @@
 
 #include "calc_basic.h"
 #include "talculator.h"
-#include "math_functions.h"
 #include "general_functions.h"
 #include "display.h"
 #include "config_file.h"
 #include "callbacks.h"
 #include "ui.h"
-#include "flex_parser.h"
 
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
@@ -99,6 +97,81 @@ static void engine_context_from_ui_state (talc_engine_context *ctx)
 	default:
 		break;
 	}
+}
+
+static gboolean engine_eval_expression (const char *expression,
+	G_REAL *out_value,
+	char **out_display)
+{
+	talc_engine_context engine_ctx;
+	talc_engine_eval_result eval_result = { TRUE, 0 };
+	char *display_string = NULL;
+
+	if (!expression || !out_value || !calc_engine) return FALSE;
+	if (out_display) *out_display = NULL;
+
+	engine_context_from_ui_state (&engine_ctx);
+	if (!talc_engine_eval_expression_numeric (calc_engine, &engine_ctx, expression, &eval_result)) {
+		return FALSE;
+	}
+	if (eval_result.error) return FALSE;
+	*out_value = eval_result.value;
+	if (out_display) {
+		display_string = talc_engine_eval_expression (calc_engine, &engine_ctx, expression);
+		if (display_string && display_string[0] != '\0') *out_display = display_string;
+		else if (display_string) g_free (display_string);
+	}
+	return TRUE;
+}
+
+static char *build_unary_function_expression (const char *fn_text, const char *operand)
+{
+	if (!fn_text || !operand) return NULL;
+	if (g_str_has_suffix (fn_text, "(")) {
+		return g_strdup_printf ("%s%s)", fn_text, operand);
+	}
+	if (strcmp (fn_text, "^2") == 0) return g_strdup_printf ("(%s)^2", operand);
+	if (strcmp (fn_text, "10^") == 0) return g_strdup_printf ("10^(%s)", operand);
+	if (strcmp (fn_text, "e^") == 0) return g_strdup_printf ("e^(%s)", operand);
+	if (strcmp (fn_text, "!") == 0) return g_strdup_printf ("(%s)!", operand);
+	if (strcmp (fn_text, "~") == 0) return g_strdup_printf ("~(%s)", operand);
+	return NULL;
+}
+
+static char *substitute_user_variable (const char *expression,
+	const char *variable,
+	const char *value)
+{
+	GString *result;
+	size_t var_len;
+	size_t i;
+	gboolean left_ok, right_ok;
+	char prev, next;
+
+	if (!expression || !variable || !value) return NULL;
+	var_len = strlen (variable);
+	if (var_len == 0) return g_strdup (expression);
+
+	result = g_string_new ("");
+	for (i = 0; expression[i] != '\0';) {
+		if (strncmp (&expression[i], variable, var_len) != 0) {
+			g_string_append_c (result, expression[i]);
+			i++;
+			continue;
+		}
+		prev = (i == 0) ? '\0' : expression[i - 1];
+		next = expression[i + var_len];
+		left_ok = (i == 0) || !(g_ascii_isalnum ((guchar) prev) || prev == '_');
+		right_ok = (next == '\0') || !(g_ascii_isalnum ((guchar) next) || next == '_');
+		if (left_ok && right_ok) {
+			g_string_append_printf (result, "(%s)", value);
+			i += var_len;
+		} else {
+			g_string_append_len (result, &expression[i], var_len);
+			i += var_len;
+		}
+	}
+	return g_string_free (result, FALSE);
 }
 
 static gboolean pan_expr_should_track_with_engine (void)
@@ -465,22 +538,41 @@ void
 on_function_button_clicked             (GtkToggleButton    *button,
                                         gpointer user_data)
 {
-    G_REAL        (*func[4])(G_REAL);
     char         **display_name;
+    const char    *fn_text;
+    char          *operand = NULL;
+    char          *expression = NULL;
+    char          *display_result = NULL;
+    G_REAL         numeric_result = 0;
 
     ui_bind_active_tab_from_widget (GTK_WIDGET(button));
     if (gtk_toggle_button_get_active(button) == FALSE) return;
     button_activation (button);
+    display_name = (char **) g_object_get_data (G_OBJECT (button), "display_names");
+    if (!display_name) {
+        error_message ("This button has no function associated with");
+        return;
+    }
     if (current_status.notation == CS_FORMULA) {
-        display_name = (char **) g_object_get_data (G_OBJECT (button), "display_names");
         ui_formula_entry_insert (display_name[current_status.fmod]);
         if (current_status.fmod != 0) ui_relax_fmod_buttons();
         return;
     }
-    memcpy (func, g_object_get_data (G_OBJECT (button), "func"), sizeof (func));
-    if (!*func) error_message ("This button has no function associated with");
-    display_result_set_double (
-        func[current_status.fmod](display_result_get_double(current_status.number)), current_status.number);
+
+    fn_text = display_name[current_status.fmod];
+    operand = display_result_get ();
+    expression = build_unary_function_expression (fn_text, operand);
+    if (!expression || !engine_eval_expression (expression, &numeric_result, &display_result)) {
+        error_message ("Engine failed to evaluate function expression");
+    } else if (display_result) {
+        display_result_set (display_result, TRUE, numeric_result);
+        g_free (display_result);
+    } else {
+        display_result_set_double (numeric_result, current_status.number);
+    }
+    if (operand) g_free (operand);
+    if (expression) g_free (expression);
+
     current_status.calc_entry_start_new = TRUE;    
     if (current_status.notation == CS_RPN) 
         current_status.rpn_stack_lift_enabled = TRUE;
@@ -1224,21 +1316,32 @@ void on_prefs_button_height_changed (GtkSpinButton *spinbutton,
 void user_functions_menu_handler (GtkMenuItem *menuitem, gpointer user_data)
 {
     int             index;
-    s_flex_parser_result    result;
+    G_REAL          result_value = 0;
+    char           *display_value = NULL;
+    char           *substituted_expr = NULL;
+    char           *current_value = NULL;
     
     ui_bind_active_tab_from_menu_item (menuitem);
     index = GPOINTER_TO_INT(user_data);
-    result = compute_user_function (
-        user_function[index].expression, user_function[index].variable,
-        display_result_get());
-    if (!result.error) {
-        display_result_set_double (result.value, current_status.number);
+    current_value = display_result_get ();
+    substituted_expr = substitute_user_variable (user_function[index].expression,
+        user_function[index].variable, current_value ? current_value : "0");
+    if (substituted_expr &&
+        engine_eval_expression (substituted_expr, &result_value, &display_value)) {
+        if (display_value) {
+            display_result_set (display_value, TRUE, result_value);
+            g_free (display_value);
+        } else {
+            display_result_set_double (result_value, current_status.number);
+        }
         current_status.calc_entry_start_new = TRUE;    
         if (current_status.notation == CS_RPN) 
             current_status.rpn_stack_lift_enabled = TRUE;
     } else fprintf (stderr, "[%s] User function %s(%s)=%s returned with an error.\
 Please check the expression string.\n", PROG_NAME, user_function[index].name, 
 user_function[index].variable, user_function[index].expression); 
+    if (current_value) g_free (current_value);
+    if (substituted_expr) g_free (substituted_expr);
 }
 
 void
