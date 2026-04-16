@@ -16,8 +16,8 @@
  * 	http://en.wikipedia.org/wiki/Quadruple-precision_floating-point_format
  * We have a fraction of 112 bits and an exponent of 15 bits. So apart from
  * quad-precision floating point arithmetic, we may have 112 bit binary 
- * arithmetic. While +,-,* etc is inherited from floating points, this is 
- * achieved for missing opterators such as and/or/xor in math_functions. 
+ * arithmetic. While +,-,* etc is inherited from floating points, legacy
+ * bitwise behavior historically relied on integer-conversion helper paths.
  */
 
 /* Our configure script only checks if libquadmath exists on the system. We can

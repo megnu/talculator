@@ -22,7 +22,6 @@
 #define _GENERAL_FUNCTIONS_H 1
 
 #include "config_file.h"
-#include "flex_parser.h"
 
 #define BIT(val, index) ((val & (1 << index)) >> index)
 
@@ -81,9 +80,6 @@ void set_button_label_and_tooltip (GtkBuilder *xml, char *button_name,
 	
 GtkWidget *formula_entry_is_active (GtkWidget *window_widget);
 GtkWidget *formula_entry_is_active_no_toplevel_check ();
-
-/* Legacy parser hook kept for flex_parser compilation compatibility. */
-s_flex_parser_result compute_user_function (char *expression, char *variable, char *value);
 
 G_REAL x2rad (G_REAL x);
 G_REAL rad2x (G_REAL x);

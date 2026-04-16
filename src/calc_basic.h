@@ -41,35 +41,6 @@
 
 #include "g_real.h"
 
-typedef GSList ALG_OBJECT;
-
-enum {THIS_LEVEL, LEVEL_UP, LEVEL_DOWN};
-
-typedef struct {
-	G_REAL		num;		/* numerator */
-	G_REAL		denum;		/* denumerator */
-} s_frac;
-
-typedef struct {
-	s_frac		real;
-	s_frac		imag;
-} s_complex;
-
-typedef struct {
-	G_REAL		number;
-	G_REAL		(*func)(G_REAL);
-	char		operation;
-} s_cb_token;
-
-typedef struct {
-	G_REAL		(*func)(G_REAL);
-	G_REAL		*number;
-	char		*operation;
-	int		size;
-} s_alg_stack;
-	
-G_REAL id (G_REAL x);
-
 G_REAL g_trunc(G_REAL x);
 
 #if USE_LIBQUADMATH
@@ -77,15 +48,11 @@ G_HUGEINT2 greal2hugeint(G_REAL d);
 G_REAL hugeint2greal(G_HUGEINT2 h);
 #endif 
 
-G_REAL alg_add_token (ALG_OBJECT **alg, s_cb_token this_token);
-ALG_OBJECT *alg_init (int debug_level);
-void alg_free (ALG_OBJECT *alg);
-
 void rpn_init (int size, int debug_level);
 void rpn_stack_set_array (G_REAL *values, int length);
 int rpn_stack_length (void);
 void rpn_stack_push (G_REAL number);
-G_REAL rpn_stack_operation (s_cb_token current_token);
+G_REAL rpn_stack_operation (char operation, G_REAL number);
 G_REAL rpn_stack_rolldown (G_REAL x);
 G_REAL rpn_stack_swapxy (G_REAL x);
 G_REAL *rpn_stack_get (int length);

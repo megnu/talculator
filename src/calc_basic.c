@@ -43,24 +43,9 @@
 #define gettext_noop(String) String
 #define N_(String) gettext_noop (String)
 
-static char 	*operator_precedence[] = {"=)", "+-&|x", "*/<>%", "^", "(", "%", NULL};
-static char 	*right_associative = "^";
-
 static GArray	*rpn_stack;
 static int		rpn_stack_size;
-static int		alg_debug = 0, rpn_debug = 0;
-
-/*
- * GENERAL STUFF
- */
-
-/* id. The identity function. This is used as stack function, if none was given.
- */
-
-G_REAL id (G_REAL x)
-{
-	return x;
-}
+static int		rpn_debug = 0;
 
 
 /*
@@ -203,45 +188,6 @@ static G_REAL xor(G_REAL left_hand, G_REAL right_hand)
 
 #endif // USE_LIBQUADMATH
 
-/* debug_input. debug code: enter tokens on stdin.
- */
-/*
-void debug_input ()
-{
-	char		input[20];
-	s_cb_token	current_token;
-	
-	scanf ("%s", input);
-	current_token.number = atof (input);
-	scanf ("%s", input);
-	current_token.operation = input[0];
-	current_token.func = NULL;
-	printf ("\t\tdisplay value: %"G_LMOD"f\n", alg_add_token (current_token));
-}
-*/
-
-/* reduce. TRUE if op1 comes before op2 in a computation.
- */
-
-static int reduce (char op1, char op2)
-{
-	int	counter = 0, p1 = 0, p2 = 0;
-	
-	while (operator_precedence[counter] != NULL) {
-		if (strchr (operator_precedence[counter], op1) != NULL)
-			p1 = counter;
-		if (strchr (operator_precedence[counter], op2) != NULL)
-			p2 = counter;
-		counter++;
-	}
-	if (p1 < p2) return FALSE;
-	/* associativity only makes sense for same operations */
-	else if ((op1 == op2) && (strchr (right_associative, op1) != NULL)) 
-		return FALSE;
-	else return TRUE;
-}
-
-
 /* compute_expression. here, the real copmputation is done.
  */
 
@@ -328,7 +274,7 @@ cleanup:
 	if (right_string) g_free (right_string);
 	if (expr) g_free (expr);
 
-	if (alg_debug + rpn_debug > 0) {
+	if (rpn_debug > 0) {
 		char *slh = float2string("%"G_LMOD"f", left_hand);
 		char *srh = float2string("%"G_LMOD"f", right_hand);
 		char *sr = float2string("%"G_LMOD"f", result);
@@ -348,175 +294,6 @@ cleanup:
 G_REAL g_trunc(G_REAL x)
 {
 	return G_FLOOR(x) + (x < 0);
-}
-
-/*
- * (PSEUDO)ALGEBRAIC MODE
- */
-
-/* alg_stack_new. we are working with stacks. every bracket layer is a single 
- * stack. this function creates a new stack.
- */
-
-static s_alg_stack *alg_stack_new (s_cb_token this_token)
-{
-	s_alg_stack	*new_stack;
-	
-	new_stack = (s_alg_stack *) g_malloc (sizeof(s_alg_stack));
-	new_stack->func = this_token.func;
-	new_stack->number = NULL;
-	new_stack->operation = NULL;
-	new_stack->size = 0;
-	
-	return new_stack;	
-}
-
-/* alg_stack_append. simply appends token (number and operation) to stack.
- * that's all (no computation etc!).
- */
-
-static void alg_stack_append (s_alg_stack *stack, s_cb_token token)
-{
-	stack->size++;
-	stack->number = (G_REAL *) g_realloc (stack->number, 
-		stack->size * sizeof(G_REAL));
-	stack->number[stack->size-1] = token.number;
-	stack->operation = (char *) g_realloc (stack->operation,
-		stack->size * sizeof(char));
-	stack->operation[stack->size-1] = token.operation;
-}
-
-/* alg_stack_pool. do as many computation as possible with respect to
- * precedence. here, reduce from above is used.
- */
-
-static G_REAL alg_stack_pool (s_alg_stack *stack)
-{
-	int	index;
-	
-	index = stack->size - 1;
-	while ((index >= 1) && (reduce(stack->operation[index-1], 
-		stack->operation[index]))) {
-			stack->number[index - 1] = compute_expression (
-				stack->number[index - 1],
-				stack->operation[index - 1],
-				stack->number[index]);
-			stack->operation[index - 1] = stack->operation[index];
-			index--;
-	}
-	if (stack->size != (index + 1)) {
-		stack->size = index + 1;
-		stack->number = (G_REAL *) g_realloc (stack->number,
-			sizeof(G_REAL) * stack->size);
-		stack->operation = (char *) g_realloc (stack->operation, 
-			sizeof(char) * stack->size);
-	}
-	return stack->number[stack->size-1];
-}
-
-/* alg_stack_free. the stack destructor. 
- */
-
-static void alg_stack_free (s_alg_stack *stack)
-{
-	if (stack) {
-		if (stack->number) 
-		{
-			g_free (stack->number);
-		}
-		if (stack->operation) 
-		{
-			g_free (stack->operation);
-		}
-		g_free (stack);
-	}
-}
-
-/* alg_stack_free_gfunc. wrapper for alg_stack_free for g_slist_foreach.
- */
-
-static void alg_stack_free_gfunc (gpointer data, gpointer user_data)
-{
-	s_alg_stack	*stack;
-	
-	stack = data;
-	alg_stack_free (stack);
-}
-
-/* alg_add_token. call this from outside. 
- */
-
-G_REAL alg_add_token (ALG_OBJECT **alg, s_cb_token this_token)
-{
-	static G_REAL	return_value;
-	s_alg_stack	*current_stack;
-	
-	switch (this_token.operation) {
-	case '(':
-		if (this_token.func == NULL) this_token.func = id;
-		*alg = g_slist_prepend (*alg, alg_stack_new (this_token));
-		break;
-	case ')':
-		if (g_slist_length (*alg) < 2) break;
-		current_stack = (s_alg_stack *) (*alg)->data;
-		alg_stack_append (current_stack, this_token);
-		return_value = current_stack->func (
-			alg_stack_pool (current_stack));
-		/* we may specify a function after a bracket enclosed expression
-		 * this is necessary e.g. for factorial. This function is 
-		 * applied after the stack function, so sin(3)! will be (sin(3))!
-		 */
-		if (this_token.func != NULL)
-			return_value = this_token.func(return_value);
-		alg_stack_free (current_stack);
-		/* simon, 20140219 */
-		current_stack = NULL;
-		*alg = g_slist_delete_link (*alg, *alg);
-		break;
-	case '=':
-		/* first close all open brackets */
-		while (g_slist_length (*alg) > 1) {
-			this_token.operation = ')';
-			this_token.number = alg_add_token (alg, this_token);
-		}
-		this_token.operation = '=';
-		current_stack = (s_alg_stack *) (*alg)->data;
-		alg_stack_append (current_stack, this_token);
-		return_value = alg_stack_pool (current_stack);
-		alg_free (*alg);
-		*alg = alg_init(alg_debug);
-		break;
-	default:
-		current_stack = (s_alg_stack *) (*alg)->data;
-		alg_stack_append (current_stack, this_token);
-		return_value = alg_stack_pool (current_stack);
-		break;
-	}
-	return return_value;
-}
-
-/* alg_init. use this from outside to initialize everything
- */
-
-ALG_OBJECT *alg_init (int debug_level)
-{
-	s_cb_token	token;
-	
-	alg_debug = debug_level;
-	token.func = id;
-	return g_slist_prepend (NULL, alg_stack_new(token));
-}
-
-/* alg_free. call this from outside to clean up properly
- */
-
-void alg_free (ALG_OBJECT *alg)
-{
-	if (alg) {
-		g_slist_foreach (alg, alg_stack_free_gfunc, NULL);
-		g_slist_free (alg);
-		alg = NULL;
-	}
 }
 
 /*
@@ -590,7 +367,7 @@ void rpn_stack_push (G_REAL number)
  * stack is popped!
  */
 
-G_REAL rpn_stack_operation (s_cb_token current_token)
+G_REAL rpn_stack_operation (char operation, G_REAL number)
 {
 	G_REAL	return_value;
 	G_REAL	left_hand;
@@ -612,8 +389,7 @@ G_REAL rpn_stack_operation (s_cb_token current_token)
 			rpn_stack = g_array_append_val (rpn_stack, last_on_stack);
 	}
 	/* compute it */
-	return_value = compute_expression (left_hand, current_token.operation, 
-		current_token.number);
+	return_value = compute_expression (left_hand, operation, number);
 	if (rpn_debug > 0) fprintf (stderr, "[%s] RPN stack size is %i.\n", 
 		PROG_NAME, (int)rpn_stack->len);
 	if (rpn_debug > 1) debug_rpn_stack_print();
@@ -720,15 +496,6 @@ void rpn_free ()
 		rpn_stack = NULL;
 	}
 }
-
-/*
-int main (int argc, char *argv[])
-{
-	alg_init(1);
-	while (1) debug_input();
-	return 1;
-}
-*/
 
 /*! \brief Convert floating point number to string.
  * 

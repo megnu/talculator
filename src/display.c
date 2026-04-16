@@ -28,7 +28,6 @@
 #include "display.h"
 #include "general_functions.h"
 #include "config_file.h"
-#include "math_functions.h"
 #include "calc_basic.h"
 #include "ui.h"
 

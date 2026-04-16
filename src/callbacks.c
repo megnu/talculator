@@ -414,20 +414,20 @@ on_number_button_clicked               (GtkToggleButton  *button,
 void
 on_operation_button_clicked(GtkToggleButton *button, gpointer user_data)
 {
-    s_cb_token        current_token;
-    G_REAL            return_value, *stack;
+    char              current_operation;
+    G_REAL            current_number, *stack;
     GtkWidget        *tbutton;
     
     ui_bind_active_tab_from_widget (GTK_WIDGET(button));
     if (gtk_toggle_button_get_active(button) == FALSE) return;
     button_activation (button);
     
-    current_token.operation = GPOINTER_TO_INT(g_object_get_data(G_OBJECT (button), "operation"));
+    current_operation = GPOINTER_TO_INT(g_object_get_data(G_OBJECT (button), "operation"));
     /* do inverse left shift is a right shift */
-    if ((current_token.operation == '<') && (BIT (current_status.fmod, CS_FMOD_FLAG_INV) == 1)) {
+    if ((current_operation == '<') && (BIT (current_status.fmod, CS_FMOD_FLAG_INV) == 1)) {
 		tbutton = GTK_WIDGET(gtk_builder_get_object (button_box_xml, "button_inv"));
 		gtk_toggle_button_set_active ((GtkToggleButton *) tbutton, FALSE);
-        current_token.operation = '>';
+        current_operation = '>';
     }
     
     if (current_status.notation == CS_FORMULA) {
@@ -439,12 +439,12 @@ on_operation_button_clicked(GtkToggleButton *button, gpointer user_data)
          *    g_object_get_data (G_OBJECT (button), "display_string"));
          */
         else {
-			const char *op_text = operation_expr_text (current_token.operation);
+			const char *op_text = operation_expr_text (current_operation);
 			if (op_text)
 				ui_formula_entry_insert(op_text);
 			else {
 				char text[2];
-				text[0] = current_token.operation;
+				text[0] = current_operation;
 				text[1] = '\0';
 				ui_formula_entry_insert(text);
 			}
@@ -453,13 +453,11 @@ on_operation_button_clicked(GtkToggleButton *button, gpointer user_data)
     }
     
     /* current number, get it from the display! */
-    current_token.number = display_result_get_double (current_status.number);
-    current_token.func = NULL;
+    current_number = display_result_get_double (current_status.number);
     
     /* notation specific interface code */
     
     if (current_status.notation == CS_PAN) {
-        gboolean use_engine_result = FALSE;
         G_REAL engine_value = 0;
         char *engine_display = NULL;
         /* '(' doesn't pay respect to allow_arith_op but sets it: a+((((((b-...
@@ -471,11 +469,10 @@ on_operation_button_clicked(GtkToggleButton *button, gpointer user_data)
          * in general, a closing bracket is only useful if there were opening
          *    brackets.
          */
-        if (((current_token.operation == '(') || current_status.allow_arith_op) && \
-            ((current_token.operation != ')') || (display_module_bracket_label_update (GET) > 0))) {
-            pan_expr_record_operation (current_token.operation);
-            return_value = alg_add_token (&main_alg, current_token);
-            if ((current_token.operation == '=') &&
+        if (((current_operation == '(') || current_status.allow_arith_op) && \
+            ((current_operation != ')') || (display_module_bracket_label_update (GET) > 0))) {
+            pan_expr_record_operation (current_operation);
+            if ((current_operation == '=') &&
                 pan_expr_evaluate_equal (&engine_value, &engine_display)) {
                 if (engine_display) {
                     display_result_set (engine_display, TRUE, engine_value);
@@ -483,14 +480,11 @@ on_operation_button_clicked(GtkToggleButton *button, gpointer user_data)
                 } else {
                     display_result_set_double (engine_value, current_status.number);
                 }
-                use_engine_result = TRUE;
             }
-            if (!use_engine_result)
-                display_result_set_double (return_value, current_status.number);
-            display_module_arith_label_update (current_token.operation);
+            display_module_arith_label_update (current_operation);
             
             /* setting of allow_arith_op. the missing breaks are wanted */
-            switch (current_token.operation) {
+            switch (current_operation) {
                 case '=':
                     pan_expr_reset ();
                     display_module_bracket_label_update (RESET);
@@ -505,9 +499,9 @@ on_operation_button_clicked(GtkToggleButton *button, gpointer user_data)
             }
         }
     } else if (current_status.notation == CS_RPN) {
-        switch (current_token.operation) {
+        switch (current_operation) {
         case '=':
-            rpn_stack_push (current_token.number);
+            rpn_stack_push (current_number);
             stack = rpn_stack_get (RPN_FINITE_STACK);
             display_stack_set_yzt_double (stack, current_status.number);
             g_free (stack);
@@ -516,7 +510,7 @@ on_operation_button_clicked(GtkToggleButton *button, gpointer user_data)
             /* display line isn't cleared! */
             break;
         default:
-            display_result_set_double (rpn_stack_operation (current_token), current_status.number);
+            display_result_set_double (rpn_stack_operation (current_operation, current_number), current_status.number);
             stack = rpn_stack_get (RPN_FINITE_STACK);
             display_stack_set_yzt_double (stack, current_status.number);
             g_free (stack);
@@ -717,9 +711,6 @@ on_rpn_toggled                       (GtkMenuItem     *menuitem,
     change_option (CS_RPN, DISPLAY_OPT_NOTATION);
     
     set_widget_visibility (view_xml, "formula_entry_hbox", FALSE);
-    alg_free(main_alg);
-    /* 20140219, simon */
-    main_alg = NULL;
     all_clear();
     ui_button_set_rpn();
     /* stack is created by all_clear */

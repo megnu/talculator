@@ -56,7 +56,6 @@ talc_engine		*calc_engine = NULL;
 s_tab_context		default_tab_context = {
 	.tab_current_status = {0, 0, 0, 0, FALSE, FALSE, TRUE},
 	.tab_memory = {NULL, 0},
-	.tab_main_alg = NULL,
 	.tab_display_view = NULL,
 	.tab_display_buffer = NULL,
 	.tab_display_result_counter = 0,
@@ -70,7 +69,9 @@ s_tab_context		default_tab_context = {
 	.tab_classic_view_xml = NULL,
 	.tab_paper_view_xml = NULL,
 	.tab_rpn_stack = NULL,
-	.tab_rpn_stack_len = 0
+	.tab_rpn_stack_len = 0,
+	.tab_pan_expr = NULL,
+	.tab_pan_expr_compatible = TRUE
 };
 s_tab_context		*active_tab = &default_tab_context;
 
@@ -262,9 +263,7 @@ PACKAGE, config_file_name_old, config_file_name, PACKAGE, config_file_name_old);
 
 	gtk_accelerator_set_default_mod_mask (gtk_accelerator_get_default_mod_mask () | GDK_MOD2_MASK); 
 				  
-	/* prepare calc_basic */
-
-	main_alg = alg_init (0);
+	/* prepare RPN runtime */
 	rpn_init (prefs.stack_size, 0);
 		
 	/* apply changes */

@@ -174,7 +174,6 @@ typedef struct {
 	char		*button_name;
 	/* for simplicity we put the display_names not in an array */
 	char		*display_names[4];
-	G_REAL		(*func[4])(G_REAL);
 } s_function_map;
 
 typedef struct {
@@ -225,7 +224,6 @@ extern talc_engine	*calc_engine;
 typedef struct {
 	s_current_status	tab_current_status;
 	s_array			tab_memory;
-	ALG_OBJECT		*tab_main_alg;
 	GtkTextView		*tab_display_view;
 	GtkTextBuffer		*tab_display_buffer;
 	int			tab_display_result_counter;
@@ -248,7 +246,6 @@ extern s_tab_context *active_tab;
 
 #define current_status (active_tab->tab_current_status)
 #define memory (active_tab->tab_memory)
-#define main_alg (active_tab->tab_main_alg)
 #define view_xml (active_tab->tab_view_xml)
 #define button_box_xml (active_tab->tab_button_box_xml)
 #define dispctrl_xml (active_tab->tab_dispctrl_xml)

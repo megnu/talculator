@@ -28,7 +28,6 @@
 
 #include "talculator.h"
 #include "general_functions.h"
-#include "math_functions.h"
 #include "calc_basic.h"
 #include "display.h"
 #include "config_file.h"
@@ -111,8 +110,6 @@ void all_clear_for_tab (s_tab_context *ctx)
 	}
 	switch (current_status.notation) {
 		case CS_PAN:
-			alg_free(main_alg);
-			main_alg = alg_init(0);
 			break;
 		case CS_RPN:
 			rpn_free();
@@ -123,9 +120,6 @@ void all_clear_for_tab (s_tab_context *ctx)
 			current_status.rpn_stack_lift_enabled = FALSE;
 			break;
 		case CS_FORMULA:
-			alg_free(main_alg);
-			/* 20140219, simon */
-			main_alg = NULL;
 			rpn_free();
 			display_stack_remove();
 			break;
@@ -753,86 +747,15 @@ GtkWidget *formula_entry_is_active_no_toplevel_check ()
 	return NULL;
 }
 
-s_flex_parser_result compute_user_function (char *expression, char *variable, char *value)
-{
-	s_flex_parser_result result = { TRUE, 0 };
-	talc_engine_context engine_ctx;
-	talc_engine_eval_result eval_result = { TRUE, 0 };
-	GString *substituted;
-	size_t var_len;
-	size_t i;
-	gboolean left_ok, right_ok;
-	char prev, next;
-
-	if (!expression || !variable || !value || !calc_engine) return result;
-
-	var_len = strlen (variable);
-	if (var_len == 0) return result;
-	substituted = g_string_new ("");
-	for (i = 0; expression[i] != '\0';) {
-		if (strncmp (&expression[i], variable, var_len) != 0) {
-			g_string_append_c (substituted, expression[i]);
-			i++;
-			continue;
-		}
-		prev = (i == 0) ? '\0' : expression[i - 1];
-		next = expression[i + var_len];
-		left_ok = (i == 0) || !(g_ascii_isalnum ((guchar) prev) || prev == '_');
-		right_ok = (next == '\0') || !(g_ascii_isalnum ((guchar) next) || next == '_');
-		if (left_ok && right_ok) {
-			g_string_append_printf (substituted, "(%s)", value);
-			i += var_len;
-		} else {
-			g_string_append_len (substituted, &expression[i], var_len);
-			i += var_len;
-		}
-	}
-
-	engine_ctx.mode = (talc_engine_mode) prefs.mode;
-	engine_ctx.base = (talc_engine_base) current_status.number;
-	engine_ctx.angle = (talc_engine_angle) current_status.angle;
-	engine_ctx.rpn_notation = (current_status.notation == CS_RPN);
-	engine_ctx.formula_notation = (current_status.notation == CS_FORMULA);
-	engine_ctx.display_precision = get_display_number_length (current_status.number);
-	engine_ctx.decimal_point = dec_point[0];
-	engine_ctx.base_bits = 0;
-	engine_ctx.base_signed = FALSE;
-	switch (current_status.number) {
-	case CS_HEX:
-		engine_ctx.base_bits = prefs.hex_bits;
-		engine_ctx.base_signed = prefs.hex_signed;
-		break;
-	case CS_OCT:
-		engine_ctx.base_bits = prefs.oct_bits;
-		engine_ctx.base_signed = prefs.oct_signed;
-		break;
-	case CS_BIN:
-		engine_ctx.base_bits = prefs.bin_bits;
-		engine_ctx.base_signed = prefs.bin_signed;
-		break;
-	case CS_DEC:
-	default:
-		break;
-	}
-
-	if (talc_engine_eval_expression_numeric (calc_engine, &engine_ctx, substituted->str, &eval_result) &&
-		!eval_result.error) {
-		result.error = FALSE;
-		result.value = eval_result.value;
-	}
-	g_string_free (substituted, TRUE);
-	return result;
-}
-
 G_REAL x2rad (G_REAL x)
 {
 	switch (current_status.angle){
 	case CS_DEG:
-		return deg2rad(x); 
+		return x * ((G_REAL) M_PI / (G_REAL) 180.);
 	case CS_RAD:
 		return x;
 	case CS_GRAD:
-		return grad2rad (x);
+		return x * ((G_REAL) M_PI / (G_REAL) 200.);
 	default:
 		fprintf (stderr, _("[%s] unknown angle base in function \"x2rad\". %s\n"), PROG_NAME, BUG_REPORT);
 	}
@@ -843,11 +766,11 @@ G_REAL rad2x (G_REAL rad)
 {
 	switch (current_status.angle) {
 	case CS_DEG:
-		return rad2deg(rad);
+		return rad * ((G_REAL) 180. / (G_REAL) M_PI);
 	case CS_RAD:
 		return rad;
 	case CS_GRAD:
-		return rad2grad(rad);
+		return rad * ((G_REAL) 200. / (G_REAL) M_PI);
 	default:
 		fprintf (stderr, _("[%s] unknown angle base in function \"rad2x\". %s\n"), PROG_NAME, BUG_REPORT);
 	}

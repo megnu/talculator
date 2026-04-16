@@ -25,7 +25,6 @@
 #include "talculator.h"
 #include "ui.h"
 #include "display.h"
-#include "math_functions.h"
 #include "config_file.h"
 #include "general_functions.h"
 #include "callbacks.h"
@@ -151,7 +150,6 @@ static void apply_object_data (s_operation_map operation_map[],
 		object = G_OBJECT (gtk_builder_get_object (button_box_xml, 
 			function_map[counter].button_name));
 		g_object_set_data (object, "display_names", function_map[counter].display_names);
-		g_object_set_data (object, "func", function_map[counter].func);	
 		counter++;
 	};
 }
@@ -195,15 +193,15 @@ static void set_scientific_object_data ()
 	/* declare this one static as we need the display_names throughout */
 	
 	static s_function_map function_map[] = {
-		{"button_sin", {"sin(", "asin(", "sinh(", "asinh("}, {sin_wrapper, asin_wrapper, G_SINH, G_ASINH}},
-		{"button_cos", {"cos(", "acos(", "cosh(", "acosh("}, {cos_wrapper, acos_wrapper, G_COSH, G_ACOSH}},
-		{"button_tan", {"tan(", "atan(", "tanh(", "atanh("}, {tan_wrapper, atan_wrapper, G_TANH, G_ATANH}},
-		{"button_log", {"log(", "10^", "log(", "log("}, {G_LOG10, pow10y, G_LOG10, G_LOG10}},
-		{"button_ln", {"ln(", "e^", "ln(", "ln("}, {G_LOG, G_EXP, G_LOG, G_LOG}},
-		{"button_sq", {"^2", "sqrt(", "^2", "^2"}, {powx2, G_SQRT, powx2, powx2}},
-		{"button_sqrt", {"sqrt(", "^2", "sqrt(", "sqrt("}, {G_SQRT, powx2, G_SQRT, G_SQRT}},
-		{"button_fac", {"!", "!", "!", "!"}, {factorial, factorial, factorial, factorial}},
-		{"button_cmp", {"~", "~", "~", "~"}, {cmp, cmp, cmp, cmp}},
+		{"button_sin", {"sin(", "asin(", "sinh(", "asinh("}},
+		{"button_cos", {"cos(", "acos(", "cosh(", "acosh("}},
+		{"button_tan", {"tan(", "atan(", "tanh(", "atanh("}},
+		{"button_log", {"log(", "10^", "log(", "log("}},
+		{"button_ln", {"ln(", "e^", "ln(", "ln("}},
+		{"button_sq", {"^2", "sqrt(", "^2", "^2"}},
+		{"button_sqrt", {"sqrt(", "^2", "sqrt(", "sqrt("}},
+		{"button_fac", {"!", "!", "!", "!"}},
+		{"button_cmp", {"~", "~", "~", "~"}},
 		{NULL}
 	};
 
@@ -240,7 +238,7 @@ static void set_basic_object_data ()
 	};
 	
 	static s_function_map function_map[] = {
-		{"button_sqrt", {"sqrt(", "^2", "sqrt(", "sqrt("}, {G_SQRT, powx2, G_SQRT, G_SQRT}},
+		{"button_sqrt", {"sqrt(", "^2", "sqrt(", "sqrt("}},
 		{NULL}
 	};
 	
@@ -309,7 +307,6 @@ static s_tab_context *ui_tab_context_new ()
 	ctx->tab_current_status = (s_current_status){CS_DEC, CS_DEG, prefs.def_notation, 0, FALSE, FALSE, TRUE};
 	ctx->tab_memory.data = NULL;
 	ctx->tab_memory.len = 0;
-	ctx->tab_main_alg = alg_init (0);
 	ctx->tab_display_view = NULL;
 	ctx->tab_display_buffer = NULL;
 	ctx->tab_display_result_counter = 0;
@@ -327,7 +324,6 @@ static s_tab_context *ui_tab_context_new ()
 static void ui_tab_context_free (s_tab_context *ctx)
 {
 	if (!ctx) return;
-	if (ctx->tab_main_alg) alg_free (ctx->tab_main_alg);
 	if (ctx->tab_dispctrl_xml) g_object_unref (ctx->tab_dispctrl_xml);
 	if (ctx->tab_button_box_xml) g_object_unref (ctx->tab_button_box_xml);
 	if (ctx->tab_classic_view_xml) g_object_unref (ctx->tab_classic_view_xml);
