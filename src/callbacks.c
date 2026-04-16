@@ -80,6 +80,25 @@ static void engine_context_from_ui_state (talc_engine_context *ctx)
 	ctx->formula_notation = (current_status.notation == CS_FORMULA);
 	ctx->display_precision = get_display_number_length (current_status.number);
 	ctx->decimal_point = dec_point[0];
+	ctx->base_bits = 0;
+	ctx->base_signed = FALSE;
+	switch (current_status.number) {
+	case CS_HEX:
+		ctx->base_bits = prefs.hex_bits;
+		ctx->base_signed = prefs.hex_signed;
+		break;
+	case CS_OCT:
+		ctx->base_bits = prefs.oct_bits;
+		ctx->base_signed = prefs.oct_signed;
+		break;
+	case CS_BIN:
+		ctx->base_bits = prefs.bin_bits;
+		ctx->base_signed = prefs.bin_signed;
+		break;
+	case CS_DEC:
+	default:
+		break;
+	}
 }
 
 static gboolean pan_expr_should_track_with_engine (void)

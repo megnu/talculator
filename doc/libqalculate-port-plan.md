@@ -45,6 +45,16 @@ libqalculate already solves these domains, but with different semantics and a C+
 - Migrate `HEX/OCT/BIN`, shifts, and bitwise operations.
 - Define compatibility policy for non-integer and overflow cases.
 
+Phase 3 status (completed on `libqalculate` branch):
+- PAN/formula button operators for `<<`, `>>`, `AND`, `OR`, `XOR`, and `MOD` now route through the engine/libqalculate expression path.
+- Base-aware parse/print settings are now mapped into libqalculate (`ParseOptions` and `PrintOptions`) using current talculator prefs.
+
+Phase 3 compatibility policy:
+- Active base drives parsing (`DEC/HEX/OCT/BIN`) for engine-evaluated expressions.
+- `BIN` and `HEX` signed + bit-width behavior follows prefs by applying two's-complement and configured bit width in libqalculate parse/print options.
+- `OCT` keeps base-8 parsing/printing; signed-width behavior continues to follow current legacy display/conversion paths where applicable.
+- For formula mode, free-typed expressions follow libqalculate parser semantics; button-inserted logical/shift operators are normalized to libqalculate-compatible tokens.
+
 ### Phase 4: RPN + memory parity
 - Map RPN stack operations to libqalculate RPN APIs (or emulate via MathStructure stack).
 - Preserve current tab-local memory and per-tab runtime state.

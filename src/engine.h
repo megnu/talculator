@@ -44,6 +44,8 @@ typedef struct {
 	gboolean formula_notation;
 	int display_precision;
 	char decimal_point;
+	int base_bits;
+	gboolean base_signed;
 } talc_engine_context;
 
 typedef struct talc_engine talc_engine;

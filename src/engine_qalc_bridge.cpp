@@ -42,6 +42,44 @@ static int talc_qalc_number_base (const talc_engine_context *ctx)
 	}
 }
 
+static unsigned int talc_qalc_binary_bits (const talc_engine_context *ctx)
+{
+	if (!ctx || ctx->base_bits <= 0) return 0U;
+	return (unsigned int) ctx->base_bits;
+}
+
+static void talc_qalc_apply_base_semantics (const talc_engine_context *ctx,
+	ParseOptions *parse_opts,
+	PrintOptions *print_opts)
+{
+	const unsigned int bits = talc_qalc_binary_bits (ctx);
+
+	if (parse_opts) {
+		parse_opts->twos_complement = false;
+		parse_opts->hexadecimal_twos_complement = false;
+		parse_opts->binary_bits = bits;
+		if (ctx) {
+			if (ctx->base == TALC_ENGINE_BASE_BIN) {
+				parse_opts->twos_complement = (ctx->base_signed != FALSE);
+			} else if (ctx->base == TALC_ENGINE_BASE_HEX) {
+				parse_opts->hexadecimal_twos_complement = (ctx->base_signed != FALSE);
+			}
+		}
+	}
+	if (print_opts) {
+		print_opts->twos_complement = false;
+		print_opts->hexadecimal_twos_complement = false;
+		print_opts->binary_bits = bits;
+		if (ctx) {
+			if (ctx->base == TALC_ENGINE_BASE_BIN) {
+				print_opts->twos_complement = (ctx->base_signed != FALSE);
+			} else if (ctx->base == TALC_ENGINE_BASE_HEX) {
+				print_opts->hexadecimal_twos_complement = (ctx->base_signed != FALSE);
+			}
+		}
+	}
+}
+
 static void talc_qalc_configure_locale (const talc_engine_context *ctx)
 {
 	if (!CALCULATOR) return;
@@ -63,6 +101,7 @@ static void talc_qalc_fill_print_options (const talc_engine_context *ctx,
 	po->digit_grouping = DIGIT_GROUPING_NONE;
 	po->spacious = false;
 	po->indicate_infinite_series = REPEATING_DECIMALS_OFF;
+	talc_qalc_apply_base_semantics (ctx, NULL, po);
 	if (ctx && ctx->display_precision > 0 && CALCULATOR) {
 		CALCULATOR->setPrecision (ctx->display_precision);
 	}
@@ -141,6 +180,7 @@ gboolean talc_qalc_bridge_eval_numeric (const talc_engine_context *ctx,
 	eval_opts = default_user_evaluation_options;
 	eval_opts.parse_options.base = talc_qalc_number_base (ctx);
 	eval_opts.parse_options.angle_unit = talc_qalc_angle_unit (ctx);
+	talc_qalc_apply_base_semantics (ctx, &eval_opts.parse_options, NULL);
 	if (ctx && ctx->rpn_notation) {
 		eval_opts.parse_options.parsing_mode = PARSING_MODE_RPN;
 	}
@@ -210,6 +250,7 @@ gboolean talc_qalc_bridge_eval_formatted (const talc_engine_context *ctx,
 	eval_opts = default_user_evaluation_options;
 	eval_opts.parse_options.base = talc_qalc_number_base (ctx);
 	eval_opts.parse_options.angle_unit = talc_qalc_angle_unit (ctx);
+	talc_qalc_apply_base_semantics (ctx, &eval_opts.parse_options, NULL);
 	if (ctx && ctx->rpn_notation) {
 		eval_opts.parse_options.parsing_mode = PARSING_MODE_RPN;
 	}
