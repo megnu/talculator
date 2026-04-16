@@ -68,6 +68,11 @@ Phase 4 status (completed on `libqalculate` branch):
 ### Phase 5: Cleanup
 - Remove obsolete `G_REAL`-dependent evaluation paths once parity is accepted.
 
+Phase 5 status (completed on `libqalculate` branch):
+- Removed legacy expression-evaluator backend execution path from `engine.c` (no more `flex_parser` execution via engine abstraction).
+- Made libqalculate the required engine backend at startup; legacy fallback path removed.
+- Backend availability failure is now a hard startup error instead of a silent fallback to legacy behavior.
+
 ## Behavior compatibility decisions to make early
 - Percent semantics (`x%y` vs calculator-style context-sensitive `%` key).
 - Exact vs approximate default output.

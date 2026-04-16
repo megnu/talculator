@@ -171,8 +171,7 @@ int main (int argc, char *argv[])
 {
     char		*config_file_name;
 	GtkWidget 	*main_window;
-	const char	*engine_env;
-	talc_engine_backend backend = TALC_ENGINE_BACKEND_LEGACY;
+	talc_engine_backend backend = TALC_ENGINE_BACKEND_LIBQALCULATE;
 
 #ifdef WITH_HILDON
 	HildonProgram   *hildon_program;
@@ -195,16 +194,9 @@ int main (int argc, char *argv[])
 		return EXIT_SUCCESS;
 	}
 
-	engine_env = getenv ("TALCULATOR_ENGINE");
-	if (engine_env && engine_env[0] != '\0') {
-		if (g_ascii_strcasecmp (engine_env, "libqalculate") == 0 ||
-			g_ascii_strcasecmp (engine_env, "qalc") == 0) {
-			backend = TALC_ENGINE_BACKEND_LIBQALCULATE;
-		}
-	}
 	if (!talc_engine_backend_available (backend)) {
-		fprintf (stderr, _("[%s] engine backend unavailable; falling back to legacy evaluator.\n"), PACKAGE);
-		backend = TALC_ENGINE_BACKEND_LEGACY;
+		fprintf (stderr, _("[%s] libqalculate backend unavailable; exiting.\n"), PACKAGE);
+		return EXIT_FAILURE;
 	}
 	calc_engine = talc_engine_new (backend);
 	
