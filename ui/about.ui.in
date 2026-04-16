@@ -15,7 +15,7 @@
     <property name="website">http://talculator.sourceforge.net/</property>
     <property name="authors">Simon Flöry &lt;simon.floery@rechenraum.com&gt;
 Hong Jen Yee (PCMan) &lt;pcman.tw@gmail.com&gt; (GTK3 port)
-John Williams &lt;john@pond-weed.com&gt; (libquadmath support)</property>
+John Williams &lt;john@pond-weed.com&gt; (contributor)</property>
     <property name="logo_icon_name">talculator</property>
     <signal name="response" handler="gtk_widget_destroy" swapped="no"/>
     <child internal-child="vbox">

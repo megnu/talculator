@@ -1378,15 +1378,8 @@ GtkWidget *ui_pref_dialog_create ()
 	
     prefs_dialog = GTK_WIDGET(gtk_builder_get_object (prefs_xml, "prefs_dialog"));
     
-    /* Set maximal number of bits for the integer types depending on whether
-	 * float128 is available or not.
-	 */
-	
-#if USE_LIBQUADMATH
-	gdouble upperBound = 112;
-#else
-	gdouble upperBound = 32;
-#endif
+    /* libqalculate supports arbitrary precision integers; keep UI limits practical. */
+	gdouble upperBound = 4096;
 
 	gtk_adjustment_set_upper(gtk_spin_button_get_adjustment(GTK_SPIN_BUTTON(gtk_builder_get_object (prefs_xml, "prefs_hex_bits"))), upperBound);
 	gtk_adjustment_set_upper(gtk_spin_button_get_adjustment(GTK_SPIN_BUTTON(gtk_builder_get_object (prefs_xml, "prefs_oct_bits"))), upperBound);

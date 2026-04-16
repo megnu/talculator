@@ -19,8 +19,7 @@ talculator_SOURCES = \
 	calc_basic.c calc_basic.h \
 	config_file.c config_file.h \
 	callbacks.c callbacks.h \
-	ui.c ui.h \
-	g_real.h
+	ui.c ui.h
 
 talculator_CFLAGS = \
 	$(GTK_CFLAGS) \

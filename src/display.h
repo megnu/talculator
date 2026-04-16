@@ -46,8 +46,6 @@ enum {
 	NOP
 };
 
-extern gboolean calc_entry_start_new;
-
 /* general */
 
 

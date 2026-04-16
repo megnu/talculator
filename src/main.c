@@ -84,16 +84,11 @@ options:\n\
  -v, --version\t\tShow version information\n\n\
 Compiled against GTK version %i.%i.%i\n\
 Linked against GTK version %i.%i.%i\n\
-%s-precision floating point numbers.\n"),
-PACKAGE, VERSION, PACKAGE,
-GTK_MAJOR_VERSION, GTK_MINOR_VERSION, GTK_MICRO_VERSION,
-gtk_major_version, gtk_minor_version, gtk_micro_version,
-#if USE_LIBQUADMATH
-"Quad"
-#else // USE_LIBQUADMATH
-"Double"
-#endif // USE_LIBQUADMATH
-);
+Evaluation engine: libqalculate.\n"),
+	PACKAGE, VERSION, PACKAGE,
+	GTK_MAJOR_VERSION, GTK_MINOR_VERSION, GTK_MICRO_VERSION,
+	gtk_major_version, gtk_minor_version, gtk_micro_version
+	);
 }
 
 /* see GtkWidget can-activate-accel signal */

@@ -50,28 +50,6 @@ PKG_CHECK_MODULES(LIBQALCULATE, [libqalculate >= 5.0])
 AC_SUBST(LIBQALCULATE_CFLAGS)
 AC_SUBST(LIBQALCULATE_LIBS)
 
-dnl
-dnl double- or quad-precision arithmetics
-dnl
-
-AC_ARG_ENABLE([quadmath],
-    [AC_HELP_STRING([--enable-quadmath],
-        [enable support for quad-precision floating point arithmetics (default: yes)])],
-    [enable_quadmath="${enableval}"],
-    [enable_quadmath="yes"]
-)
-
-if test x"$enable_quadmath" = x"yes"; then
-    dnl If the check succeeds, -lquadmath is added to LIBS and we get a 
-	dnl HAVE_LIBQUADMATH defined
-	AC_CHECK_LIB(quadmath,sinhq)
-fi
-
-dnl
-dnl (f)lex
-dnl
-AM_PROG_LEX
-
 AM_PROG_CC_C_O
 
 GETTEXT_PACKAGE=talculator
