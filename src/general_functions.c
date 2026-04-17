@@ -57,7 +57,8 @@ void clear_for_tab (s_tab_context *ctx)
 	s_tab_context *prev_tab = active_tab;
 	if (ctx != NULL) active_tab = ctx;
 	display_result_set (CLEARED_DISPLAY, TRUE);
-	if (current_status.notation == CS_FORMULA) ui_formula_entry_set ("");
+	if ((current_status.notation == CS_FORMULA) ||
+		(current_status.notation == CS_PAN)) ui_formula_entry_set ("");
 	active_tab = prev_tab;
 }
 
@@ -74,7 +75,8 @@ void backspace_for_tab (s_tab_context *ctx)
 {
 	s_tab_context *prev_tab = active_tab;
 	if (ctx != NULL) active_tab = ctx;
-	if (current_status.notation == CS_FORMULA) ui_formula_entry_backspace();
+	if ((current_status.notation == CS_FORMULA) ||
+		(current_status.notation == CS_PAN)) ui_formula_entry_backspace();
 	else display_result_backspace(current_status.number);
 	active_tab = prev_tab;
 }

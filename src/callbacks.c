@@ -190,36 +190,6 @@ static char *substitute_user_variable (const char *expression,
 	return g_string_free (result, FALSE);
 }
 
-static gboolean pan_expr_should_track_with_engine (void)
-{
-	if (!active_tab || !calc_engine) return FALSE;
-	if (current_status.notation != CS_PAN) return FALSE;
-	return TRUE;
-}
-
-static gboolean pan_expr_is_supported_operation (char operation)
-{
-	switch (operation) {
-	case '+':
-	case '-':
-	case '*':
-	case '/':
-	case '^':
-	case '<':
-	case '>':
-	case '&':
-	case '|':
-	case 'x':
-	case 'm':
-	case '%':
-	case '(':
-	case ')':
-		return TRUE;
-	default:
-		return FALSE;
-	}
-}
-
 static const char *operation_expr_text (char operation)
 {
 	switch (operation) {
@@ -234,64 +204,6 @@ static const char *operation_expr_text (char operation)
 	default:
 		return NULL;
 	}
-}
-
-static void pan_expr_reset (void)
-{
-	if (!active_tab || !active_tab->tab_pan_expr) return;
-	g_string_truncate (active_tab->tab_pan_expr, 0);
-	active_tab->tab_pan_expr_compatible = TRUE;
-}
-
-static void pan_expr_append_current_operand (void)
-{
-	char *operand;
-
-	if (!active_tab || !active_tab->tab_pan_expr) return;
-	operand = display_result_get ();
-	if (!operand) return;
-	g_string_append (active_tab->tab_pan_expr, operand);
-	g_free (operand);
-}
-
-static void pan_expr_record_operation (char operation)
-{
-	const char *op_text;
-
-	if (!pan_expr_should_track_with_engine ()) {
-		pan_expr_reset ();
-		return;
-	}
-	if (!active_tab->tab_pan_expr) {
-		active_tab->tab_pan_expr = g_string_new ("");
-		active_tab->tab_pan_expr_compatible = TRUE;
-	}
-
-	if (operation == '(') {
-		g_string_append_c (active_tab->tab_pan_expr, '(');
-		return;
-	}
-
-	pan_expr_append_current_operand ();
-	if (operation == '=') return;
-
-	if (!pan_expr_is_supported_operation (operation)) {
-		active_tab->tab_pan_expr_compatible = FALSE;
-		return;
-	}
-	op_text = operation_expr_text (operation);
-	if (op_text) g_string_append (active_tab->tab_pan_expr, op_text);
-	else g_string_append_c (active_tab->tab_pan_expr, operation);
-}
-
-static gboolean pan_expr_evaluate_equal (char **out_display)
-{
-	if (out_display) *out_display = NULL;
-	if (!pan_expr_should_track_with_engine ()) return FALSE;
-	if (!active_tab || !active_tab->tab_pan_expr) return FALSE;
-	if (!active_tab->tab_pan_expr_compatible) return FALSE;
-	if (active_tab->tab_pan_expr->len <= 0) return FALSE;
-	return engine_eval_expression (active_tab->tab_pan_expr->str, out_display);
 }
 
 /* File */
@@ -397,7 +309,8 @@ on_number_button_clicked               (GtkToggleButton  *button,
     ui_bind_active_tab_from_widget (GTK_WIDGET(button));
     if (gtk_toggle_button_get_active(button) == FALSE) return;
     button_activation (button);
-    if (current_status.notation == CS_FORMULA) {
+    if ((current_status.notation == CS_FORMULA) ||
+        (current_status.notation == CS_PAN)) {
         ui_formula_entry_insert (gtk_button_get_label ((GtkButton *)button));
     } else {
         rpn_stack_lift();
@@ -431,7 +344,8 @@ on_operation_button_clicked(GtkToggleButton *button, gpointer user_data)
         current_operation = '>';
     }
     
-    if (current_status.notation == CS_FORMULA) {
+    if ((current_status.notation == CS_FORMULA) ||
+        (current_status.notation == CS_PAN)) {
         if (strcmp (gtk_buildable_get_name(GTK_BUILDABLE(button)), "button_enter") == 0)
             ui_formula_entry_activate();
         /* as long as we don't support string operation ids, we take
@@ -458,49 +372,7 @@ on_operation_button_clicked(GtkToggleButton *button, gpointer user_data)
     
     /* notation specific interface code */
     
-	    if (current_status.notation == CS_PAN) {
-	        char *engine_display = NULL;
-	        int open_brackets = display_module_bracket_label_update (GET);
-	        /* '(' doesn't pay respect to allow_arith_op but sets it: a+((((((b-...
-         * ')' pays respect to allow_arith_op but doesn't set it: ...+a)))))-...
-         * '=' pays respect to allow_arith_op but doesn't set it: ...+a=
-         *     (in order to continue with the result on the display)
-         * all other operator pay respect and set allow_arith_op.
-         *
-         * in general, a closing bracket is only useful if there were opening
-         *    brackets.
-         */
-	        if ((current_operation == '=') && (open_brackets > 0)) {
-	            error_message ("Unmatched opening bracket(s)");
-	        } else if (((current_operation == '(') || current_status.allow_arith_op) && \
-	            ((current_operation != ')') || (open_brackets > 0))) {
-	            pan_expr_record_operation (current_operation);
-	            if ((current_operation == '=') &&
-	                pan_expr_evaluate_equal (&engine_display)) {
-                display_result_set (engine_display, TRUE);
-                g_free (engine_display);
-            }
-            display_module_arith_label_update (current_operation);
-            
-	            /* setting of allow_arith_op. the missing breaks are wanted */
-	            switch (current_operation) {
-	                case '=':
-	                    pan_expr_reset ();
-	                    display_module_bracket_label_update (RESET);
-	                    break;
-	                case '%':
-	                    current_status.allow_arith_op = TRUE;
-	                    break;
-	                case ')':
-	                    display_module_bracket_label_update (ONE_LESS);
-	                    break;
-	                case '(':
-	                    display_module_bracket_label_update (ONE_MORE);
-	                default:
-	                    current_status.allow_arith_op=FALSE;
-	            }
-	        }
-	    } else if (current_status.notation == CS_RPN) {
+    if (current_status.notation == CS_RPN) {
         switch (current_operation) {
         case '=':
             rpn_stack_push (current_number);
@@ -557,7 +429,8 @@ on_function_button_clicked             (GtkToggleButton    *button,
         error_message ("This button has no function associated with");
         return;
     }
-    if (current_status.notation == CS_FORMULA) {
+    if ((current_status.notation == CS_FORMULA) ||
+        (current_status.notation == CS_PAN)) {
         ui_formula_entry_insert (display_name[current_status.fmod]);
         if (current_status.fmod != 0) ui_relax_fmod_buttons();
         return;
@@ -607,7 +480,8 @@ on_gfunc_button_clicked                (GtkToggleButton       *button,
     ui_bind_active_tab_from_widget (GTK_WIDGET(button));
     if (gtk_toggle_button_get_active(button) == FALSE) return;
     button_activation (button);
-    if (current_status.notation == CS_FORMULA) {
+    if ((current_status.notation == CS_FORMULA) ||
+        (current_status.notation == CS_PAN)) {
         display_string = g_object_get_data (G_OBJECT (button), "display_string");
         if (display_string != NULL) {
             ui_formula_entry_insert (display_string);
@@ -700,7 +574,7 @@ on_ordinary_toggled                  (GtkMenuItem     *menuitem,
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem)) == FALSE) return;
     change_option (CS_PAN, DISPLAY_OPT_NOTATION);
-    set_widget_visibility (view_xml, "formula_entry_hbox", FALSE);
+    set_widget_visibility (view_xml, "formula_entry_hbox", TRUE);
     rpn_free();
     all_clear();
     ui_button_set_pan();
@@ -2165,7 +2039,9 @@ gboolean on_button_event(GtkWidget *widget, GdkEvent *event, gpointer user_data)
         if (focus) ui_bind_active_tab_from_widget (focus);
     }
     /* do all cheap checks first before calling expensive formula_entry_is_active */
-    if ((current_status.notation == CS_FORMULA) && (event->type == GDK_KEY_PRESS)) {
+    if (((current_status.notation == CS_FORMULA) ||
+         (current_status.notation == CS_PAN)) &&
+        (event->type == GDK_KEY_PRESS)) {
         GdkEventKey *key_event = (GdkEventKey *) event;
         /* try to rule out some obvious key presses */
         if (key_event->state & GDK_SUPER_MASK ||

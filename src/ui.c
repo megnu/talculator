@@ -462,7 +462,7 @@ static void ui_tab_build_content (s_tab_context *ctx, GtkWidget *page)
 		ui_main_window_buttons_create (ctx->tab_mode);
 		/* New tabs must enforce notation-dependent formula row visibility. */
 		set_widget_visibility (view_xml, "formula_entry_hbox",
-			ctx->tab_current_status.notation == CS_FORMULA);
+			ctx->tab_current_status.notation != CS_RPN);
 	}
 	update_dispctrl ();
 }
@@ -685,7 +685,7 @@ void ui_sync_main_menu_for_active_tab ()
 
 	if (ctx->tab_mode != PAPER_MODE)
 		ui_set_visibility_if_exists (ctx->tab_view_xml, "formula_entry_hbox",
-			current_status.notation == CS_FORMULA);
+			current_status.notation != CS_RPN);
 	ui_set_visibility_if_exists (ctx->tab_dispctrl_xml, "table_dispctrl", ctx->tab_vis_dispctrl);
 	ui_set_visibility_if_exists (ctx->tab_button_box_xml, "table_func_buttons",
 		(ctx->tab_mode == SCIENTIFIC_MODE) && ctx->tab_vis_funcs);
