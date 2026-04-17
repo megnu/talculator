@@ -44,7 +44,7 @@ msgid "[%s] on_main_window_check_resize should not get called. %s\n"
 msgstr "[%s] on_main_window_check_resize не должен быть вызван. %s\n"
 
 #: ../src/main.c:87
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "\n"
 "%s v%s, (c) 2002-2014 Simon Flöry\n"
@@ -72,7 +72,7 @@ msgstr ""
 "\n"
 "Собрано с GTK %i.%i.%i версии\n"
 "Слинковано с GTK %i.%i.%i версии\n"
-"%s-точность чисел с плавающей точкой.\n"
+"Движок вычислений: libqalculate.\n"
 
 #: ../src/main.c:143
 #, c-format
@@ -612,9 +612,8 @@ msgid "_New Tab"
 msgstr ""
 
 #: ../ui/main_frame.ui.h:4
-#, fuzzy
 msgid "_Close Tab"
-msgstr "Закрывающая скобка"
+msgstr "_Закрыть вкладку"
 
 #: ../ui/main_frame.ui.h:5 ../ui/main_frame_hildon.ui.h:3
 msgid "_Edit"
