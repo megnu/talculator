@@ -239,34 +239,45 @@ int main (void)
 	bin_signed.base_signed = TRUE;
 
 	expect_exact (&state, "add", &dec, "1+2", "3");
+	expect_exact (&state, "add_whitespace", &dec, "  1 +   2  ", "3");
 	expect_exact (&state, "precedence", &dec, "2+3*4", "14");
 	expect_exact (&state, "parentheses", &dec, "(2+3)*4", "20");
+	expect_exact (&state, "double_unary_neg", &dec, "-(-5)", "5");
 	expect_exact (&state, "explicit_add_paren", &dec, "88+(3+2)", "93");
 	expect_exact (&state, "explicit_sub_paren", &dec, "88-(3+2)", "83");
 	expect_exact (&state, "explicit_mul_paren", &dec, "88*(3+2)", "440");
 	expect_exact (&state, "explicit_div_paren", &dec, "88/(3+2)", "17.6");
 	expect_exact (&state, "implicit_mul_num_paren", &dec, "2(3+4)", "14");
 	expect_exact (&state, "implicit_mul_paren_paren", &dec, "(1+2)(3+4)", "21");
+	expect_exact (&state, "implicit_mul_factorial_paren", &dec, "(3!)(2)", "12");
 
 	expect_exact (&state, "percent_add", &dec, "200+10%", "220");
 	expect_exact (&state, "percent_sub", &dec, "200-10%", "180");
 	expect_exact (&state, "percent_mul", &dec, "200*10%", "20");
 	expect_exact (&state, "percent_div", &dec, "200/10%", "2000");
+	expect_exact (&state, "percent_mul_rhs_paren", &dec, "88*(3+2)%", "4.4");
+	expect_exact (&state, "percent_div_rhs_paren", &dec, "88/(3+2)%", "1760");
 	expect_exact (&state, "percent_standalone", &dec, "10%", "0.1");
 	expect_error (&state, "percent_chain_invalid", &dec, "10%%");
 
 	expect_approx (&state, "sin_deg_30", &dec, "sin(30)", 0.5, 1e-12);
+	expect_approx (&state, "cos_deg_60", &dec, "cos(60)", 0.5, 1e-12);
+	expect_approx (&state, "tan_deg_45", &dec, "tan(45)", 1.0, 1e-12);
 	expect_approx (&state, "sin_rad_pi_2", &rad, "sin(pi/2)", 1.0, 1e-12);
 	expect_approx (&state, "sqrt2", &dec, "sqrt(2)", 1.4142135623730951, 1e-12);
 	expect_not_contains (&state, "sqrt3_not_interval", &dec, "sqrt(3)", "interval(");
+	expect_not_contains (&state, "sqrt5_not_interval", &dec, "sqrt(5)", "interval(");
 
 	expect_exact (&state, "hex_A_plus_1", &hex, "A+1", "B");
 	expect_exact (&state, "bin_and", &bin_unsigned, "11110000 & 10101010", "10100000");
+	expect_exact (&state, "bin_or", &bin_unsigned, "11110000 | 10101010", "11111010");
+	expect_exact (&state, "bin_shift_left", &bin_unsigned, "1 << 7", "10000000");
 	expect_exact (&state, "bin_neg1_signed", &bin_signed, "-1", "11111111");
 
 	/* parse/print context split coverage */
 	expect_exact_with_contexts (&state, "ctx_parse_hex_print_dec", &hex_parse, &dec_parse, "A+1", "11");
 	expect_exact_with_contexts (&state, "ctx_parse_dec_print_hex", &dec_parse, &hex_print, "10+5", "F");
+	expect_exact_with_contexts (&state, "ctx_parse_dec_print_hex_prefixed", &dec_parse, &hex_print, "255", "FF");
 	expect_exact_with_contexts (&state, "ctx_parse_dec_print_bin_signed", &dec_parse, &bin_print_s8, "-1", "11111111");
 
 	/* base-width and shift/bitwise semantic boundaries */
@@ -279,6 +290,7 @@ int main (void)
 	expect_exact (&state, "percent_nested_add", &dec, "(200+10%)", "220");
 	expect_exact (&state, "percent_then_multiply", &dec, "50%*8", "4");
 	expect_exact (&state, "percent_sub_expr", &dec, "200-(5+5)%", "180");
+	expect_exact (&state, "percent_add_decimal_rhs", &dec, "15+2.5%", "15.375");
 	expect_error (&state, "percent_chain_triple_invalid", &dec, "10%%%");
 
 	/* domain/error behavior */
@@ -291,13 +303,16 @@ int main (void)
 	/* function/constant parsing robustness */
 	expect_approx (&state, "parse_sin30_implicit", &dec, "sin30", 0.5, 1e-12);
 	expect_approx (&state, "parse_pi2_implicit_mul", &dec, "pi2", 2.0 * G_PI, 1e-12);
+	expect_exact (&state, "parse_parenthesized_unary", &dec, "(-2)^2", "4");
 	expect_exact (&state, "factorial_power_precedence", &dec, "2^3!", "64");
 	expect_exact (&state, "factorial_power_parenthesized", &dec, "(2^3)!", "40320");
 
 	/* RPN context coverage */
 	expect_exact (&state, "rpn_add", &rpn, "3 4 +", "7");
+	expect_exact (&state, "rpn_add_whitespace", &rpn, "  3   4   + ", "7");
 	expect_exact (&state, "rpn_div", &rpn, "10 2 /", "5");
 	expect_exact (&state, "rpn_nested", &rpn, "2 3 4 + *", "14");
+	expect_exact (&state, "rpn_complex_chain", &rpn, "5 1 2 + 4 * + 3 -", "14");
 	expect_error (&state, "rpn_invalid_percent_chain", &rpn, "10%%");
 	expect_exact (&state, "rpn_order_sub", &rpn, "5 2 -", "3");
 	expect_exact (&state, "rpn_order_sub_infix_control", &dec, "5-2", "3");
