@@ -1924,6 +1924,39 @@ void on_formula_entry_changed (GtkEditable *editable, gpointer user_data)
     ui_formula_entry_state(FALSE);
 }
 
+gboolean on_formula_entry_key_press_event (GtkWidget *widget, GdkEventKey *event, gpointer user_data)
+{
+    GtkWidget *toplevel;
+    GtkDirectionType direction;
+
+    ui_bind_active_tab_from_widget (widget);
+
+    if (cycle_tab_from_key (event)) return TRUE;
+
+    if ((event->state & GDK_CONTROL_MASK) &&
+        !(event->state & GDK_SUPER_MASK) &&
+        !(event->state & GDK_HYPER_MASK) &&
+        !(event->state & GDK_META_MASK) &&
+        ((event->keyval == GDK_KEY_a) || (event->keyval == GDK_KEY_A))) {
+        gtk_editable_select_region (GTK_EDITABLE(widget), 0, -1);
+        return TRUE;
+    }
+
+    if (event->keyval == GDK_KEY_Escape) {
+        all_clear ();
+        return TRUE;
+    }
+
+    if ((event->keyval == GDK_KEY_Tab) || (event->keyval == GDK_KEY_ISO_Left_Tab)) {
+        toplevel = gtk_widget_get_toplevel (widget);
+        if (!GTK_IS_WINDOW (toplevel)) return FALSE;
+        direction = (event->keyval == GDK_KEY_ISO_Left_Tab) ? GTK_DIR_TAB_BACKWARD : GTK_DIR_TAB_FORWARD;
+        return gtk_widget_child_focus (toplevel, direction);
+    }
+
+    return FALSE;
+}
+
 void on_paper_entry_activate (GtkWidget *activated_widget, gpointer user_data)
 {
     talc_engine_context      engine_ctx;

@@ -208,6 +208,9 @@ G_MODULE_EXPORT void on_formula_entry_activate (GtkEntry *entry,
 					gpointer user_data);
 G_MODULE_EXPORT void on_formula_entry_changed (GtkEditable *editable, 
 					gpointer user_data);
+G_MODULE_EXPORT gboolean on_formula_entry_key_press_event (GtkWidget *widget,
+					GdkEventKey *event,
+					gpointer user_data);
 G_MODULE_EXPORT void on_user_function_button_clicked (GtkToggleButton *button,
 					gpointer user_data);
 G_MODULE_EXPORT void user_function_list_selection_changed_cb (GtkTreeSelection *selection, 
