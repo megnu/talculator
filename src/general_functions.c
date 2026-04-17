@@ -659,7 +659,7 @@ void prefs_sep_char_changed (GtkEditable *editable, char **prefs_sep, int number
 			!isascii(*sep))
 			gtk_editable_delete_text (editable, 0, -1);
 		else {
-			if (prefs.mode != PAPER_MODE) {
+			if (active_tab->tab_mode != PAPER_MODE) {
 				result = display_result_get();
 				stack = display_stack_get_yzt();				
 			}
@@ -667,7 +667,7 @@ void prefs_sep_char_changed (GtkEditable *editable, char **prefs_sep, int number
 			if (*prefs_sep) g_free (*prefs_sep);
 			*prefs_sep = g_strdup(sep);
 			
-			if (prefs.mode != PAPER_MODE && result && stack) {
+			if (active_tab->tab_mode != PAPER_MODE && result && stack) {
 				if (number_base == current_status.number) {
 					display_result_set(result, FALSE);
 					display_stack_set_yzt(stack);
@@ -698,19 +698,19 @@ void change_option_for_tab (s_tab_context *ctx, int new_status, int opt_group)
 			old_status = current_status.number;
 			if (old_status == new_status) goto out;
 			current_status.number = new_status;
-			if (prefs.mode != PAPER_MODE) display_change_option (old_status, new_status, DISPLAY_OPT_NUMBER);
+			if (active_tab->tab_mode != PAPER_MODE) display_change_option (old_status, new_status, DISPLAY_OPT_NUMBER);
 			break;
 		case DISPLAY_OPT_ANGLE:
 			old_status = current_status.angle;
 			if (old_status == new_status) goto out;
 			current_status.angle = new_status;
-			if (prefs.mode != PAPER_MODE) display_change_option (old_status, new_status, DISPLAY_OPT_ANGLE);
+			if (active_tab->tab_mode != PAPER_MODE) display_change_option (old_status, new_status, DISPLAY_OPT_ANGLE);
 			break;
 		case DISPLAY_OPT_NOTATION:
 			old_status = current_status.notation;
 			if (old_status == new_status) goto out;
 			current_status.notation = new_status;
-			if (prefs.mode != PAPER_MODE) display_change_option (old_status, new_status, DISPLAY_OPT_NOTATION);
+			if (active_tab->tab_mode != PAPER_MODE) display_change_option (old_status, new_status, DISPLAY_OPT_NOTATION);
 			break;
 		default:
 			error_message (_("unknown display option in function \"change_option\""));

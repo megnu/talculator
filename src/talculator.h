@@ -221,6 +221,16 @@ extern talc_engine	*calc_engine;
 
 typedef struct {
 	s_current_status	tab_current_status;
+	int			tab_mode;
+	gboolean		tab_vis_number;
+	gboolean		tab_vis_angle;
+	gboolean		tab_vis_notation;
+	gboolean		tab_vis_funcs;
+	gboolean		tab_vis_logic;
+	gboolean		tab_vis_dispctrl;
+	gboolean		tab_vis_standard;
+	int			tab_def_number;
+	int			tab_def_angle;
 	s_array			tab_memory;
 	GtkTextView		*tab_display_view;
 	GtkTextBuffer		*tab_display_buffer;

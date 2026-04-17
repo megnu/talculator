@@ -55,7 +55,7 @@ static void display_widget_css_set (GtkWidget *widget, const gchar *css, const g
 static void display_engine_context_for_base (talc_engine_context *ctx, int number_base_status)
 {
 	if (!ctx) return;
-	ctx->mode = (talc_engine_mode) prefs.mode;
+	ctx->mode = (talc_engine_mode) active_tab->tab_mode;
 	ctx->base = (talc_engine_base) number_base_status;
 	ctx->angle = (talc_engine_angle) current_status.angle;
 	ctx->rpn_notation = (current_status.notation == CS_RPN);
@@ -312,7 +312,7 @@ void display_module_arith_label_update (char operation)
 	GtkTextMark	*this_mark;
 	GtkTextIter	start, end;
 	
-	if ((prefs.vis_arith == FALSE) || (prefs.mode != SCIENTIFIC_MODE)) 
+	if ((prefs.vis_arith == FALSE) || (active_tab->tab_mode != SCIENTIFIC_MODE))
 		return;
 	if (strchr ("()", operation) != NULL) return;
 	
@@ -363,7 +363,7 @@ int display_module_bracket_label_update (int option)
 			if (active_tab->tab_display_brackets > 0) forward_count = 5 + log10(active_tab->tab_display_brackets);
 			break;
 	}
-	if ((prefs.vis_bracket == FALSE) || (prefs.mode != SCIENTIFIC_MODE)) 
+	if ((prefs.vis_bracket == FALSE) || (active_tab->tab_mode != SCIENTIFIC_MODE))
 		return active_tab->tab_display_brackets;
 	
 	if ((this_mark = gtk_text_buffer_get_mark (buffer, DISPLAY_MARK_BRACKET)) == NULL) \
@@ -510,16 +510,16 @@ void display_update_modules ()
 	GtkTextIter	start, end;
 	gboolean	first_module = TRUE;
 	
-	if (prefs.mode == PAPER_MODE) return;
+	if (active_tab->tab_mode == PAPER_MODE) return;
 	
 	display_get_line_end_iter (buffer, display_result_line, &start);
 	display_get_line_end_iter (buffer, display_result_line+1, &end);
 	gtk_text_buffer_delete (buffer, &start, &end);
 	
-	if (prefs.mode == BASIC_MODE) return;
+	if (active_tab->tab_mode == BASIC_MODE) return;
 	
 	/* change number base */
-	if (prefs.vis_number == TRUE) {
+	if (active_tab->tab_vis_number == TRUE) {
 		if (first_module) 
 			gtk_text_buffer_insert_with_tags_by_name (buffer, &start, "\n", \
 				-1, "result", NULL);
@@ -534,7 +534,7 @@ void display_update_modules ()
 	}
 	
 	/* angle */
-	if (prefs.vis_angle == TRUE) {
+	if (active_tab->tab_vis_angle == TRUE) {
 		if (first_module) 
 			gtk_text_buffer_insert_with_tags_by_name (buffer, &start, "\n", \
 				-1, "result", NULL);
@@ -549,7 +549,7 @@ void display_update_modules ()
 	}
 	
 	/* notation */
-	if (prefs.vis_notation == TRUE) {
+	if (active_tab->tab_vis_notation == TRUE) {
 		if (first_module) 
 			gtk_text_buffer_insert_with_tags_by_name (buffer, &start, "\n", \
 				-1, "result", NULL);
@@ -649,20 +649,20 @@ void display_change_option (int old_status, int new_status, int opt_group)
 			for (counter = 0; counter < display_result_line; counter++) g_free (stack[counter]);
 			g_free (stack);
 			g_free (current_display_value);
-			if ((prefs.vis_number) && (prefs.mode == SCIENTIFIC_MODE)) {
+			if ((active_tab->tab_vis_number) && (active_tab->tab_mode == SCIENTIFIC_MODE)) {
 				display_module_base_delete (DISPLAY_MARK_NUMBER, number_mod_labels);
 				display_module_base_create (number_mod_labels, DISPLAY_MARK_NUMBER, new_status);
 			}
 			break;
 		case DISPLAY_OPT_ANGLE:
-			if ((prefs.vis_angle) && (prefs.mode == SCIENTIFIC_MODE)){
+			if ((active_tab->tab_vis_angle) && (active_tab->tab_mode == SCIENTIFIC_MODE)){
 				display_module_base_delete (DISPLAY_MARK_ANGLE, angle_mod_labels);
 				display_module_base_create (angle_mod_labels, DISPLAY_MARK_ANGLE, new_status);
 			}
 			break;
 		case DISPLAY_OPT_NOTATION:
 			update_active_buttons (current_status.number, new_status);
-			if ((prefs.vis_notation) && (prefs.mode == SCIENTIFIC_MODE)){
+			if ((active_tab->tab_vis_notation) && (active_tab->tab_mode == SCIENTIFIC_MODE)){
 				display_module_base_delete (DISPLAY_MARK_NOTATION, notation_mod_labels);
 				display_module_base_create (notation_mod_labels, DISPLAY_MARK_NOTATION, new_status);
 			}
@@ -680,7 +680,7 @@ void display_set_bkg_color (char *color_string)
 {
 #if GTK_CHECK_VERSION(3, 0, 0)
 	gchar *css;
-	if (prefs.mode == PAPER_MODE) return;
+	if (active_tab->tab_mode == PAPER_MODE) return;
 	if (view) {
 		css = g_strdup_printf ("textview, textview text { background-color: %s; }",
 			color_string ? color_string : "#ffffff");
@@ -689,7 +689,7 @@ void display_set_bkg_color (char *color_string)
 	}
 #else
 	GdkColor	color;
-	if (prefs.mode == PAPER_MODE) return;
+	if (active_tab->tab_mode == PAPER_MODE) return;
 	gdk_color_parse (color_string, &color);
 	if (view)
         gtk_widget_modify_base ((GtkWidget *)view, GTK_STATE_NORMAL, &color);
@@ -707,7 +707,7 @@ void display_update_tags ()
 	GtkTextTagTable		*tag_table;
 	GtkTextTag 		*tag;
 	
-	if (prefs.mode == PAPER_MODE) return;
+	if (active_tab->tab_mode == PAPER_MODE) return;
 	/* remove all tags from tag_table, so we can define the new tags */
 	tag_table = gtk_text_buffer_get_tag_table (buffer);
 	tag = gtk_text_tag_table_lookup (tag_table, "result");
@@ -857,7 +857,7 @@ static char *display_get_line (int line_nr)
 {
 	GtkTextIter 	start, end;
 	
-	if (prefs.mode == PAPER_MODE) return NULL;
+	if (active_tab->tab_mode == PAPER_MODE) return NULL;
 	
 	display_get_line_iters (buffer, line_nr, &start, &end);
 	/* DISPLAY RESULT GET */
@@ -957,7 +957,7 @@ void display_result_getset ()
 	char	**stack;
 	int	i;
 	
-	if (prefs.mode == PAPER_MODE) return;
+	if (active_tab->tab_mode == PAPER_MODE) return;
 	
 	result = display_result_get();
 	stack = display_stack_get_yzt();

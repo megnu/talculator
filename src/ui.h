@@ -81,6 +81,7 @@ void ui_formula_entry_set (const gchar *text);
 void ui_formula_entry_insert (const gchar *text);
 void ui_formula_entry_backspace ();
 void ui_formula_entry_state (gboolean error);
+void ui_sync_main_menu_for_active_tab ();
 void ui_button_set_pan ();
 void ui_button_set_rpn ();
 void ui_relax_fmod_buttons ();

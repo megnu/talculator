@@ -43,6 +43,9 @@ static void set_table_child_callback (GtkWidget	*table_child, gpointer user_data
 static void clear_cb (GtkToggleButton *button);
 static void backspace_cb (GtkToggleButton *button);
 static void all_clear_cb (GtkToggleButton *button);
+static void ui_tab_context_init_from_prefs (s_tab_context *ctx);
+static void ui_set_visibility_if_exists (GtkBuilder *xml, const char *widget_name, gboolean visible);
+static void ui_set_menu_item_state_blocked (const char *item_name, gboolean active, GCallback callback);
 static GtkWidget *ui_get_current_tab_container ();
 static s_tab_context *ui_tab_context_new ();
 static void ui_tab_context_free (s_tab_context *ctx);
@@ -304,10 +307,28 @@ static GtkWidget *ui_get_current_tab_container ()
 	return page;
 }
 
+static void ui_tab_context_init_from_prefs (s_tab_context *ctx)
+{
+	if (!ctx) return;
+	ctx->tab_current_status = (s_current_status){
+		prefs.def_number, prefs.def_angle, prefs.def_notation, 0, FALSE, FALSE, TRUE
+	};
+	ctx->tab_mode = prefs.mode;
+	ctx->tab_vis_number = prefs.vis_number;
+	ctx->tab_vis_angle = prefs.vis_angle;
+	ctx->tab_vis_notation = prefs.vis_notation;
+	ctx->tab_vis_funcs = prefs.vis_funcs;
+	ctx->tab_vis_logic = prefs.vis_logic;
+	ctx->tab_vis_dispctrl = prefs.vis_dispctrl;
+	ctx->tab_vis_standard = prefs.vis_standard;
+	ctx->tab_def_number = prefs.def_number;
+	ctx->tab_def_angle = prefs.def_angle;
+}
+
 static s_tab_context *ui_tab_context_new ()
 {
 	s_tab_context *ctx = g_new0 (s_tab_context, 1);
-	ctx->tab_current_status = (s_current_status){CS_DEC, CS_DEG, prefs.def_notation, 0, FALSE, FALSE, TRUE};
+	ui_tab_context_init_from_prefs (ctx);
 	ctx->tab_memory.data = NULL;
 	ctx->tab_memory.len = 0;
 	ctx->tab_display_view = NULL;
@@ -388,6 +409,7 @@ static void ui_set_active_tab_context (s_tab_context *ctx)
 	ui_tab_store_runtime_state (active_tab);
 	active_tab = ctx;
 	ui_tab_restore_runtime_state (active_tab);
+	ui_sync_main_menu_for_active_tab ();
 }
 
 static void on_tabs_switch_page (GtkNotebook *notebook, GtkWidget *page, guint page_num, gpointer user_data)
@@ -398,6 +420,7 @@ static void on_tabs_switch_page (GtkNotebook *notebook, GtkWidget *page, guint p
 	if (!page) return;
 	ctx = g_object_get_data (G_OBJECT(page), "tab-context");
 	if (ctx) ui_set_active_tab_context (ctx);
+	ui_sync_main_menu_for_active_tab ();
 	ui_tabs_set_active_widget_sensitivity (ui_tabs_get_notebook (), page_num);
 }
 
@@ -433,10 +456,10 @@ static void ui_tab_build_content (s_tab_context *ctx, GtkWidget *page)
 	(void) page;
 	if (!ctx) return;
 	ui_set_active_tab_context (ctx);
-	if (prefs.mode == PAPER_MODE) ui_paper_view_create ();
+	if (ctx->tab_mode == PAPER_MODE) ui_paper_view_create ();
 	else {
 		ui_classic_view_create ();
-		ui_main_window_buttons_create (prefs.mode);
+		ui_main_window_buttons_create (ctx->tab_mode);
 		/* New tabs must enforce notation-dependent formula row visibility. */
 		set_widget_visibility (view_xml, "formula_entry_hbox",
 			ctx->tab_current_status.notation == CS_FORMULA);
@@ -589,6 +612,89 @@ static void ui_tabs_refresh_actions ()
 	if (new_tab_item) gtk_widget_set_sensitive (new_tab_item, can_create);
 }
 
+static void ui_set_visibility_if_exists (GtkBuilder *xml, const char *widget_name, gboolean visible)
+{
+	GtkWidget *widget;
+
+	if (!xml || !widget_name) return;
+	widget = GTK_WIDGET(gtk_builder_get_object (xml, widget_name));
+	if (!widget) return;
+	if (visible) gtk_widget_show (widget);
+	else gtk_widget_hide (widget);
+}
+
+static void ui_set_menu_item_state_blocked (const char *item_name, gboolean active, GCallback callback)
+{
+	GtkWidget *item;
+
+	if (!main_window_xml || !item_name) return;
+	item = GTK_WIDGET(gtk_builder_get_object (main_window_xml, item_name));
+	if (!item || !GTK_IS_CHECK_MENU_ITEM(item)) return;
+	if (callback) g_signal_handlers_block_by_func (item, callback, NULL);
+	gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(item), active);
+	if (callback) g_signal_handlers_unblock_by_func (item, callback, NULL);
+}
+
+void ui_sync_main_menu_for_active_tab ()
+{
+	GtkWidget *menu_item;
+	s_tab_context *ctx = active_tab;
+
+	if (!ctx || !main_window_xml) return;
+
+	ui_set_menu_item_state_blocked ("basic_mode", ctx->tab_mode == BASIC_MODE,
+		G_CALLBACK(on_basic_mode_toggled));
+	ui_set_menu_item_state_blocked ("scientific_mode", ctx->tab_mode == SCIENTIFIC_MODE,
+		G_CALLBACK(on_scientific_mode_toggled));
+	ui_set_menu_item_state_blocked ("paper_mode", ctx->tab_mode == PAPER_MODE,
+		G_CALLBACK(on_paper_mode_toggled));
+	ui_set_menu_item_state_blocked ("functions", ctx->tab_vis_funcs,
+		G_CALLBACK(on_functions_toggled));
+	ui_set_menu_item_state_blocked ("logical", ctx->tab_vis_logic,
+		G_CALLBACK(on_logical_toggled));
+	ui_set_menu_item_state_blocked ("display_control", ctx->tab_vis_dispctrl,
+		G_CALLBACK(on_display_control_toggled));
+	ui_set_menu_item_state_blocked ("standard", ctx->tab_vis_standard,
+		G_CALLBACK(on_standard_toggled));
+
+	ui_set_menu_item_state_blocked ("dec", current_status.number == CS_DEC, G_CALLBACK(on_dec_toggled));
+	ui_set_menu_item_state_blocked ("hex", current_status.number == CS_HEX, G_CALLBACK(on_hex_toggled));
+	ui_set_menu_item_state_blocked ("oct", current_status.number == CS_OCT, G_CALLBACK(on_oct_toggled));
+	ui_set_menu_item_state_blocked ("bin", current_status.number == CS_BIN, G_CALLBACK(on_bin_toggled));
+	ui_set_menu_item_state_blocked ("deg", current_status.angle == CS_DEG, G_CALLBACK(on_deg_toggled));
+	ui_set_menu_item_state_blocked ("rad", current_status.angle == CS_RAD, G_CALLBACK(on_rad_toggled));
+	ui_set_menu_item_state_blocked ("grad", current_status.angle == CS_GRAD, G_CALLBACK(on_grad_toggled));
+	ui_set_menu_item_state_blocked ("ordinary", current_status.notation == CS_PAN, G_CALLBACK(on_ordinary_toggled));
+	ui_set_menu_item_state_blocked ("rpn", current_status.notation == CS_RPN, G_CALLBACK(on_rpn_toggled));
+	ui_set_menu_item_state_blocked ("form", current_status.notation == CS_FORMULA, G_CALLBACK(on_form_toggled));
+
+	menu_item = GTK_WIDGET(gtk_builder_get_object (main_window_xml, "functions"));
+	if (menu_item) gtk_widget_set_sensitive (menu_item, ctx->tab_mode == SCIENTIFIC_MODE);
+	menu_item = GTK_WIDGET(gtk_builder_get_object (main_window_xml, "logical"));
+	if (menu_item) gtk_widget_set_sensitive (menu_item, ctx->tab_mode == SCIENTIFIC_MODE);
+	menu_item = GTK_WIDGET(gtk_builder_get_object (main_window_xml, "standard"));
+	if (menu_item) gtk_widget_set_sensitive (menu_item, ctx->tab_mode == SCIENTIFIC_MODE);
+	menu_item = GTK_WIDGET(gtk_builder_get_object (main_window_xml, "base_units"));
+	if (menu_item) gtk_widget_set_sensitive (menu_item, ctx->tab_mode == SCIENTIFIC_MODE);
+	menu_item = GTK_WIDGET(gtk_builder_get_object (main_window_xml, "angle_units"));
+	if (menu_item) gtk_widget_set_sensitive (menu_item, ctx->tab_mode == SCIENTIFIC_MODE);
+	menu_item = GTK_WIDGET(gtk_builder_get_object (main_window_xml, "buttons1"));
+	if (menu_item) gtk_widget_set_sensitive (menu_item, ctx->tab_mode != PAPER_MODE);
+	menu_item = GTK_WIDGET(gtk_builder_get_object (main_window_xml, "notation"));
+	if (menu_item) gtk_widget_set_sensitive (menu_item, ctx->tab_mode != PAPER_MODE);
+
+	if (ctx->tab_mode != PAPER_MODE)
+		ui_set_visibility_if_exists (ctx->tab_view_xml, "formula_entry_hbox",
+			current_status.notation == CS_FORMULA);
+	ui_set_visibility_if_exists (ctx->tab_dispctrl_xml, "table_dispctrl", ctx->tab_vis_dispctrl);
+	ui_set_visibility_if_exists (ctx->tab_button_box_xml, "table_func_buttons",
+		(ctx->tab_mode == SCIENTIFIC_MODE) && ctx->tab_vis_funcs);
+	ui_set_visibility_if_exists (ctx->tab_button_box_xml, "table_bin_buttons",
+		(ctx->tab_mode == SCIENTIFIC_MODE) && ctx->tab_vis_logic);
+	ui_set_visibility_if_exists (ctx->tab_button_box_xml, "table_standard_buttons",
+		(ctx->tab_mode == SCIENTIFIC_MODE) && ctx->tab_vis_standard);
+}
+
 GtkNotebook *ui_tabs_get_notebook ()
 {
 	if (!main_window_xml) return NULL;
@@ -640,8 +746,10 @@ GtkWidget *ui_tab_create (const gchar *title)
 		ui_tabs_refresh_actions ();
 		return NULL;
 	}
-	if (n_pages == 0) ctx = active_tab;
-	else ctx = ui_tab_context_new();
+	if (n_pages == 0) {
+		ctx = active_tab;
+		ui_tab_context_init_from_prefs (ctx);
+	} else ctx = ui_tab_context_new();
 	
 	page = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
 	if (title == NULL || *title == '\0') {
@@ -657,6 +765,7 @@ GtkWidget *ui_tab_create (const gchar *title)
 	gtk_notebook_set_current_page (notebook, page_idx);
 	ui_set_active_tab_context (ctx);
 	ui_tab_build_content (ctx, page);
+	ui_sync_main_menu_for_active_tab ();
 	ui_tabs_set_active_widget_sensitivity (notebook, gtk_notebook_get_current_page (notebook));
 	ui_tabs_refresh_actions ();
 	if (generated_title) g_free (generated_title);
@@ -851,6 +960,12 @@ void ui_main_window_buttons_create (int mode)
 	gtk_widget_set_sensitive (button, memory.len > 0);
     button = GTK_WIDGET(gtk_builder_get_object (ctx->tab_button_box_xml, "button_Mplus"));
 	gtk_widget_set_sensitive (button, memory.len > 0);
+	ui_set_visibility_if_exists (ctx->tab_button_box_xml, "table_func_buttons",
+		(mode == SCIENTIFIC_MODE) && ctx->tab_vis_funcs);
+	ui_set_visibility_if_exists (ctx->tab_button_box_xml, "table_bin_buttons",
+		(mode == SCIENTIFIC_MODE) && ctx->tab_vis_logic);
+	ui_set_visibility_if_exists (ctx->tab_button_box_xml, "table_standard_buttons",
+		(mode == SCIENTIFIC_MODE) && ctx->tab_vis_standard);
 	
 	/* apply button specific prefs */
 	set_all_normal_buttons_size (prefs.button_width, prefs.button_height);
@@ -1051,7 +1166,7 @@ static void set_all_normal_buttons_property (GtkCallback func, gpointer data)
 	GTK_TABLE_OR_GRID 	*table;
 	
 	/* now depending on mode the remaining buttons */
-	switch (prefs.mode) {
+	switch (active_tab ? active_tab->tab_mode : prefs.mode) {
 	case BASIC_MODE:
         table = (GTK_TABLE_OR_GRID *) GTK_WIDGET(gtk_builder_get_object (button_box_xml, "table_buttons"));
 		gtk_container_foreach (GTK_CONTAINER(table), (GtkCallback)func, data);
@@ -1068,7 +1183,8 @@ static void set_all_normal_buttons_property (GtkCallback func, gpointer data)
 		/* do nothing - no buttons */
 		break;
 	default:
-		error_message ("Unknown mode %i in \"set_all_normal_buttons_property\"", prefs.mode);
+		error_message ("Unknown mode %i in \"set_all_normal_buttons_property\"",
+			active_tab ? active_tab->tab_mode : prefs.mode);
 	}
 #undef GTK_TABLE_OR_GRID
 }
@@ -1205,13 +1321,13 @@ void update_dispctrl()
 	if (!ctx) return;
 	/* just put one here and hide it afterwards. we need the button
 			for working key accelerators. */
-	if (prefs.mode == BASIC_MODE) 
+	if (ctx->tab_mode == BASIC_MODE) 
 		ui_main_window_set_dispctrl (DISPCTRL_BOTTOM);
 	else if (current_status.notation == CS_RPN)
 		ui_main_window_set_dispctrl (DISPCTRL_RIGHTV);
 	else ui_main_window_set_dispctrl (DISPCTRL_RIGHT);
 	set_widget_visibility (ctx->tab_dispctrl_xml, "table_dispctrl", 
-		prefs.vis_dispctrl);
+		ctx->tab_vis_dispctrl);
 	set_all_dispctrl_buttons_size (prefs.button_width, prefs.button_height);
 	set_all_dispctrl_buttons_font (prefs.custom_button_font ? prefs.button_font : "");
 

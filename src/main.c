@@ -55,6 +55,16 @@ s_user_function		*user_function;
 talc_engine		*calc_engine = NULL;
 s_tab_context		default_tab_context = {
 	.tab_current_status = {0, 0, 0, 0, FALSE, FALSE, TRUE},
+	.tab_mode = BASIC_MODE,
+	.tab_vis_number = TRUE,
+	.tab_vis_angle = TRUE,
+	.tab_vis_notation = TRUE,
+	.tab_vis_funcs = TRUE,
+	.tab_vis_logic = TRUE,
+	.tab_vis_dispctrl = TRUE,
+	.tab_vis_standard = TRUE,
+	.tab_def_number = CS_DEC,
+	.tab_def_angle = CS_RAD,
 	.tab_memory = {NULL, 0},
 	.tab_display_view = NULL,
 	.tab_display_buffer = NULL,

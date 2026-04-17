@@ -92,7 +92,7 @@ static gboolean cycle_tab_from_key (GdkEventKey *key_event)
 static void engine_context_from_ui_state (talc_engine_context *ctx)
 {
 	if (!ctx) return;
-	ctx->mode = (talc_engine_mode) prefs.mode;
+	ctx->mode = (talc_engine_mode) active_tab->tab_mode;
 	ctx->base = (talc_engine_base) current_status.number;
 	ctx->angle = (talc_engine_angle) current_status.angle;
 	ctx->rpn_notation = (current_status.notation == CS_RPN);
@@ -314,13 +314,13 @@ on_main_window_destroy               (GtkWidget*         widget,
     }
     
     /* remember some things */
-    if (prefs.mode != BASIC_MODE) {
+    if (active_tab->tab_mode != BASIC_MODE) {
         /* save number and angle mode only in scientific mode. */
         prefs.def_number = current_status.number;
         prefs.def_angle = current_status.angle;
     }
     /* if we have the classic view display we remember the display values */
-    if (prefs.mode != PAPER_MODE) {
+    if (active_tab->tab_mode != PAPER_MODE) {
         if (prefs.rem_valuex) g_free (prefs.rem_valuex);
         prefs.rem_valuex = display_result_get();
         if (current_status.notation == CS_RPN) {
@@ -739,11 +739,12 @@ on_display_control_toggled (GtkMenuItem     *menuitem,
             gpointer         user_data)
 {
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
-    if (prefs.mode == PAPER_MODE) return;
-    prefs.vis_dispctrl = 
+    if (active_tab->tab_mode == PAPER_MODE) return;
+    active_tab->tab_vis_dispctrl =
         gtk_check_menu_item_get_active((GtkCheckMenuItem *) menuitem);
+    prefs.vis_dispctrl = active_tab->tab_vis_dispctrl;
     set_widget_visibility (dispctrl_xml, "table_dispctrl", 
-        prefs.vis_dispctrl);
+        active_tab->tab_vis_dispctrl);
 }
 
 void 
@@ -751,13 +752,14 @@ on_logical_toggled (GtkMenuItem     *menuitem,
             gpointer         user_data)
 {
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
-    if (prefs.mode == BASIC_MODE) return;
-    if (prefs.mode == PAPER_MODE) return;
+    if (active_tab->tab_mode == BASIC_MODE) return;
+    if (active_tab->tab_mode == PAPER_MODE) return;
 
-	prefs.vis_logic = 
+	active_tab->tab_vis_logic =
         gtk_check_menu_item_get_active((GtkCheckMenuItem *) menuitem);
+    prefs.vis_logic = active_tab->tab_vis_logic;
     set_widget_visibility (button_box_xml, "table_bin_buttons",
-        prefs.vis_logic);
+        active_tab->tab_vis_logic);
 }
 
 void
@@ -765,12 +767,13 @@ on_functions_toggled (GtkMenuItem     *menuitem,
             gpointer         user_data)
 {
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
-    if (prefs.mode == BASIC_MODE) return;
-    if (prefs.mode == PAPER_MODE) return;
-    prefs.vis_funcs = 
+    if (active_tab->tab_mode == BASIC_MODE) return;
+    if (active_tab->tab_mode == PAPER_MODE) return;
+    active_tab->tab_vis_funcs =
         gtk_check_menu_item_get_active((GtkCheckMenuItem *) menuitem);
+    prefs.vis_funcs = active_tab->tab_vis_funcs;
     set_widget_visibility (button_box_xml, "table_func_buttons",
-        prefs.vis_funcs);
+        active_tab->tab_vis_funcs);
 }
 
 void
@@ -778,36 +781,37 @@ on_standard_toggled (GtkMenuItem     *menuitem,
             gpointer         user_data)
 {
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
-    if (prefs.mode == BASIC_MODE) return;
-    if (prefs.mode == PAPER_MODE) return;
-    prefs.vis_standard = 
+    if (active_tab->tab_mode == BASIC_MODE) return;
+    if (active_tab->tab_mode == PAPER_MODE) return;
+    active_tab->tab_vis_standard =
         gtk_check_menu_item_get_active((GtkCheckMenuItem *) menuitem);
+    prefs.vis_standard = active_tab->tab_vis_standard;
     set_widget_visibility (button_box_xml, "table_standard_buttons",
-        prefs.vis_standard);
+        active_tab->tab_vis_standard);
 }
 
 void
 on_basic_mode_toggled (GtkMenuItem     *menuitem,
             gpointer         user_data)
 {
-    GtkWidget    *menu_item;
     char *display_value = NULL;
     
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem)) == FALSE) return;
 
-    if (prefs.mode == SCIENTIFIC_MODE) {
+    if (active_tab->tab_mode == SCIENTIFIC_MODE) {
         /* remember number and angle. notation is active in basic mode */
-        prefs.def_number = current_status.number;
-        prefs.def_angle = current_status.angle;
+        active_tab->tab_def_number = current_status.number;
+        active_tab->tab_def_angle = current_status.angle;
         display_value = display_result_get();
     }
-    prefs.mode = BASIC_MODE;
+    active_tab->tab_mode = BASIC_MODE;
+    prefs.mode = active_tab->tab_mode;
     
     ui_paper_view_destroy ();
     ui_classic_view_create ();
     ui_main_window_buttons_destroy ();
-    ui_main_window_buttons_create (prefs.mode);
+    ui_main_window_buttons_create (active_tab->tab_mode);
     update_dispctrl();
     
     display_update_modules();
@@ -820,25 +824,8 @@ on_basic_mode_toggled (GtkMenuItem     *menuitem,
     display_module_number_activate (CS_DEC);
     display_module_notation_activate (current_status.notation);
 
-    menu_item = GTK_WIDGET(gtk_builder_get_object (main_window_xml, "display_control"));
-    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item), prefs.vis_dispctrl);
-    gtk_check_menu_item_toggled (GTK_CHECK_MENU_ITEM(menu_item));
-
     update_active_buttons (current_status.number, current_status.notation);
-    menu_item = GTK_WIDGET(gtk_builder_get_object (main_window_xml, "functions"));
-    gtk_widget_set_sensitive (menu_item, FALSE);
-    menu_item = GTK_WIDGET(gtk_builder_get_object (main_window_xml, "logical"));
-    gtk_widget_set_sensitive (menu_item, FALSE);
-    menu_item = GTK_WIDGET(gtk_builder_get_object (main_window_xml, "standard"));
-    gtk_widget_set_sensitive (menu_item, FALSE);
-    menu_item = GTK_WIDGET(gtk_builder_get_object (main_window_xml, "base_units"));
-    gtk_widget_set_sensitive (menu_item, FALSE);
-    menu_item = GTK_WIDGET(gtk_builder_get_object (main_window_xml, "angle_units"));
-    gtk_widget_set_sensitive (menu_item, FALSE);
-    menu_item = GTK_WIDGET(gtk_builder_get_object (main_window_xml, "buttons1"));
-    gtk_widget_set_sensitive (menu_item, TRUE);
-    menu_item = GTK_WIDGET(gtk_builder_get_object (main_window_xml, "notation"));
-    gtk_widget_set_sensitive (menu_item, TRUE);
+    ui_sync_main_menu_for_active_tab ();
     
     set_window_size_minimal();
     
@@ -852,57 +839,31 @@ void
 on_scientific_mode_toggled (GtkMenuItem *menuitem,
                 gpointer user_data)
 {
-    GtkWidget    *menu_item;
     char *display_value = NULL;
     
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem)) == FALSE) return;
 
-    if (prefs.mode == BASIC_MODE)
-		display_value = display_result_get();
-		
-    prefs.mode = SCIENTIFIC_MODE;
+    if (active_tab->tab_mode == BASIC_MODE)
+			display_value = display_result_get();
+			
+    active_tab->tab_mode = SCIENTIFIC_MODE;
+    prefs.mode = active_tab->tab_mode;
 
     ui_paper_view_destroy ();
     ui_classic_view_create ();
     ui_main_window_buttons_destroy ();
-    ui_main_window_buttons_create (prefs.mode);
+    ui_main_window_buttons_create (active_tab->tab_mode);
     
     display_update_modules();
-    display_module_number_activate (prefs.def_number);
-    display_module_angle_activate (prefs.def_angle);
+    display_module_number_activate (active_tab->tab_def_number);
+    display_module_angle_activate (active_tab->tab_def_angle);
     display_module_notation_activate (current_status.notation);
 
     update_active_buttons (current_status.number, current_status.notation);
     update_dispctrl();
     
-    menu_item = GTK_WIDGET(gtk_builder_get_object (main_window_xml, "functions"));
-    gtk_widget_set_sensitive (menu_item, TRUE);
-    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item), prefs.vis_funcs);
-    gtk_check_menu_item_toggled (GTK_CHECK_MENU_ITEM(menu_item));
-    
-    menu_item = GTK_WIDGET(gtk_builder_get_object (main_window_xml, "display_control"));
-    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item), prefs.vis_dispctrl);
-    gtk_check_menu_item_toggled (GTK_CHECK_MENU_ITEM(menu_item));
-    
-    menu_item = GTK_WIDGET(gtk_builder_get_object (main_window_xml, "logical"));
-    gtk_widget_set_sensitive (menu_item, TRUE);
-    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item), prefs.vis_logic);
-    gtk_check_menu_item_toggled (GTK_CHECK_MENU_ITEM(menu_item));
-    
-    menu_item = GTK_WIDGET(gtk_builder_get_object (main_window_xml, "standard"));
-    gtk_widget_set_sensitive (menu_item, TRUE);
-    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item), prefs.vis_standard);
-    gtk_check_menu_item_toggled (GTK_CHECK_MENU_ITEM(menu_item));
-    
-    menu_item = GTK_WIDGET(gtk_builder_get_object (main_window_xml, "base_units"));
-    gtk_widget_set_sensitive (menu_item, TRUE);
-    menu_item = GTK_WIDGET(gtk_builder_get_object (main_window_xml, "angle_units"));
-    gtk_widget_set_sensitive (menu_item, TRUE);
-    menu_item = GTK_WIDGET(gtk_builder_get_object (main_window_xml, "buttons1"));
-    gtk_widget_set_sensitive (menu_item, TRUE);
-    menu_item = GTK_WIDGET(gtk_builder_get_object (main_window_xml, "notation"));
-    gtk_widget_set_sensitive (menu_item, TRUE);
+    ui_sync_main_menu_for_active_tab ();
     
     set_window_size_minimal();
     
@@ -916,12 +877,11 @@ void
 on_paper_mode_toggled (GtkMenuItem *menuitem,
                 gpointer user_data)
 {
-    GtkWidget    *menu_item;
-    
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem)) == FALSE) return;
 
-    prefs.mode = PAPER_MODE;
+    active_tab->tab_mode = PAPER_MODE;
+    prefs.mode = active_tab->tab_mode;
 
     ui_classic_view_destroy();
     ui_paper_view_create ();
@@ -929,14 +889,9 @@ on_paper_mode_toggled (GtkMenuItem *menuitem,
     /* this is to get the radio menu items right. display* naming is 
      * misleading though ...
      */
-    display_module_number_activate (prefs.def_number);
-    display_module_angle_activate (prefs.def_angle);
-    
-    /* update menus */
-    menu_item = GTK_WIDGET(gtk_builder_get_object (main_window_xml, "buttons1"));
-    gtk_widget_set_sensitive (menu_item, FALSE);
-    menu_item = GTK_WIDGET(gtk_builder_get_object (main_window_xml, "notation"));
-    gtk_widget_set_sensitive (menu_item, FALSE);
+    display_module_number_activate (active_tab->tab_def_number);
+    display_module_angle_activate (active_tab->tab_def_angle);
+    ui_sync_main_menu_for_active_tab ();
     
     set_window_size_minimal();
 }    
@@ -946,7 +901,7 @@ on_cut_activate (GtkMenuItem     *menuitem,
             gpointer         user_data)
 {
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
-    if (prefs.mode == PAPER_MODE) return;
+    if (active_tab->tab_mode == PAPER_MODE) return;
     gtk_clipboard_set_text (gtk_clipboard_get (GDK_SELECTION_CLIPBOARD), 
         display_result_get(), -1);
     clear ();
@@ -960,7 +915,7 @@ on_paste_activate (GtkMenuItem     *menuitem,
     char        *cp_text;
     
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
-    if (prefs.mode == PAPER_MODE) return;
+    if (active_tab->tab_mode == PAPER_MODE) return;
     cp_text = gtk_clipboard_wait_for_text (gtk_clipboard_get (GDK_SELECTION_CLIPBOARD));
     if (cp_text) {
         if ((formula_entry = formula_entry_is_active_no_toplevel_check ()) != NULL) {
@@ -978,7 +933,7 @@ on_copy_activate (GtkMenuItem     *menuitem,
             gpointer         user_data)
 {
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
-    if (prefs.mode == PAPER_MODE) return;
+    if (active_tab->tab_mode == PAPER_MODE) return;
     gtk_clipboard_set_text (gtk_clipboard_get (GDK_SELECTION_CLIPBOARD), 
         display_result_get(), -1);
 }
@@ -1247,6 +1202,7 @@ void on_prefs_vis_number_toggled (GtkToggleButton *togglebutton,
                 gpointer user_data)
 {
     prefs.vis_number = gtk_toggle_button_get_active (togglebutton);
+    active_tab->tab_vis_number = prefs.vis_number;
     display_update_modules ();
 }
                                         
@@ -1254,6 +1210,7 @@ void on_prefs_vis_angle_toggled (GtkToggleButton *togglebutton,
                 gpointer user_data)
 {
     prefs.vis_angle = gtk_toggle_button_get_active (togglebutton);
+    active_tab->tab_vis_angle = prefs.vis_angle;
     display_update_modules ();
 }
 
@@ -1261,6 +1218,7 @@ void on_prefs_vis_notation_toggled (GtkToggleButton *togglebutton,
                 gpointer user_data)
 {
     prefs.vis_notation = gtk_toggle_button_get_active (togglebutton);
+    active_tab->tab_vis_notation = prefs.vis_notation;
     display_update_modules ();
 }
 
@@ -2030,7 +1988,7 @@ void on_main_window_check_resize (GtkContainer *container,
     static gboolean        itsme=FALSE;
     
     /* only in classic views this function may take effect */
-    if (prefs.mode == PAPER_MODE) return;
+    if (active_tab->tab_mode == PAPER_MODE) return;
     /* is there a nicer way to to this? */
     if (itsme) {
         itsme = FALSE;
