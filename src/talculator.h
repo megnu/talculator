@@ -199,13 +199,12 @@ typedef struct {
 	int		len;
 } s_array;
 
-#include "config_file.h"
+typedef struct s_preferences s_preferences;
 extern s_preferences	prefs;
 extern s_constant 	*constant;
 extern s_user_function	*user_function;
 #include "engine.h"
 extern talc_engine	*calc_engine;
-#include "calc_basic.h"
 
 typedef struct {
 	s_current_status	tab_current_status;

@@ -19,16 +19,13 @@
  */
  
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include <ctype.h>
 
 #include "talculator.h"
 #include "display.h"
 #include "general_functions.h"
 #include "config_file.h"
-#include "calc_basic.h"
 #include "ui.h"
 
 #include <gtk/gtk.h>
@@ -764,7 +761,7 @@ static void display_set_line (char *string, int line, char *tag)
 		display_result_counter = strlen (string);
 		/* this is some cosmetics. try to keep counter up2date */
 		if (strchr (string, 'e') != NULL) {
-			display_result_counter -= (strchr(string, 'e') + sizeof(char) - string)/sizeof(char);
+				display_result_counter -= (strchr(string, 'e') - string + 1);
 			display_result_counter += get_display_number_length(current_status.number) - DISPLAY_RESULT_E_LENGTH - 1;
 		}
 		else if (strchr (string, dec_point[0]) != NULL) display_result_counter--;

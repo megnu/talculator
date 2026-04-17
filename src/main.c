@@ -25,12 +25,10 @@
  
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <errno.h>
 
 #include "calc_basic.h"
 #include "talculator.h"
-#include "display.h"
 #include "config_file.h"
 #include "general_functions.h"
 #include "ui.h"

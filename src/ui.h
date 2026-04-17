@@ -18,6 +18,14 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#ifndef _UI_H
+#define _UI_H 1
+
+#include <gtk/gtk.h>
+#include <glib.h>
+
+#include "talculator.h"
+
 extern GtkBuilder 	*main_window_xml;
 extern GtkBuilder 	*prefs_xml;
 extern GtkListStore	*prefs_constant_store, *prefs_user_function_store;
@@ -100,3 +108,5 @@ void ui_paper_view_destroy();
 #ifdef WITH_HILDON
 void create_hildon_menu (HildonWindow *main_window);
 #endif
+
+#endif /* _UI_H */

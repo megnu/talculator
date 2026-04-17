@@ -3,10 +3,10 @@
  */
 
 #include <glib.h>
-#include <string.h>
 
 #include "calc_basic.h"
 #include "talculator.h"
+#include "config_file.h"
 #include "engine.h"
 
 static GPtrArray *rpn_stack;

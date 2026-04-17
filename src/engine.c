@@ -4,7 +4,6 @@
 
 #include "engine.h"
 
-#include <ctype.h>
 #include <string.h>
 #include "engine_qalc_bridge.h"
 

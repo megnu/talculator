@@ -23,6 +23,7 @@
 #include <string.h>
 
 #include "talculator.h"
+#include "calc_basic.h"
 #include "ui.h"
 #include "display.h"
 #include "config_file.h"

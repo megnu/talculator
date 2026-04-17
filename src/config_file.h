@@ -18,13 +18,13 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
  
+#ifndef _CONFIG_FILE_H
+#define _CONFIG_FILE_H 1
+
 #include <gtk/gtk.h>
 #include <glib.h>
 
 #include "talculator.h"
-
-#ifndef _CONFIG_FILE_H
-#define _CONFIG_FILE_H 1
 
 #define MAX_FILE_LINE_LENGTH	1024
 
@@ -86,7 +86,7 @@
 #define	DEFAULT_REM_VALUET			"0"
 #define DEFAULT_SHOW_MENU			TRUE
 
-typedef struct {
+typedef struct s_preferences {
 	/* 1st pref page */
 	char 		*bkg_color;		/* gdk_color_parse */
 	char		*result_font; 		/* pango_font_description_from_string */

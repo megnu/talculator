@@ -21,6 +21,9 @@
 #ifndef _DISPLAY_H
 #define _DISPLAY_H 1
 
+#include <gtk/gtk.h>
+#include <glib.h>
+
 #define DISPLAY_RESULT_PRECISION	12
 #define DISPLAY_RESULT_E_LENGTH		3
 
