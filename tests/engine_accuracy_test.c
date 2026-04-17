@@ -50,6 +50,47 @@ static void expect_exact (test_state *state, const char *name,
 	g_free (actual);
 }
 
+static void expect_exact_with_contexts (test_state *state, const char *name,
+	const talc_engine_context *parse_ctx, const talc_engine_context *print_ctx,
+	const char *expr, const char *expected)
+{
+	char *actual = talc_engine_eval_expression_with_contexts (state->engine,
+		parse_ctx, print_ctx, expr);
+	if (!actual) {
+		char *msg = g_strdup_printf ("expected \"%s\", got error: %s",
+			expected, talc_engine_last_error (state->engine));
+		report_failure (state, name, msg);
+		g_free (msg);
+		return;
+	}
+	if (g_strcmp0 (actual, expected) != 0) {
+		char *msg = g_strdup_printf ("expected \"%s\", got \"%s\"", expected, actual);
+		report_failure (state, name, msg);
+		g_free (msg);
+	}
+	g_free (actual);
+}
+
+static void expect_contains (test_state *state, const char *name,
+	const talc_engine_context *ctx, const char *expr, const char *needle)
+{
+	char *actual = talc_engine_eval_expression (state->engine, ctx, expr);
+	if (!actual) {
+		char *msg = g_strdup_printf ("expected output containing \"%s\", got error: %s",
+			needle, talc_engine_last_error (state->engine));
+		report_failure (state, name, msg);
+		g_free (msg);
+		return;
+	}
+	if (!g_strstr_len (actual, -1, needle)) {
+		char *msg = g_strdup_printf ("expected output containing \"%s\", got \"%s\"",
+			needle, actual);
+		report_failure (state, name, msg);
+		g_free (msg);
+	}
+	g_free (actual);
+}
+
 static void expect_approx (test_state *state, const char *name,
 	const talc_engine_context *ctx, const char *expr, double expected, double tol)
 {
@@ -122,6 +163,11 @@ int main (void)
 	talc_engine_context rpn_rad;
 	talc_engine_context rpn_bin;
 	talc_engine_context hex;
+	talc_engine_context dec_parse;
+	talc_engine_context hex_parse;
+	talc_engine_context hex_print;
+	talc_engine_context bin_print_u8;
+	talc_engine_context bin_print_s8;
 	talc_engine_context bin_unsigned;
 	talc_engine_context bin_signed;
 
@@ -153,6 +199,18 @@ int main (void)
 	hex.base = TALC_ENGINE_BASE_HEX;
 	hex.base_bits = 8;
 	hex.base_signed = FALSE;
+	dec_parse = dec;
+	hex_parse = dec;
+	hex_parse.base = TALC_ENGINE_BASE_HEX;
+	hex_parse.base_bits = 8;
+	hex_parse.base_signed = FALSE;
+	hex_print = hex_parse;
+	bin_print_u8 = dec;
+	bin_print_u8.base = TALC_ENGINE_BASE_BIN;
+	bin_print_u8.base_bits = 8;
+	bin_print_u8.base_signed = FALSE;
+	bin_print_s8 = bin_print_u8;
+	bin_print_s8.base_signed = TRUE;
 	bin_unsigned = dec;
 	bin_unsigned.base = TALC_ENGINE_BASE_BIN;
 	bin_unsigned.base_bits = 8;
@@ -181,6 +239,36 @@ int main (void)
 	expect_exact (&state, "bin_and", &bin_unsigned, "11110000 & 10101010", "10100000");
 	expect_exact (&state, "bin_neg1_signed", &bin_signed, "-1", "11111111");
 
+	/* parse/print context split coverage */
+	expect_exact_with_contexts (&state, "ctx_parse_hex_print_dec", &hex_parse, &dec_parse, "A+1", "11");
+	expect_exact_with_contexts (&state, "ctx_parse_dec_print_hex", &dec_parse, &hex_print, "10+5", "F");
+	expect_exact_with_contexts (&state, "ctx_parse_dec_print_bin_signed", &dec_parse, &bin_print_s8, "-1", "11111111");
+
+	/* base-width and shift/bitwise semantic boundaries */
+	expect_exact_with_contexts (&state, "bin_u8_255_plus_1", &dec_parse, &bin_print_u8, "255+1", "100000000");
+	expect_exact_with_contexts (&state, "bin_s8_neg128_minus_1", &dec_parse, &bin_print_s8, "-128-1", "1111111101111111");
+	expect_exact (&state, "shift_precedence_default", &dec, "1<<2+1", "8");
+	expect_exact (&state, "shift_precedence_parenthesized", &dec, "(1<<2)+1", "5");
+
+	/* percent edge chains and nested forms */
+	expect_exact (&state, "percent_nested_add", &dec, "(200+10%)", "220");
+	expect_exact (&state, "percent_then_multiply", &dec, "50%*8", "4");
+	expect_exact (&state, "percent_sub_expr", &dec, "200-(5+5)%", "199.9");
+	expect_error (&state, "percent_chain_triple_invalid", &dec, "10%%%");
+
+	/* domain/error behavior */
+	expect_exact (&state, "domain_sqrt_neg_one", &dec, "sqrt(-1)", "i");
+	expect_contains (&state, "domain_log_neg_one_imag", &dec, "log(-1)", "i");
+	expect_exact (&state, "domain_div_zero", &dec, "1/0", "1/0");
+	expect_exact (&state, "domain_zero_div_zero", &dec, "0/0", "0/0");
+	expect_error (&state, "domain_invalid_percent_error", &dec, "%%");
+
+	/* function/constant parsing robustness */
+	expect_approx (&state, "parse_sin30_implicit", &dec, "sin30", 0.5, 1e-12);
+	expect_approx (&state, "parse_pi2_implicit_mul", &dec, "pi2", 2.0 * G_PI, 1e-12);
+	expect_exact (&state, "factorial_power_precedence", &dec, "2^3!", "64");
+	expect_exact (&state, "factorial_power_parenthesized", &dec, "(2^3)!", "40320");
+
 	/* RPN context coverage */
 	expect_exact (&state, "rpn_add", &rpn, "3 4 +", "7");
 	expect_exact (&state, "rpn_div", &rpn, "10 2 /", "5");
@@ -192,6 +280,8 @@ int main (void)
 	expect_approx (&state, "rpn_sin_pi_over_2_rad", &rpn_rad, "pi 2 / sin", 1.0, 1e-12);
 	expect_approx (&state, "rpn_sqrt2", &rpn, "2 sqrt", 1.4142135623730951, 1e-12);
 	expect_exact (&state, "rpn_bin_and", &rpn_bin, "1111 0011 &", "11");
+	expect_exact (&state, "rpn_residual_stack_returns_top", &rpn, "3 4", "3");
+	expect_exact (&state, "rpn_residual_stack_with_operation", &rpn, "3 4 5 +", "12");
 
 	talc_engine_free (state.engine);
 	if (state.failures > 0) {
