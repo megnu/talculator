@@ -89,6 +89,91 @@ static gboolean cycle_tab_from_key (GdkEventKey *key_event)
     return TRUE;
 }
 
+static gboolean tab_keyword_digit (char c)
+{
+	return (c >= '1') && (c <= '6');
+}
+
+static gboolean tab_keyword_is_reserved_name (const char *name)
+{
+	if (!name) return FALSE;
+	return (g_ascii_strncasecmp (name, "tab", 3) == 0) &&
+		(name[3] != '\0') &&
+		tab_keyword_digit (name[3]) &&
+		(name[4] == '\0');
+}
+
+static char *tab_keyword_display_value_by_index (int tab_index_1based)
+{
+	GtkNotebook *notebook;
+	GtkWidget *page;
+	s_tab_context *ctx;
+	GtkTextIter start, end;
+	char *value;
+
+	if (tab_index_1based < 1 || tab_index_1based > 6) return g_strdup ("0");
+	notebook = ui_tabs_get_notebook ();
+	if (!notebook) return g_strdup ("0");
+	if (gtk_notebook_get_n_pages (notebook) < tab_index_1based) return g_strdup ("0");
+	page = gtk_notebook_get_nth_page (notebook, tab_index_1based - 1);
+	if (!page) return g_strdup ("0");
+
+	ctx = g_object_get_data (G_OBJECT(page), "tab-context");
+	if (!ctx || !ctx->tab_display_buffer) return g_strdup ("0");
+	if (gtk_text_buffer_get_line_count (ctx->tab_display_buffer) <= ctx->tab_display_result_line)
+		return g_strdup ("0");
+
+	gtk_text_buffer_get_iter_at_line (ctx->tab_display_buffer, &start, ctx->tab_display_result_line);
+	end = start;
+	gtk_text_iter_forward_to_line_end (&end);
+	value = gtk_text_buffer_get_text (ctx->tab_display_buffer, &start, &end, FALSE);
+	if (!value || value[0] == '\0') {
+		if (value) g_free (value);
+		return g_strdup ("0");
+	}
+
+	return value;
+}
+
+static char *expression_resolve_tab_keywords (const char *expression)
+{
+	GString *out;
+	size_t i = 0;
+
+	if (!expression) return NULL;
+	out = g_string_new ("");
+	while (expression[i] != '\0') {
+		size_t start = i;
+		char *ident;
+
+		if (!(g_ascii_isalpha ((guchar) expression[i]) || expression[i] == '_')) {
+			g_string_append_c (out, expression[i]);
+			i++;
+			continue;
+		}
+
+		i++;
+		while (g_ascii_isalnum ((guchar) expression[i]) || expression[i] == '_') i++;
+		ident = g_strndup (&expression[start], i - start);
+		if (!ident) {
+			g_string_free (out, TRUE);
+			return NULL;
+		}
+
+		if (tab_keyword_is_reserved_name (ident)) {
+			int tab_index = ident[3] - '0';
+			char *tab_value = tab_keyword_display_value_by_index (tab_index);
+			g_string_append_printf (out, "(%s)", tab_value ? tab_value : "0");
+			if (tab_value) g_free (tab_value);
+		} else {
+			g_string_append (out, ident);
+		}
+		g_free (ident);
+	}
+
+	return g_string_free (out, FALSE);
+}
+
 static gsize custom_constant_count (void)
 {
 	gsize n = 0;
@@ -143,12 +228,16 @@ static gboolean engine_eval_expression (const char *expression,
 {
 	talc_engine_context engine_ctx;
 	char *display_string = NULL;
+	char *resolved_expression = NULL;
 
 	if (!expression || !calc_engine) return FALSE;
 	if (out_display) *out_display = NULL;
 
 	engine_context_from_ui_state (&engine_ctx);
-	display_string = talc_engine_eval_expression (calc_engine, &engine_ctx, expression);
+	resolved_expression = expression_resolve_tab_keywords (expression);
+	if (!resolved_expression) return FALSE;
+	display_string = talc_engine_eval_expression (calc_engine, &engine_ctx, resolved_expression);
+	g_free (resolved_expression);
 	if (!display_string || display_string[0] == '\0') {
 		if (display_string) g_free (display_string);
 		return FALSE;
@@ -1680,6 +1769,13 @@ void on_prefs_ufadd_clicked (GtkButton *button, gpointer user_data)
         g_free (desc);
         return;
     }
+	if (tab_keyword_is_reserved_name (name)) {
+		error_message (_("Names Tab1..Tab6 are reserved for tab value references."));
+		g_free (name);
+		g_free (value);
+		g_free (desc);
+		return;
+	}
         
     nr_user_functions = gtk_tree_model_iter_n_children(GTK_TREE_MODEL(prefs_user_function_store), NULL);
     user_function = (s_user_function *) g_realloc (user_function, (nr_user_functions + 2) * sizeof(s_user_function));
@@ -1740,7 +1836,14 @@ void on_prefs_ufupdate_clicked (GtkButton *button, gpointer user_data)
     index = *(gtk_tree_path_get_indices (path));
     
     entry = GTK_WIDGET(gtk_builder_get_object (prefs_xml, "prefs_ufname_entry"));
-    user_function[index].name = g_strdup (gtk_entry_get_text ((GtkEntry *) entry));
+	{
+		const char *new_name = gtk_entry_get_text ((GtkEntry *) entry);
+		if (tab_keyword_is_reserved_name (new_name)) {
+			error_message (_("Names Tab1..Tab6 are reserved for tab value references."));
+			return;
+		}
+		user_function[index].name = g_strdup (new_name);
+	}
     entry = GTK_WIDGET(gtk_builder_get_object (prefs_xml, "prefs_ufvar_entry"));
     user_function[index].variable = g_strdup (gtk_entry_get_text ((GtkEntry *) entry));
     entry = GTK_WIDGET(gtk_builder_get_object (prefs_xml, "prefs_ufexpr_entry"));
@@ -1785,6 +1888,13 @@ void on_prefs_cadd_clicked (GtkButton *button, gpointer user_data)
         g_free (desc);
         return;
     }
+	if (tab_keyword_is_reserved_name (name)) {
+		error_message (_("Names Tab1..Tab6 are reserved for tab value references."));
+		g_free (name);
+		g_free (value);
+		g_free (desc);
+		return;
+	}
         
     nr_consts = gtk_tree_model_iter_n_children(GTK_TREE_MODEL(prefs_constant_store), NULL);
     constant = (s_constant *) g_realloc (constant, (nr_consts + 2) * sizeof(s_constant));
@@ -1844,7 +1954,14 @@ void on_prefs_cupdate_clicked (GtkButton *button, gpointer user_data)
     index = *(gtk_tree_path_get_indices (path));
     
     entry = GTK_WIDGET(gtk_builder_get_object (prefs_xml, "prefs_cname_entry"));
-    constant[index].name = g_strdup (gtk_entry_get_text ((GtkEntry *) entry));
+	{
+		const char *new_name = gtk_entry_get_text ((GtkEntry *) entry);
+		if (tab_keyword_is_reserved_name (new_name)) {
+			error_message (_("Names Tab1..Tab6 are reserved for tab value references."));
+			return;
+		}
+		constant[index].name = g_strdup (new_name);
+	}
     entry = GTK_WIDGET(gtk_builder_get_object (prefs_xml, "prefs_cvalue_entry"));
     constant[index].value = g_strdup (gtk_entry_get_text ((GtkEntry *) entry));
     entry = GTK_WIDGET(gtk_builder_get_object (prefs_xml, "prefs_cdesc_entry"));
@@ -2122,13 +2239,10 @@ gboolean on_button_press_event (GtkWidget *widget, GdkEventButton *event, gpoint
 
 void on_formula_entry_activate (GtkEntry *entry, gpointer user_data)
 {
-    talc_engine_context      engine_ctx;
     char                    *formatted_result = NULL;
     
     ui_bind_active_tab_from_widget (GTK_WIDGET(entry));
-    engine_context_from_ui_state (&engine_ctx);
-    formatted_result = calc_engine ?
-        talc_engine_eval_expression (calc_engine, &engine_ctx, gtk_entry_get_text(entry)) : NULL;
+    engine_eval_expression (gtk_entry_get_text(entry), &formatted_result);
     ui_formula_entry_state (formatted_result == NULL);
     if (formatted_result) {
         display_result_set (formatted_result, TRUE);
@@ -2191,7 +2305,6 @@ gboolean on_paper_entry_key_press_event (GtkWidget *widget, GdkEventKey *event, 
 
 void on_paper_entry_activate (GtkWidget *activated_widget, gpointer user_data)
 {
-    talc_engine_context      engine_ctx;
     GtkEntry                *entry;
     GtkTreeView                *tree_view;
     GtkListStore            *paper_store;
@@ -2206,9 +2319,8 @@ void on_paper_entry_activate (GtkWidget *activated_widget, gpointer user_data)
         entry = GTK_ENTRY(activated_widget);
     
     if (strcmp(gtk_entry_get_text(entry), "") == 0) return;
-    engine_context_from_ui_state (&engine_ctx);
-    result_string = calc_engine ?
-        talc_engine_eval_expression (calc_engine, &engine_ctx, gtk_entry_get_text(entry)) : NULL;
+    result_string = NULL;
+	engine_eval_expression (gtk_entry_get_text(entry), &result_string);
     
     /* add to tree view */
     tree_view = GTK_TREE_VIEW(gtk_builder_get_object (view_xml, "paper_treeview"));

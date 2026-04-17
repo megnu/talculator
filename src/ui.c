@@ -561,7 +561,7 @@ static gchar *ui_tab_default_title_new ()
 	guint i;
 
 	notebook = ui_tabs_get_notebook ();
-	tab_prefix = g_strdup_printf ("%s ", _("Tab"));
+	tab_prefix = g_strdup_printf ("%s", _("Tab"));
 
 	if (notebook) {
 		gint n_pages = gtk_notebook_get_n_pages (notebook);
@@ -583,14 +583,14 @@ static gchar *ui_tab_default_title_new ()
 
 	for (i = 1; i <= UI_MAX_TABS; i++) {
 		if (!used[i]) {
-			gchar *title = g_strdup_printf ("%s %u", _("Tab"), i);
+			gchar *title = g_strdup_printf ("%s%u", _("Tab"), i);
 			g_free (tab_prefix);
 			return title;
 		}
 	}
 
 	g_free (tab_prefix);
-	return g_strdup_printf ("%s %d", _("Tab"),
+	return g_strdup_printf ("%s%d", _("Tab"),
 		notebook ? gtk_notebook_get_n_pages (notebook) + 1 : 1);
 }
 

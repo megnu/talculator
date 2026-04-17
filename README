@@ -145,6 +145,8 @@ Input parsing is strict calculator-style in all modes (basic/scientific/paper):
 - Unknown identifiers/words are rejected.
 - User-defined constants and user-defined functions from Preferences are accepted
   in typed expressions by name (functions require parentheses, e.g. f(3)).
+- Tab references `Tab1`..`Tab6` (case-insensitive) are accepted in typed input
+  and resolve to each tab's current display value; missing tabs resolve to `0`.
 - HEX/OCT/BIN base semantics are preserved, including A-F as digits in HEX mode.
 - `log(...)` is treated as base-10 logarithm, while `ln(...)` is natural logarithm.
 - Word operators follow bitwise calculator semantics (`and`, `or`, `xor`, `not`).
