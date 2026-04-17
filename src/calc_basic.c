@@ -154,7 +154,8 @@ char *rpn_stack_operation (char operation, const char *number)
 	rpn_ensure_init ();
 
 	if (rpn_stack->len < 1) {
-		left_hand = g_strdup (CLEARED_DISPLAY);
+		if (operation == '%') left_hand = g_strdup ("1");
+		else left_hand = g_strdup (CLEARED_DISPLAY);
 	} else {
 		left_hand = g_strdup ((char *) rpn_stack->pdata[0]);
 		last_on_stack = g_strdup ((char *) rpn_stack->pdata[rpn_stack->len - 1]);

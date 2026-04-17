@@ -211,6 +211,7 @@ static gboolean pan_expr_is_supported_operation (char operation)
 	case '|':
 	case 'x':
 	case 'm':
+	case '%':
 	case '(':
 	case ')':
 		return TRUE;
@@ -457,9 +458,10 @@ on_operation_button_clicked(GtkToggleButton *button, gpointer user_data)
     
     /* notation specific interface code */
     
-    if (current_status.notation == CS_PAN) {
-        char *engine_display = NULL;
-        /* '(' doesn't pay respect to allow_arith_op but sets it: a+((((((b-...
+	    if (current_status.notation == CS_PAN) {
+	        char *engine_display = NULL;
+	        int open_brackets = display_module_bracket_label_update (GET);
+	        /* '(' doesn't pay respect to allow_arith_op but sets it: a+((((((b-...
          * ')' pays respect to allow_arith_op but doesn't set it: ...+a)))))-...
          * '=' pays respect to allow_arith_op but doesn't set it: ...+a=
          *     (in order to continue with the result on the display)
@@ -468,32 +470,37 @@ on_operation_button_clicked(GtkToggleButton *button, gpointer user_data)
          * in general, a closing bracket is only useful if there were opening
          *    brackets.
          */
-        if (((current_operation == '(') || current_status.allow_arith_op) && \
-            ((current_operation != ')') || (display_module_bracket_label_update (GET) > 0))) {
-            pan_expr_record_operation (current_operation);
-            if ((current_operation == '=') &&
-                pan_expr_evaluate_equal (&engine_display)) {
+	        if ((current_operation == '=') && (open_brackets > 0)) {
+	            error_message ("Unmatched opening bracket(s)");
+	        } else if (((current_operation == '(') || current_status.allow_arith_op) && \
+	            ((current_operation != ')') || (open_brackets > 0))) {
+	            pan_expr_record_operation (current_operation);
+	            if ((current_operation == '=') &&
+	                pan_expr_evaluate_equal (&engine_display)) {
                 display_result_set (engine_display, TRUE);
                 g_free (engine_display);
             }
             display_module_arith_label_update (current_operation);
             
-            /* setting of allow_arith_op. the missing breaks are wanted */
-            switch (current_operation) {
-                case '=':
-                    pan_expr_reset ();
-                    display_module_bracket_label_update (RESET);
-                    break;
-                case ')':
-                    display_module_bracket_label_update (ONE_LESS);
-                    break;
-                case '(':
-                    display_module_bracket_label_update (ONE_MORE);
-                default:
-                    current_status.allow_arith_op=FALSE;
-            }
-        }
-    } else if (current_status.notation == CS_RPN) {
+	            /* setting of allow_arith_op. the missing breaks are wanted */
+	            switch (current_operation) {
+	                case '=':
+	                    pan_expr_reset ();
+	                    display_module_bracket_label_update (RESET);
+	                    break;
+	                case '%':
+	                    current_status.allow_arith_op = TRUE;
+	                    break;
+	                case ')':
+	                    display_module_bracket_label_update (ONE_LESS);
+	                    break;
+	                case '(':
+	                    display_module_bracket_label_update (ONE_MORE);
+	                default:
+	                    current_status.allow_arith_op=FALSE;
+	            }
+	        }
+	    } else if (current_status.notation == CS_RPN) {
         switch (current_operation) {
         case '=':
             rpn_stack_push (current_number);
