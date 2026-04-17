@@ -8,20 +8,12 @@ arch=('x86_64')
 url='https://github.com/megnu/talculator'
 license=('GPL')
 depends=('gtk3' 'libqalculate')
-makedepends=('git' 'intltool' 'autoconf' 'automake' 'libtool')
+makedepends=('intltool' 'autoconf' 'automake' 'libtool')
 source=()
 sha256sums=()
 
-_builddir="${pkgname}-${pkgver}"
-
-prepare() {
-  rm -rf "${srcdir}/${_builddir}"
-  mkdir -p "${srcdir}/${_builddir}"
-  git -C "${startdir}" archive --format=tar HEAD | tar -xf - -C "${srcdir}/${_builddir}"
-}
-
 build() {
-  cd "${srcdir}/${_builddir}"
+  cd "${startdir}"
 
   # Required because upstream still has duplicate global definitions
   # (for example prefs in main.c and config_file.c).
@@ -33,7 +25,7 @@ build() {
 }
 
 package() {
-  cd "${srcdir}/${_builddir}"
+  cd "${startdir}"
   make DESTDIR="${pkgdir}" install
 
   # Match current Arch packaging layout.

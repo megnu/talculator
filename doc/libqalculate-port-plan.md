@@ -102,3 +102,10 @@ Phase 5 status (completed on `libqalculate` branch):
   - `gtk_widget_override_*` color/font APIs -> CSS provider/style-class based styling
   - `gdk_screen_width` -> monitor geometry APIs
 - These are non-blocking for libqalculate math-core parity and will be handled in a dedicated UI modernization pass.
+
+## Deferred legacy compatibility notes
+- Keep current old-config migration behavior for now:
+  - fallback read from legacy path (`CONFIG_FILE_NAME_OLD`) in `src/main.c`
+  - compatibility parsing of old preference keys in `src/config_file.c` (`prefs_list_old_entries`)
+- Keep GTK2/older compatibility preprocessor branches for now.
+- These are not part of the math-core port and can be removed in a separate modernization pass once backward-compatibility support is no longer required.
