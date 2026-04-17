@@ -1,4 +1,4 @@
-Summary: GTK 2 based scientific calculator
+Summary: GTK3 based scientific calculator
 Name: @PACKAGE@
 Version: @VERSION@
 Release: 1
@@ -7,10 +7,10 @@ Group: Application/Math
 Source: http://prdownloads.sourceforge.net/talculator/talculator-@VERSION@.tar.gz
 Packager: Victor Soroka <gbs@tnss.kharkov.ua>
 BuildRoot: /var/tmp/%{name}-%{version}-root
-BuildRequires: gtk2-devel >= 3.0.0 
+BuildRequires: gtk3-devel >= 3.0.0 
 
 %description
-talculator is a GTK 2 / GTK 3 based scientific calculator with "ordinary" and reverse polish notation.
+talculator is a GTK3 based scientific calculator with "ordinary" and reverse polish notation.
 
 %prep
 %setup -q

@@ -1,7 +1,7 @@
 talculator
 ==========
 
-a GTK 2  / GTK 3 based scientific calculator 
+a GTK 3 based scientific calculator
 
 This project is a fork of galculator, supporting tabs for multiple instances.
 

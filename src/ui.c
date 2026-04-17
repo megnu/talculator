@@ -1321,10 +1321,6 @@ void set_widget_visibility (GtkBuilder *xml, char *widget_name, gboolean visible
 
 /* menu code - e.g. used for the constant popup menu */
 
-#if !GTK_CHECK_VERSION(2, 18, 0)
-#define gtk_widget_get_visible(widget)  GTK_WIDGET_VISIBLE(widget)
-#endif
-
 void position_menu (GtkMenu *menu, 
 				gint *x, 
 				gint *y, 

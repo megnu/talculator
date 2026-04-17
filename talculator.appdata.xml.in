@@ -4,10 +4,10 @@
  <metadata_license>CC0-1.0</metadata_license>
  <project_license>GPL-2.0+</project_license>
  <name>talculator</name>
- <summary>a GTK 2 / GTK 3 algebraic and RPN calculator</summary>
+ <summary>a GTK3 algebraic and RPN calculator</summary>
  <description>
   <p>
-   talculator is a GTK 2 / GTK 3 based calculator with ordinary notation/reverse polish notation (RPN), a
+   talculator is a GTK3 based calculator with ordinary notation/reverse polish notation (RPN), a
    formula entry mode, different number bases (DEC, HEX, OCT, BIN) and different units of angular
    measure (DEG, RAD, GRAD). It supports quad-precision floating point and 112-bit binary arithmetic.
   </p>
