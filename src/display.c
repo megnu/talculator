@@ -52,6 +52,20 @@ static char *display_convert_base_string (const char *value, int from_base, int 
 static void display_widget_css_set (GtkWidget *widget, const gchar *css, const gchar *data_key);
 #endif
 
+static gboolean display_bracket_module_should_render (void)
+{
+	GtkWidget *formula_hbox;
+
+	if ((prefs.vis_bracket == FALSE) || (active_tab->tab_mode != SCIENTIFIC_MODE))
+		return FALSE;
+
+	formula_hbox = GTK_WIDGET(gtk_builder_get_object (view_xml, "formula_entry_hbox"));
+	if (formula_hbox && gtk_widget_get_visible (formula_hbox))
+		return FALSE;
+
+	return TRUE;
+}
+
 static void display_engine_context_for_base (talc_engine_context *ctx, int number_base_status)
 {
 	if (!ctx) return;
@@ -363,7 +377,7 @@ int display_module_bracket_label_update (int option)
 			if (active_tab->tab_display_brackets > 0) forward_count = 5 + log10(active_tab->tab_display_brackets);
 			break;
 	}
-	if ((prefs.vis_bracket == FALSE) || (active_tab->tab_mode != SCIENTIFIC_MODE))
+	if (!display_bracket_module_should_render ())
 		return active_tab->tab_display_brackets;
 	
 	if ((this_mark = gtk_text_buffer_get_mark (buffer, DISPLAY_MARK_BRACKET)) == NULL) \
@@ -579,7 +593,7 @@ void display_update_modules ()
 	}
 	
 	/* number of open brackets */
-	if (prefs.vis_bracket == TRUE) {
+	if (display_bracket_module_should_render ()) {
 		if (first_module) 
 			gtk_text_buffer_insert_with_tags_by_name (buffer, &start, "\n", \
 				-1, "result", NULL);
