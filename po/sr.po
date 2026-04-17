@@ -1,43 +1,44 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# 
+#
 # Translators:
 # Мирослав Николић <miroslavnikolic@rocketmail.com>, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: MATE Desktop Environment\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-17 16:18+0100\n"
+"POT-Creation-Date: 2026-04-18 00:32+0700\n"
 "PO-Revision-Date: 2014-12-10 20:31+0000\n"
 "Last-Translator: Мирослав Николић <miroslavnikolic@rocketmail.com>\n"
 "Language-Team: Serbian (http://www.transifex.com/mate/MATE/language/sr/)\n"
+"Language: sr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: sr\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
 #: ../talculator.desktop.in.h:1
 msgid "Perform simple and scientific calculations"
 msgstr "Обављајте једноставне и научне прорачуне"
 
-#: ../src/callbacks.c:1051
+#: ../src/callbacks.c:1483
 msgid "save here"
 msgstr "чува овде"
 
-#: ../src/callbacks.c:1427
+#: ../src/callbacks.c:1904
 #, c-format
 msgid "[%s] on_prefs_number_combo_changed failed to retrieve iter. %s\n"
 msgstr "[%s] „on_prefs_number_combo_changed“ није успео да довуче пут. %s\n"
 
-#: ../src/callbacks.c:1590
+#: ../src/callbacks.c:2067
 #, c-format
 msgid "[%s] on_main_window_check_resize should not get called. %s\n"
 msgstr "[%s] „on_main_window_check_resize“ не треба бити позвана. %s\n"
 
-#: ../src/main.c:61
-#, c-format
+#: ../src/main.c:87
+#, fuzzy, c-format
 msgid ""
 "\n"
 "%s v%s, (c) 2002-2014 Simon Flöry\n"
@@ -51,44 +52,46 @@ msgid ""
 "\n"
 "Compiled against GTK version %i.%i.%i\n"
 "Linked against GTK version %i.%i.%i\n"
-"%s-precision floating point numbers.\n"
-msgstr "\n%s и%s, (c) 2002-2014 Сајмон Флори\n\nУпотреба: %s [опције]\n\nопције:\n(Гтк опције)\n -h, --help\t\tПриказује ову поруку о коришћењу\n -v, --version\t\tПриказује податке о издању\n\nПреведено ГТК-ом издања %i.%i.%i\nПовезано ГТК-ом издања %i.%i.%i\nбројеви са покретним зарезом %s-тачности.\n"
+"Evaluation engine: libqalculate.\n"
+msgstr ""
+"\n"
+"%s и%s, (c) 2002-2014 Сајмон Флори\n"
+"\n"
+"Употреба: %s [опције]\n"
+"\n"
+"опције:\n"
+"(Гтк опције)\n"
+" -h, --help\t\tПриказује ову поруку о коришћењу\n"
+" -v, --version\t\tПриказује податке о издању\n"
+"\n"
+"Преведено ГТК-ом издања %i.%i.%i\n"
+"Повезано ГТК-ом издања %i.%i.%i\n"
+"бројеви са покретним зарезом %s-тачности.\n"
 
-#: ../src/main.c:196
+#: ../src/main.c:143
+#, c-format
+msgid "[%s] libqalculate backend unavailable; exiting.\n"
+msgstr ""
+
+#: ../src/main.c:168
 #, c-format
 msgid "[%s] configuration file: Failed to create directory %s.\n"
 msgstr "[%s] датотека подешавања: Нисам успео да направим директоријум „%s“.\n"
 
-#: ../src/main.c:201
+#: ../src/main.c:173
 #, c-format
 msgid ""
 "[%s] configuration file: We will move the configuration file from %s to %s. "
 "After you quit %s, you may remove the configuration file from its old "
 "location %s.\n"
-msgstr "[%s] датотека подешавања: Преместићемо датотеку подешавања из „%s“ у „%s“. Након што изађете из „%s“, можете да уклоните датотеку подешавања са њеног старог места „%s“.\n"
+msgstr ""
+"[%s] датотека подешавања: Преместићемо датотеку подешавања из „%s“ у „%s“. "
+"Након што изађете из „%s“, можете да уклоните датотеку подешавања са њеног "
+"старог места „%s“.\n"
 
-#: ../src/talculator.h:92
+#: ../src/talculator.h:78
 msgid "Please submit a bugreport."
 msgstr "Пошаљите извештај о грешци."
-
-#: ../src/calc_basic.c:300
-#, c-format
-msgid "[%s] %c - unknown operation character. %s\n"
-msgstr "[%s] %c — непознат знак операције. %s\n"
-
-#: ../src/calc_basic.c:690
-#, c-format
-msgid ""
-"[%s] Conversion of floating point number in float2string failed because buffer was too small. %s\n"
-")"
-msgstr "[%s] Претварање броја покретног зареза у „float2string“ није успело због премале међумеморије. %s\n)"
-
-#: ../src/calc_basic.c:719
-#, c-format
-msgid ""
-"[%s] Conversion of floating point number in float2stringP failed because buffer was too small. %s\n"
-")"
-msgstr "[%s] Претварање броја покретног зареза у „float2stringP“ није успело због премале међумеморије. %s\n)"
 
 #: ../src/config_file.c:180
 msgid "Pi"
@@ -115,289 +118,259 @@ msgstr "[%s] датотека подешавања: занемарујем не�
 #, c-format
 msgid ""
 "[%s] configuration file: %s has to be TRUE or FALSE. Using defaults. %s\n"
-msgstr "[%s] датотека подешавања: „%s“ треба да буде ТАЧНО или НЕТАЧНО. Користим основности. %s\n"
+msgstr ""
+"[%s] датотека подешавања: „%s“ треба да буде ТАЧНО или НЕТАЧНО. Користим "
+"основности. %s\n"
 
 #: ../src/config_file.c:262
 #, c-format
 msgid ""
-"[%s] configuration file: failed to convert %s to a number properly. Have you"
-" changed your locales? %s\n"
-msgstr "[%s] датотека подешавања: нисам успео да претворим „%s“ у број исправно. Да ли сте изменили језик? %s\n"
+"[%s] configuration file: failed to convert %s to a number properly. Have you "
+"changed your locales? %s\n"
+msgstr ""
+"[%s] датотека подешавања: нисам успео да претворим „%s“ у број исправно. Да "
+"ли сте изменили језик? %s\n"
 
 #: ../src/config_file.c:265
 #, c-format
 msgid ""
 "[%s] configuration file: ignoring unknown key_type in config structure. %s\n"
-msgstr "[%s] датотека подешавања: занемарујем непознату врсту кључа у структури подешавања. %s\n"
+msgstr ""
+"[%s] датотека подешавања: занемарујем непознату врсту кључа у структури "
+"подешавања. %s\n"
 
-#: ../src/config_file.c:284
+#: ../src/config_file.c:287
 #, c-format
 msgid ""
 "[%s] found unknown section %s in configuration file %s. Using preceding "
 "section.\n"
-msgstr "[%s] нашао сам непознати одељак „%s“ у датотеци подешавања „%s“. Користим претходни одељак.\n"
+msgstr ""
+"[%s] нашао сам непознати одељак „%s“ у датотеци подешавања „%s“. Користим "
+"претходни одељак.\n"
 
-#: ../src/config_file.c:403
+#: ../src/config_file.c:406
 #, c-format
 msgid ""
 "[%s] configuration file: couldn't open configuration file %s for reading. "
 "Nothing to worry about if you are starting %s for the first time. Using "
 "defaults.\n"
-msgstr "[%s] датотека подешавања: не могу да отворим датотеку подешавања „%s“ за читање. Будите без бриге ако покрећете „%s“ по први пут. Користим основности.\n"
+msgstr ""
+"[%s] датотека подешавања: не могу да отворим датотеку подешавања „%s“ за "
+"читање. Будите без бриге ако покрећете „%s“ по први пут. Користим "
+"основности.\n"
 
-#: ../src/config_file.c:432
+#: ../src/config_file.c:435
 #, c-format
 msgid ""
 "[%s] configuration file - We reset at least one separator character as it "
 "coincides with the decimal point. If you recently changed your locales "
 "settings, this is nothing to worry about.\n"
-msgstr "[%s] датотека подешавања — Поништили смо барем један знак раздвајача јер се подудара са децималним зарезом. Ако сте недавно изменили подешавања језика, ово није разлог за бригу.\n"
+msgstr ""
+"[%s] датотека подешавања — Поништили смо барем један знак раздвајача јер се "
+"подудара са децималним зарезом. Ако сте недавно изменили подешавања језика, "
+"ово није разлог за бригу.\n"
 
-#: ../src/config_file.c:470
+#: ../src/config_file.c:474
 #, c-format
 msgid ""
 "[%s] configuration file: strange boolean when writing. Skipping this key. "
 "%s\n"
-msgstr "[%s] датотека подешавања: чудна логичка вредност приликом писања. Прескачем овај кључ. %s\n"
+msgstr ""
+"[%s] датотека подешавања: чудна логичка вредност приликом писања. Прескачем "
+"овај кључ. %s\n"
 
-#: ../src/config_file.c:478
+#: ../src/config_file.c:482
 #, c-format
 msgid ""
 "[%s] configuration file: ignoring unknown \"key_type\" in "
 "\"config_structure\". %s\n"
-msgstr "[%s] датотека подешавања: занемарујем непознату врсту кључа (key_type) у структури подешавања (config_structure). %s\n"
+msgstr ""
+"[%s] датотека подешавања: занемарујем непознату врсту кључа (key_type) у "
+"структури подешавања (config_structure). %s\n"
 
-#: ../src/config_file.c:501
-#, c-format
-msgid "[%s] configuration file: couldn't save/write to configuration file %s.\n"
-msgstr "[%s] датотека подешавања: не могу да сачувам/упишем у датотеку подешавања „%s“.\n"
-
-#: ../src/display.c:420
+#: ../src/config_file.c:507
 #, c-format
 msgid ""
-"[%s] Line_index exceeds valid range in function \"display_delete_line\". "
-"%s\n"
-msgstr "[%s] „Line_index“ превазилази исправан опсег у функцији „display_delete_line“ . %s\n"
+"[%s] configuration file: couldn't save/write to configuration file %s.\n"
+msgstr ""
+"[%s] датотека подешавања: не могу да сачувам/упишем у датотеку подешавања "
+"„%s“.\n"
 
-#: ../src/display.c:598
+#: ../src/display.c:502
+#, c-format
+msgid ""
+"[%s] Line_index exceeds valid range in function \"display_delete_line\". %s\n"
+msgstr ""
+"[%s] „Line_index“ превазилази исправан опсег у функцији "
+"„display_delete_line“ . %s\n"
+
+#: ../src/display.c:681
 #, c-format
 msgid "[%s] unknown display option in function \"display_change_option\""
 msgstr "[%s] непозната опција приказа у функцији „display_change_option\""
-
-#: ../src/general_functions.c:43
-msgid "unsupported inverse function"
-msgstr "неподржана инверзна функција"
-
-#: ../src/general_functions.c:49
-msgid "unsupported hyperbolic function"
-msgstr "неподржана хиперболичка функција"
 
 #: ../src/general_functions.c:112
 #, c-format
 msgid "[%s] unknown notation mode in function \"all_clear\". %s\n"
 msgstr "[%s] непознати начин бележења у функцији „all_clear“. %s\n"
 
-#: ../src/general_functions.c:138
-#, c-format
-msgid "[%s] failed to convert char %c in function \"axtof\". %s\n"
-msgstr "[%s] нисам успео да претворим знак „%c“ у функцији „axtof“. %s\n"
-
-#: ../src/general_functions.c:194
-#, c-format
-msgid "[%s] failed to convert %s in function \"ftoax\". %s\n"
-msgstr "[%s] нисам успео да претворим „%s“ у функцији „ftoax“. %s\n"
-
-#: ../src/general_functions.c:274
+#: ../src/general_functions.c:200
 #, c-format
 msgid "[%s] failed to convert color %s in function \"set_button_color\". %s\n"
-msgstr "[%s] нисам успео да претворим боју „%s“ у функцији „set_button_color“. %s\n"
+msgstr ""
+"[%s] нисам успео да претворим боју „%s“ у функцији „set_button_color“. %s\n"
 
-#: ../src/general_functions.c:395
+#: ../src/general_functions.c:308
 #, c-format
 msgid "[%s] failed to find widget %s in function \"activate_menu_item\". %s\n"
-msgstr "[%s] нисам успео да нађем елемент „%s“ у функцији „activate_menu_item“. %s\n"
+msgstr ""
+"[%s] нисам успео да нађем елемент „%s“ у функцији „activate_menu_item“. %s\n"
 
-#: ../src/general_functions.c:437
-msgid "unknown number base"
-msgstr "непозната основа броја"
-
-#: ../src/general_functions.c:438
-#, c-format
-msgid "[%s] unknown number base in function \"get_display_number_string\". %s\n"
-msgstr "[%s] непозната основа броја у функцији „get_display_number_string“. %s\n"
-
-#: ../src/general_functions.c:459
-#, c-format
-msgid "[%s] unknown number base in function \"get_display_number_length\". %s\n"
-msgstr "[%s] непозната основа броја у функцији „get_display_number_length“. %s\n"
-
-#: ../src/general_functions.c:568
+#: ../src/general_functions.c:327
 #, c-format
 msgid ""
-"[%s] failed to convert %s to a number properly in function "
-"\"string2double\". Have you changed your locales? Deleting your "
-"configuration file might solve this problem. %s\n"
-msgstr "[%s] нисам успео исправно да претворим „%s“ у број у функцији „string2double“. Да ли сте изменили језик? Брисање датотеке подешавања може да реши овај проблем. %s\n"
+"[%s] unknown number base in function \"get_display_number_length\". %s\n"
+msgstr ""
+"[%s] непозната основа броја у функцији „get_display_number_length“. %s\n"
 
-#: ../src/general_functions.c:586
-#, c-format
-msgid "[%s] unknown number base in function \"string2double\". %s\n"
-msgstr "[%s] непозната основа броја у функцији „string2double“. %s\n"
-
-#: ../src/general_functions.c:741
-#, c-format
-msgid "[%s] unknown angle base in function \"x2rad\". %s\n"
-msgstr "[%s] непозната основа угла у функцији „x2rad“. %s\n"
-
-#: ../src/general_functions.c:756
-#, c-format
-msgid "[%s] unknown angle base in function \"rad2x\". %s\n"
-msgstr "[%s] непозната основа угла у функцији „rad2x“. %s\n"
-
-#: ../src/general_functions.c:773
+#: ../src/general_functions.c:591
 #, c-format
 msgid "[%s] unknown number base in function \"get_sep\". %s\n"
 msgstr "[%s] непозната основа броја у функцији „get_sep“. %s\n"
 
-#: ../src/general_functions.c:790
+#: ../src/general_functions.c:608
 #, c-format
 msgid "[%s] unknown number base in function \"get_sep_length\". %s\n"
 msgstr "[%s] непозната основа броја у функцији „get_sep_length“. %s\n"
 
-#: ../src/general_functions.c:807
+#: ../src/general_functions.c:625
 #, c-format
 msgid "[%s] unknown number base in function \"get_sep_char\". %s\n"
 msgstr "[%s] непозната основа броја у функцији „get_sep_char“. %s\n"
 
-#: ../src/general_functions.c:875
+#: ../src/general_functions.c:697
 msgid "unknown display option in function \"change_option\""
 msgstr "непозната опција приказа у функцији „change_option\""
 
-#: ../src/general_functions.c:915
+#: ../src/general_functions.c:742
 #, c-format
 msgid ""
 "[%s] length of decimal point (in locale) is not supported: >%s<\n"
 "You might face problems when using %s! %s\n"
 ")"
-msgstr "[%s] дужина децималног зареза (у језику) није подржана: >%s<\nМожете наићи на проблеме када користите „%s“! %s\n)"
+msgstr ""
+"[%s] дужина децималног зареза (у језику) није подржана: >%s<\n"
+"Можете наићи на проблеме када користите „%s“! %s\n"
+")"
 
-#: ../src/ui.c:89
+#: ../src/ui.c:106
 #, c-format
 msgid ""
-"[%s] Couldn't load %s. This file is necessary     to build talculator's user"
-" interface. Make sure you did a make install and the file     is "
-"accessible!\n"
-msgstr "[%s] Не могу да учитам „%s“. Ова датотека је неопходна     за изградњу галкулаторовог корисничког сучеља. Уверите се да сте одрадили „make install“ и да је датотека     приступачна!\n"
+"[%s] Couldn't load %s. This file is necessary     to build talculator's user "
+"interface. Make sure you did a make install and the file     is accessible!\n"
+msgstr ""
+"[%s] Не могу да учитам „%s“. Ова датотека је неопходна     за изградњу "
+"галкулаторовог корисничког сучеља. Уверите се да сте одрадили „make install“ "
+"и да је датотека     приступачна!\n"
 
-#: ../src/ui.c:959 ../ui/main_frame.ui.h:17 ../ui/main_frame_hildon.ui.h:16
+#: ../src/ui.c:563 ../src/ui.c:585 ../src/ui.c:592
+msgid "Tab"
+msgstr ""
+
+#: ../src/ui.c:1475 ../ui/main_frame.ui.h:21 ../ui/main_frame_hildon.ui.h:16
 msgid "Show _menu bar"
 msgstr "Прикажи траку _изборника"
 
-#: ../src/ui.c:999
+#: ../src/ui.c:1508
 #, c-format
 msgid "%s Preferences"
 msgstr "Поставке за %s"
 
-#: ../src/ui.c:1043 ../src/ui.c:1075
+#: ../src/ui.c:1552 ../src/ui.c:1584
 msgid "Name"
 msgstr "Назив"
 
-#: ../src/ui.c:1046
+#: ../src/ui.c:1555
 msgid "Value"
 msgstr "Вредност"
 
-#: ../src/ui.c:1049
+#: ../src/ui.c:1558
 msgid "Description"
 msgstr "Опис"
 
-#: ../src/ui.c:1078
+#: ../src/ui.c:1587
 msgid "Variable"
 msgstr "Променљива"
 
-#: ../src/ui.c:1081
+#: ../src/ui.c:1590
 msgid "Expression"
 msgstr "Израз"
 
-#: ../src/ui.c:1211 ../ui/basic_buttons_gtk2.ui.h:43
-#: ../ui/basic_buttons_gtk3.ui.h:43 ../ui/scientific_buttons_gtk2.ui.h:98
+#: ../src/ui.c:1711 ../ui/basic_buttons_gtk3.ui.h:43
 #: ../ui/scientific_buttons_gtk3.ui.h:98
 msgid "="
 msgstr "="
 
-#: ../src/ui.c:1211 ../src/ui.c:1223 ../ui/basic_buttons_gtk2.ui.h:44
-#: ../ui/basic_buttons_gtk3.ui.h:44 ../ui/paper_view.ui.h:2
-#: ../ui/scientific_buttons_gtk2.ui.h:99 ../ui/scientific_buttons_gtk3.ui.h:99
+#: ../src/ui.c:1711 ../src/ui.c:1723 ../ui/basic_buttons_gtk3.ui.h:44
+#: ../ui/paper_view.ui.h:2 ../ui/scientific_buttons_gtk3.ui.h:99
 msgid "Enter"
 msgstr "Унеси"
 
-#: ../src/ui.c:1213 ../ui/scientific_buttons_gtk2.ui.h:17
-#: ../ui/scientific_buttons_gtk3.ui.h:17
+#: ../src/ui.c:1713 ../ui/scientific_buttons_gtk3.ui.h:17
 msgid "x^y"
 msgstr "x^y"
 
-#: ../src/ui.c:1213 ../src/ui.c:1225 ../ui/scientific_buttons_gtk2.ui.h:18
-#: ../ui/scientific_buttons_gtk3.ui.h:18
+#: ../src/ui.c:1713 ../src/ui.c:1725 ../ui/scientific_buttons_gtk3.ui.h:18
 msgid "Power"
 msgstr "Степен"
 
-#: ../src/ui.c:1215 ../ui/basic_buttons_gtk2.ui.h:33
-#: ../ui/basic_buttons_gtk3.ui.h:33 ../ui/scientific_buttons_gtk2.ui.h:88
+#: ../src/ui.c:1715 ../ui/basic_buttons_gtk3.ui.h:33
 #: ../ui/scientific_buttons_gtk3.ui.h:88
 msgid "("
 msgstr "("
 
-#: ../src/ui.c:1215 ../ui/basic_buttons_gtk2.ui.h:34
-#: ../ui/basic_buttons_gtk3.ui.h:34 ../ui/scientific_buttons_gtk2.ui.h:89
+#: ../src/ui.c:1715 ../ui/basic_buttons_gtk3.ui.h:34
 #: ../ui/scientific_buttons_gtk3.ui.h:89
 msgid "Open Bracket"
 msgstr "Отворите заграду"
 
-#: ../src/ui.c:1217 ../ui/basic_buttons_gtk2.ui.h:31
-#: ../ui/basic_buttons_gtk3.ui.h:31 ../ui/scientific_buttons_gtk2.ui.h:86
+#: ../src/ui.c:1717 ../ui/basic_buttons_gtk3.ui.h:31
 #: ../ui/scientific_buttons_gtk3.ui.h:86
 msgid ")"
 msgstr ")"
 
-#: ../src/ui.c:1217 ../ui/basic_buttons_gtk2.ui.h:32
-#: ../ui/basic_buttons_gtk3.ui.h:32 ../ui/scientific_buttons_gtk2.ui.h:87
+#: ../src/ui.c:1717 ../ui/basic_buttons_gtk3.ui.h:32
 #: ../ui/scientific_buttons_gtk3.ui.h:87
 msgid "Close Bracket"
 msgstr "Затворите заграду"
 
-#: ../src/ui.c:1223
+#: ../src/ui.c:1723
 msgid "ENT"
 msgstr "УНЕ"
 
-#: ../src/ui.c:1225
+#: ../src/ui.c:1725
 msgid "y^x"
 msgstr "y^x"
 
-#: ../src/ui.c:1227
+#: ../src/ui.c:1727
 msgid "x<>y"
 msgstr "x<>y"
 
-#: ../src/ui.c:1227
+#: ../src/ui.c:1727
 msgid "swap current number with top of stack"
 msgstr "замените текући број оним са врха спремника"
 
-#: ../src/ui.c:1229
+#: ../src/ui.c:1729
 msgid "roll"
 msgstr "замотај"
 
-#: ../src/ui.c:1229
+#: ../src/ui.c:1729
 msgid "roll down stack"
 msgstr "откотрљај спремник"
 
-#: ../src/ui.c:1300
+#: ../src/ui.c:1817
 msgid "Result Display"
 msgstr "Приказ резултата"
-
-#: ../src/flex_parser.l:233
-#, c-format
-msgid ""
-"[%s] flex parser was called more than %i times. Do you know what you are "
-"doing? If not: %s\n"
-msgstr "[%s] флекс обрађивач је позван више од %i пута. Да ли знате шта радите? Ако не знате: %s\n"
 
 #: ../ui/about.ui.in.h:1
 msgid "About talculator"
@@ -405,221 +378,180 @@ msgstr "О галкулатору"
 
 #: ../ui/about.ui.in.h:2
 msgid "Copyright (c) 2002-2014 by Simon Flöry <simon.floery@rechenraum.com>"
-msgstr "Ауторска права (c) 2002-2014 Сајмно Флори <simon.floery@rechenraum.com>"
+msgstr ""
+"Ауторска права (c) 2002-2014 Сајмно Флори <simon.floery@rechenraum.com>"
 
 #: ../ui/about.ui.in.h:3
 msgid "a GTK+ based scientific calculator"
 msgstr "научни калкулатор на основу Гтк+"
 
-#: ../ui/basic_buttons_gtk2.ui.h:1 ../ui/basic_buttons_gtk3.ui.h:1
-#: ../ui/scientific_buttons_gtk2.ui.h:52 ../ui/scientific_buttons_gtk3.ui.h:52
+#: ../ui/basic_buttons_gtk3.ui.h:1 ../ui/scientific_buttons_gtk3.ui.h:52
 msgid "7"
 msgstr "7"
 
-#: ../ui/basic_buttons_gtk2.ui.h:2 ../ui/basic_buttons_gtk3.ui.h:2
-#: ../ui/scientific_buttons_gtk2.ui.h:53 ../ui/scientific_buttons_gtk3.ui.h:53
+#: ../ui/basic_buttons_gtk3.ui.h:2 ../ui/scientific_buttons_gtk3.ui.h:53
 msgid "Seven"
 msgstr "Седам"
 
-#: ../ui/basic_buttons_gtk2.ui.h:3 ../ui/basic_buttons_gtk3.ui.h:3
-#: ../ui/scientific_buttons_gtk2.ui.h:54 ../ui/scientific_buttons_gtk3.ui.h:54
+#: ../ui/basic_buttons_gtk3.ui.h:3 ../ui/scientific_buttons_gtk3.ui.h:54
 msgid "8"
 msgstr "8"
 
-#: ../ui/basic_buttons_gtk2.ui.h:4 ../ui/basic_buttons_gtk3.ui.h:4
-#: ../ui/scientific_buttons_gtk2.ui.h:55 ../ui/scientific_buttons_gtk3.ui.h:55
+#: ../ui/basic_buttons_gtk3.ui.h:4 ../ui/scientific_buttons_gtk3.ui.h:55
 msgid "Eight"
 msgstr "Осам"
 
-#: ../ui/basic_buttons_gtk2.ui.h:5 ../ui/basic_buttons_gtk3.ui.h:5
-#: ../ui/scientific_buttons_gtk2.ui.h:56 ../ui/scientific_buttons_gtk3.ui.h:56
+#: ../ui/basic_buttons_gtk3.ui.h:5 ../ui/scientific_buttons_gtk3.ui.h:56
 msgid "9"
 msgstr "9"
 
-#: ../ui/basic_buttons_gtk2.ui.h:6 ../ui/basic_buttons_gtk3.ui.h:6
-#: ../ui/scientific_buttons_gtk2.ui.h:57 ../ui/scientific_buttons_gtk3.ui.h:57
+#: ../ui/basic_buttons_gtk3.ui.h:6 ../ui/scientific_buttons_gtk3.ui.h:57
 msgid "Nine"
 msgstr "Девет"
 
-#: ../ui/basic_buttons_gtk2.ui.h:7 ../ui/basic_buttons_gtk3.ui.h:7
-#: ../ui/scientific_buttons_gtk2.ui.h:58 ../ui/scientific_buttons_gtk3.ui.h:58
+#: ../ui/basic_buttons_gtk3.ui.h:7 ../ui/scientific_buttons_gtk3.ui.h:58
 msgid "/"
 msgstr "/"
 
-#: ../ui/basic_buttons_gtk2.ui.h:8 ../ui/basic_buttons_gtk3.ui.h:8
-#: ../ui/scientific_buttons_gtk2.ui.h:59 ../ui/scientific_buttons_gtk3.ui.h:59
+#: ../ui/basic_buttons_gtk3.ui.h:8 ../ui/scientific_buttons_gtk3.ui.h:59
 msgid "Divide"
 msgstr "Поделите"
 
-#: ../ui/basic_buttons_gtk2.ui.h:9 ../ui/basic_buttons_gtk3.ui.h:9
-#: ../ui/scientific_buttons_gtk2.ui.h:62 ../ui/scientific_buttons_gtk3.ui.h:62
+#: ../ui/basic_buttons_gtk3.ui.h:9 ../ui/scientific_buttons_gtk3.ui.h:62
 msgid "4"
 msgstr "4"
 
-#: ../ui/basic_buttons_gtk2.ui.h:10 ../ui/basic_buttons_gtk3.ui.h:10
-#: ../ui/scientific_buttons_gtk2.ui.h:63 ../ui/scientific_buttons_gtk3.ui.h:63
+#: ../ui/basic_buttons_gtk3.ui.h:10 ../ui/scientific_buttons_gtk3.ui.h:63
 msgid "Four"
 msgstr "Четири"
 
-#: ../ui/basic_buttons_gtk2.ui.h:11 ../ui/basic_buttons_gtk3.ui.h:11
-#: ../ui/scientific_buttons_gtk2.ui.h:64 ../ui/scientific_buttons_gtk3.ui.h:64
+#: ../ui/basic_buttons_gtk3.ui.h:11 ../ui/scientific_buttons_gtk3.ui.h:64
 msgid "5"
 msgstr "5"
 
-#: ../ui/basic_buttons_gtk2.ui.h:12 ../ui/basic_buttons_gtk3.ui.h:12
-#: ../ui/scientific_buttons_gtk2.ui.h:65 ../ui/scientific_buttons_gtk3.ui.h:65
+#: ../ui/basic_buttons_gtk3.ui.h:12 ../ui/scientific_buttons_gtk3.ui.h:65
 msgid "Five"
 msgstr "Пет"
 
-#: ../ui/basic_buttons_gtk2.ui.h:13 ../ui/basic_buttons_gtk3.ui.h:13
-#: ../ui/scientific_buttons_gtk2.ui.h:66 ../ui/scientific_buttons_gtk3.ui.h:66
+#: ../ui/basic_buttons_gtk3.ui.h:13 ../ui/scientific_buttons_gtk3.ui.h:66
 msgid "6"
 msgstr "6"
 
-#: ../ui/basic_buttons_gtk2.ui.h:14 ../ui/basic_buttons_gtk3.ui.h:14
-#: ../ui/scientific_buttons_gtk2.ui.h:67 ../ui/scientific_buttons_gtk3.ui.h:67
+#: ../ui/basic_buttons_gtk3.ui.h:14 ../ui/scientific_buttons_gtk3.ui.h:67
 msgid "Six"
 msgstr "Шест"
 
-#: ../ui/basic_buttons_gtk2.ui.h:15 ../ui/basic_buttons_gtk3.ui.h:15
-#: ../ui/scientific_buttons_gtk2.ui.h:68 ../ui/scientific_buttons_gtk3.ui.h:68
+#: ../ui/basic_buttons_gtk3.ui.h:15 ../ui/scientific_buttons_gtk3.ui.h:68
 msgid "3"
 msgstr "3"
 
-#: ../ui/basic_buttons_gtk2.ui.h:16 ../ui/basic_buttons_gtk3.ui.h:16
-#: ../ui/scientific_buttons_gtk2.ui.h:69 ../ui/scientific_buttons_gtk3.ui.h:69
+#: ../ui/basic_buttons_gtk3.ui.h:16 ../ui/scientific_buttons_gtk3.ui.h:69
 msgid "Three"
 msgstr "Три"
 
-#: ../ui/basic_buttons_gtk2.ui.h:17 ../ui/basic_buttons_gtk3.ui.h:17
-#: ../ui/scientific_buttons_gtk2.ui.h:70 ../ui/scientific_buttons_gtk3.ui.h:70
+#: ../ui/basic_buttons_gtk3.ui.h:17 ../ui/scientific_buttons_gtk3.ui.h:70
 msgid "-"
 msgstr "-"
 
-#: ../ui/basic_buttons_gtk2.ui.h:18 ../ui/basic_buttons_gtk3.ui.h:18
-#: ../ui/scientific_buttons_gtk2.ui.h:71 ../ui/scientific_buttons_gtk3.ui.h:71
+#: ../ui/basic_buttons_gtk3.ui.h:18 ../ui/scientific_buttons_gtk3.ui.h:71
 msgid "Subtract"
 msgstr "Одузмите"
 
-#: ../ui/basic_buttons_gtk2.ui.h:19 ../ui/basic_buttons_gtk3.ui.h:19
-#: ../ui/scientific_buttons_gtk2.ui.h:72 ../ui/scientific_buttons_gtk3.ui.h:72
+#: ../ui/basic_buttons_gtk3.ui.h:19 ../ui/scientific_buttons_gtk3.ui.h:72
 msgid "+"
 msgstr "+"
 
-#: ../ui/basic_buttons_gtk2.ui.h:20 ../ui/basic_buttons_gtk3.ui.h:20
-#: ../ui/scientific_buttons_gtk2.ui.h:73 ../ui/scientific_buttons_gtk3.ui.h:73
+#: ../ui/basic_buttons_gtk3.ui.h:20 ../ui/scientific_buttons_gtk3.ui.h:73
 msgid "Sum"
 msgstr "Саберите"
 
-#: ../ui/basic_buttons_gtk2.ui.h:21 ../ui/basic_buttons_gtk3.ui.h:21
-#: ../ui/scientific_buttons_gtk2.ui.h:76 ../ui/scientific_buttons_gtk3.ui.h:76
+#: ../ui/basic_buttons_gtk3.ui.h:21 ../ui/scientific_buttons_gtk3.ui.h:76
 msgid "+/-"
 msgstr "+/-"
 
-#: ../ui/basic_buttons_gtk2.ui.h:22 ../ui/basic_buttons_gtk3.ui.h:22
-#: ../ui/scientific_buttons_gtk2.ui.h:77 ../ui/scientific_buttons_gtk3.ui.h:77
+#: ../ui/basic_buttons_gtk3.ui.h:22 ../ui/scientific_buttons_gtk3.ui.h:77
 msgid "Change sign"
 msgstr "Промените знак"
 
-#: ../ui/basic_buttons_gtk2.ui.h:23 ../ui/basic_buttons_gtk3.ui.h:23
-#: ../ui/main_frame_hildon.ui.h:34 ../ui/scientific_buttons_gtk2.ui.h:78
+#: ../ui/basic_buttons_gtk3.ui.h:23 ../ui/main_frame_hildon.ui.h:34
 #: ../ui/scientific_buttons_gtk3.ui.h:78
 msgid "*"
 msgstr "*"
 
-#: ../ui/basic_buttons_gtk2.ui.h:24 ../ui/basic_buttons_gtk3.ui.h:24
-#: ../ui/scientific_buttons_gtk2.ui.h:79 ../ui/scientific_buttons_gtk3.ui.h:79
+#: ../ui/basic_buttons_gtk3.ui.h:24 ../ui/scientific_buttons_gtk3.ui.h:79
 msgid "Multiply"
 msgstr "Помножите"
 
-#: ../ui/basic_buttons_gtk2.ui.h:25 ../ui/basic_buttons_gtk3.ui.h:25
-#: ../ui/scientific_buttons_gtk2.ui.h:80 ../ui/scientific_buttons_gtk3.ui.h:80
+#: ../ui/basic_buttons_gtk3.ui.h:25 ../ui/scientific_buttons_gtk3.ui.h:80
 msgid "Add current display value to memory"
 msgstr "Додајте тренутну вредност приказа у меморију"
 
-#: ../ui/basic_buttons_gtk2.ui.h:26 ../ui/basic_buttons_gtk3.ui.h:26
-#: ../ui/scientific_buttons_gtk2.ui.h:81 ../ui/scientific_buttons_gtk3.ui.h:81
+#: ../ui/basic_buttons_gtk3.ui.h:26 ../ui/scientific_buttons_gtk3.ui.h:81
 msgid "M+"
 msgstr "М+"
 
-#: ../ui/basic_buttons_gtk2.ui.h:27 ../ui/basic_buttons_gtk3.ui.h:27
-#: ../ui/scientific_buttons_gtk2.ui.h:82 ../ui/scientific_buttons_gtk3.ui.h:82
+#: ../ui/basic_buttons_gtk3.ui.h:27 ../ui/scientific_buttons_gtk3.ui.h:82
 msgid "Read from memory"
 msgstr "Прочитајте из меморије"
 
-#: ../ui/basic_buttons_gtk2.ui.h:28 ../ui/basic_buttons_gtk3.ui.h:28
-#: ../ui/scientific_buttons_gtk2.ui.h:83 ../ui/scientific_buttons_gtk3.ui.h:83
+#: ../ui/basic_buttons_gtk3.ui.h:28 ../ui/scientific_buttons_gtk3.ui.h:83
 msgid "MR"
 msgstr "ЧМ"
 
-#: ../ui/basic_buttons_gtk2.ui.h:29 ../ui/basic_buttons_gtk3.ui.h:29
-#: ../ui/scientific_buttons_gtk2.ui.h:84 ../ui/scientific_buttons_gtk3.ui.h:84
+#: ../ui/basic_buttons_gtk3.ui.h:29 ../ui/scientific_buttons_gtk3.ui.h:84
 msgid "Save to memory"
 msgstr "Сачувајте у меморију"
 
-#: ../ui/basic_buttons_gtk2.ui.h:30 ../ui/basic_buttons_gtk3.ui.h:30
-#: ../ui/scientific_buttons_gtk2.ui.h:85 ../ui/scientific_buttons_gtk3.ui.h:85
+#: ../ui/basic_buttons_gtk3.ui.h:30 ../ui/scientific_buttons_gtk3.ui.h:85
 msgid "MS"
 msgstr "СМ"
 
-#: ../ui/basic_buttons_gtk2.ui.h:35 ../ui/basic_buttons_gtk3.ui.h:35
-#: ../ui/scientific_buttons_gtk2.ui.h:90 ../ui/scientific_buttons_gtk3.ui.h:90
+#: ../ui/basic_buttons_gtk3.ui.h:35 ../ui/scientific_buttons_gtk3.ui.h:90
 msgid "0"
 msgstr "0"
 
-#: ../ui/basic_buttons_gtk2.ui.h:36 ../ui/basic_buttons_gtk3.ui.h:36
-#: ../ui/scientific_buttons_gtk2.ui.h:91 ../ui/scientific_buttons_gtk3.ui.h:91
+#: ../ui/basic_buttons_gtk3.ui.h:36 ../ui/scientific_buttons_gtk3.ui.h:91
 msgid "Zero"
 msgstr "Нула"
 
-#: ../ui/basic_buttons_gtk2.ui.h:37 ../ui/basic_buttons_gtk3.ui.h:37
-#: ../ui/scientific_buttons_gtk2.ui.h:92 ../ui/scientific_buttons_gtk3.ui.h:92
+#: ../ui/basic_buttons_gtk3.ui.h:37 ../ui/scientific_buttons_gtk3.ui.h:92
 msgid "."
 msgstr ","
 
-#: ../ui/basic_buttons_gtk2.ui.h:38 ../ui/basic_buttons_gtk3.ui.h:38
-#: ../ui/scientific_buttons_gtk2.ui.h:93 ../ui/scientific_buttons_gtk3.ui.h:93
+#: ../ui/basic_buttons_gtk3.ui.h:38 ../ui/scientific_buttons_gtk3.ui.h:93
 msgid "Decimal point"
 msgstr "Децимални зарез"
 
-#: ../ui/basic_buttons_gtk2.ui.h:39 ../ui/basic_buttons_gtk3.ui.h:39
-#: ../ui/scientific_buttons_gtk2.ui.h:94 ../ui/scientific_buttons_gtk3.ui.h:94
+#: ../ui/basic_buttons_gtk3.ui.h:39 ../ui/scientific_buttons_gtk3.ui.h:94
 msgid "1"
 msgstr "1"
 
-#: ../ui/basic_buttons_gtk2.ui.h:40 ../ui/basic_buttons_gtk3.ui.h:40
-#: ../ui/scientific_buttons_gtk2.ui.h:95 ../ui/scientific_buttons_gtk3.ui.h:95
+#: ../ui/basic_buttons_gtk3.ui.h:40 ../ui/scientific_buttons_gtk3.ui.h:95
 msgid "One"
 msgstr "Један"
 
-#: ../ui/basic_buttons_gtk2.ui.h:41 ../ui/basic_buttons_gtk3.ui.h:41
-#: ../ui/scientific_buttons_gtk2.ui.h:96 ../ui/scientific_buttons_gtk3.ui.h:96
+#: ../ui/basic_buttons_gtk3.ui.h:41 ../ui/scientific_buttons_gtk3.ui.h:96
 msgid "2"
 msgstr "2"
 
-#: ../ui/basic_buttons_gtk2.ui.h:42 ../ui/basic_buttons_gtk3.ui.h:42
-#: ../ui/scientific_buttons_gtk2.ui.h:97 ../ui/scientific_buttons_gtk3.ui.h:97
+#: ../ui/basic_buttons_gtk3.ui.h:42 ../ui/scientific_buttons_gtk3.ui.h:97
 msgid "Two"
 msgstr "Два"
 
-#: ../ui/basic_buttons_gtk2.ui.h:45 ../ui/basic_buttons_gtk3.ui.h:45
-#: ../ui/scientific_buttons_gtk2.ui.h:5 ../ui/scientific_buttons_gtk3.ui.h:5
+#: ../ui/basic_buttons_gtk3.ui.h:45 ../ui/scientific_buttons_gtk3.ui.h:5
 msgid "sqrt"
 msgstr "sqrt"
 
-#: ../ui/basic_buttons_gtk2.ui.h:46 ../ui/basic_buttons_gtk3.ui.h:46
-#: ../ui/scientific_buttons_gtk2.ui.h:6 ../ui/scientific_buttons_gtk3.ui.h:6
+#: ../ui/basic_buttons_gtk3.ui.h:46 ../ui/scientific_buttons_gtk3.ui.h:6
 msgid "Square root"
 msgstr "Квадратни корен"
 
-#: ../ui/basic_buttons_gtk2.ui.h:48 ../ui/basic_buttons_gtk3.ui.h:48
-#: ../ui/scientific_buttons_gtk2.ui.h:24 ../ui/scientific_buttons_gtk3.ui.h:24
+#: ../ui/basic_buttons_gtk3.ui.h:48 ../ui/scientific_buttons_gtk3.ui.h:24
 #, no-c-format
 msgid "%"
 msgstr "%"
 
-#: ../ui/basic_buttons_gtk2.ui.h:49 ../ui/basic_buttons_gtk3.ui.h:49
-#: ../ui/scientific_buttons_gtk2.ui.h:25 ../ui/scientific_buttons_gtk3.ui.h:25
+#: ../ui/basic_buttons_gtk3.ui.h:49 ../ui/scientific_buttons_gtk3.ui.h:25
 msgid "Percent"
 msgstr "Проценат"
 
@@ -630,47 +562,36 @@ msgstr "Главни прозор програма."
 
 #: ../ui/classic_view.ui.h:2 ../ui/main_frame_hildon.ui.h:33
 msgid "Formula entry text field - enter string expression to compute here."
-msgstr "Текстуално поље за унос формуле — овде унесите ниску израза за израчунавање."
+msgstr ""
+"Текстуално поље за унос формуле — овде унесите ниску израза за израчунавање."
 
-#: ../ui/dispctrl_bottom_gtk2.ui.h:1 ../ui/dispctrl_bottom_gtk3.ui.h:1
-#: ../ui/dispctrl_right_gtk2.ui.h:1 ../ui/dispctrl_right_gtk3.ui.h:1
-#: ../ui/dispctrl_right_vertical_gtk2.ui.h:5
+#: ../ui/dispctrl_bottom_gtk3.ui.h:1 ../ui/dispctrl_right_gtk3.ui.h:1
 #: ../ui/dispctrl_right_vertical_gtk3.ui.h:5
 msgid "AC"
 msgstr "АЦ"
 
-#: ../ui/dispctrl_bottom_gtk2.ui.h:2 ../ui/dispctrl_bottom_gtk3.ui.h:2
-#: ../ui/dispctrl_right_gtk2.ui.h:2 ../ui/dispctrl_right_gtk3.ui.h:2
-#: ../ui/dispctrl_right_vertical_gtk2.ui.h:6
+#: ../ui/dispctrl_bottom_gtk3.ui.h:2 ../ui/dispctrl_right_gtk3.ui.h:2
 #: ../ui/dispctrl_right_vertical_gtk3.ui.h:6
 msgid "Reset calculator (clear all)"
 msgstr "Поништите калкулатор (очистите све)"
 
-#: ../ui/dispctrl_bottom_gtk2.ui.h:3 ../ui/dispctrl_bottom_gtk3.ui.h:3
-#: ../ui/dispctrl_right_gtk2.ui.h:5 ../ui/dispctrl_right_gtk3.ui.h:5
-#: ../ui/dispctrl_right_vertical_gtk2.ui.h:3
+#: ../ui/dispctrl_bottom_gtk3.ui.h:3 ../ui/dispctrl_right_gtk3.ui.h:5
 #: ../ui/dispctrl_right_vertical_gtk3.ui.h:3
-#: ../ui/scientific_buttons_gtk2.ui.h:40 ../ui/scientific_buttons_gtk3.ui.h:40
+#: ../ui/scientific_buttons_gtk3.ui.h:40
 msgid "C"
 msgstr "Ц"
 
-#: ../ui/dispctrl_bottom_gtk2.ui.h:4 ../ui/dispctrl_bottom_gtk3.ui.h:4
-#: ../ui/dispctrl_right_gtk2.ui.h:6 ../ui/dispctrl_right_gtk3.ui.h:6
-#: ../ui/dispctrl_right_vertical_gtk2.ui.h:4
+#: ../ui/dispctrl_bottom_gtk3.ui.h:4 ../ui/dispctrl_right_gtk3.ui.h:6
 #: ../ui/dispctrl_right_vertical_gtk3.ui.h:4
 msgid "Clear display"
 msgstr "Очистите екран"
 
-#: ../ui/dispctrl_bottom_gtk2.ui.h:5 ../ui/dispctrl_bottom_gtk3.ui.h:5
-#: ../ui/dispctrl_right_gtk2.ui.h:3 ../ui/dispctrl_right_gtk3.ui.h:3
-#: ../ui/dispctrl_right_vertical_gtk2.ui.h:1
+#: ../ui/dispctrl_bottom_gtk3.ui.h:5 ../ui/dispctrl_right_gtk3.ui.h:3
 #: ../ui/dispctrl_right_vertical_gtk3.ui.h:1
 msgid "<-"
 msgstr "<-"
 
-#: ../ui/dispctrl_bottom_gtk2.ui.h:6 ../ui/dispctrl_bottom_gtk3.ui.h:6
-#: ../ui/dispctrl_right_gtk2.ui.h:4 ../ui/dispctrl_right_gtk3.ui.h:4
-#: ../ui/dispctrl_right_vertical_gtk2.ui.h:2
+#: ../ui/dispctrl_bottom_gtk3.ui.h:6 ../ui/dispctrl_right_gtk3.ui.h:4
 #: ../ui/dispctrl_right_vertical_gtk3.ui.h:2
 msgid "Backspace"
 msgstr "Повратница"
@@ -679,121 +600,138 @@ msgstr "Повратница"
 msgid "_File"
 msgstr "_Датотека"
 
-#: ../ui/main_frame.ui.h:3 ../ui/main_frame_hildon.ui.h:3
+#: ../ui/main_frame.ui.h:3
+msgid "_New Tab"
+msgstr ""
+
+#: ../ui/main_frame.ui.h:4
+#, fuzzy
+msgid "_Close Tab"
+msgstr "Затворите заграду"
+
+#: ../ui/main_frame.ui.h:5 ../ui/main_frame_hildon.ui.h:3
 msgid "_Edit"
 msgstr "_Уреди"
 
-#: ../ui/main_frame.ui.h:4 ../ui/main_frame_hildon.ui.h:4
+#: ../ui/main_frame.ui.h:6 ../ui/main_frame_hildon.ui.h:4
 msgid "Cu_t Display Value"
 msgstr "_Исеци вредност приказа"
 
-#: ../ui/main_frame.ui.h:5 ../ui/main_frame_hildon.ui.h:5
+#: ../ui/main_frame.ui.h:7 ../ui/main_frame_hildon.ui.h:5
 msgid "_Copy Display Value"
 msgstr "_Умножи вредност приказа"
 
-#: ../ui/main_frame.ui.h:6
+#: ../ui/main_frame.ui.h:8
 msgid "_Paste and Append to Display Value"
 msgstr "_Убаци и додај на вредност приказа"
 
-#: ../ui/main_frame.ui.h:7 ../ui/main_frame_hildon.ui.h:7
+#: ../ui/main_frame.ui.h:9
+msgid "_Undo Input"
+msgstr ""
+
+#: ../ui/main_frame.ui.h:10
+msgid "_Redo Input"
+msgstr ""
+
+#: ../ui/main_frame.ui.h:11 ../ui/main_frame_hildon.ui.h:7
 msgid "_Preferences..."
 msgstr "_Поставке..."
 
-#: ../ui/main_frame.ui.h:8 ../ui/main_frame_hildon.ui.h:8
+#: ../ui/main_frame.ui.h:12 ../ui/main_frame_hildon.ui.h:8
 msgid "_View"
 msgstr "_Преглед"
 
-#: ../ui/main_frame.ui.h:9 ../ui/main_frame_hildon.ui.h:9
+#: ../ui/main_frame.ui.h:13 ../ui/main_frame_hildon.ui.h:9
 msgid "_Basic Mode"
 msgstr "_Основни начин рада"
 
-#: ../ui/main_frame.ui.h:10 ../ui/main_frame_hildon.ui.h:10
+#: ../ui/main_frame.ui.h:14 ../ui/main_frame_hildon.ui.h:10
 msgid "_Scientific Mode"
 msgstr "_Научни начин рада"
 
-#: ../ui/main_frame.ui.h:11
+#: ../ui/main_frame.ui.h:15
 msgid "_Paper Mode"
 msgstr "_Папирни начин рада"
 
-#: ../ui/main_frame.ui.h:12 ../ui/main_frame_hildon.ui.h:11
-#: ../ui/prefs_gtk2.ui.h:40 ../ui/prefs_gtk3.ui.h:40 ../ui/prefs-ume.ui.h:19
+#: ../ui/main_frame.ui.h:16 ../ui/main_frame_hildon.ui.h:11
+#: ../ui/prefs_gtk3.ui.h:40 ../ui/prefs-ume.ui.h:19
 msgid "Buttons"
 msgstr "Дугмад"
 
-#: ../ui/main_frame.ui.h:13 ../ui/main_frame_hildon.ui.h:12
+#: ../ui/main_frame.ui.h:17 ../ui/main_frame_hildon.ui.h:12
 msgid "Display Control"
 msgstr "Управљање приказом"
 
-#: ../ui/main_frame.ui.h:14 ../ui/main_frame_hildon.ui.h:13
-#: ../ui/prefs_gtk2.ui.h:53 ../ui/prefs_gtk3.ui.h:53
+#: ../ui/main_frame.ui.h:18 ../ui/main_frame_hildon.ui.h:13
+#: ../ui/prefs_gtk3.ui.h:53
 msgid "Functions"
 msgstr "Функцијска"
 
-#: ../ui/main_frame.ui.h:15 ../ui/main_frame_hildon.ui.h:14
+#: ../ui/main_frame.ui.h:19 ../ui/main_frame_hildon.ui.h:14
 msgid "Logical"
 msgstr "Логичка"
 
-#: ../ui/main_frame.ui.h:16 ../ui/main_frame_hildon.ui.h:15
+#: ../ui/main_frame.ui.h:20 ../ui/main_frame_hildon.ui.h:15
 msgid "Standard"
 msgstr "Уобичајена"
 
-#: ../ui/main_frame.ui.h:18 ../ui/main_frame_hildon.ui.h:17
+#: ../ui/main_frame.ui.h:22 ../ui/main_frame_hildon.ui.h:17
 msgid "_Calculator"
 msgstr "_Калкулатор"
 
-#: ../ui/main_frame.ui.h:19 ../ui/main_frame_hildon.ui.h:18
+#: ../ui/main_frame.ui.h:23 ../ui/main_frame_hildon.ui.h:18
 msgid "_Number bases"
 msgstr "_Основа броја"
 
-#: ../ui/main_frame.ui.h:20 ../ui/main_frame_hildon.ui.h:19
+#: ../ui/main_frame.ui.h:24 ../ui/main_frame_hildon.ui.h:19
 msgid "_Decimal"
 msgstr "_Децимална"
 
-#: ../ui/main_frame.ui.h:21 ../ui/main_frame_hildon.ui.h:20
+#: ../ui/main_frame.ui.h:25 ../ui/main_frame_hildon.ui.h:20
 msgid "_Hexadecimal"
 msgstr "_Хексадецимална"
 
-#: ../ui/main_frame.ui.h:22 ../ui/main_frame_hildon.ui.h:21
+#: ../ui/main_frame.ui.h:26 ../ui/main_frame_hildon.ui.h:21
 msgid "_Octal"
 msgstr "_Октална"
 
-#: ../ui/main_frame.ui.h:23 ../ui/main_frame_hildon.ui.h:22
+#: ../ui/main_frame.ui.h:27 ../ui/main_frame_hildon.ui.h:22
 msgid "_Binary"
 msgstr "_Бинарна"
 
-#: ../ui/main_frame.ui.h:24 ../ui/main_frame_hildon.ui.h:23
+#: ../ui/main_frame.ui.h:28 ../ui/main_frame_hildon.ui.h:23
 msgid "Angle _units"
 msgstr "Јединица _углова"
 
-#: ../ui/main_frame.ui.h:25 ../ui/main_frame_hildon.ui.h:24
+#: ../ui/main_frame.ui.h:29 ../ui/main_frame_hildon.ui.h:24
 msgid "D_egrees"
 msgstr "_Степени"
 
-#: ../ui/main_frame.ui.h:26 ../ui/main_frame_hildon.ui.h:25
+#: ../ui/main_frame.ui.h:30 ../ui/main_frame_hildon.ui.h:25
 msgid "_Radians"
 msgstr "_Радијани"
 
-#: ../ui/main_frame.ui.h:27 ../ui/main_frame_hildon.ui.h:26
+#: ../ui/main_frame.ui.h:31 ../ui/main_frame_hildon.ui.h:26
 msgid "_Gradians"
 msgstr "_Градијани"
 
-#: ../ui/main_frame.ui.h:28 ../ui/main_frame_hildon.ui.h:27
+#: ../ui/main_frame.ui.h:32 ../ui/main_frame_hildon.ui.h:27
 msgid "Notation _modes"
 msgstr "Начин _записивања"
 
-#: ../ui/main_frame.ui.h:29 ../ui/main_frame_hildon.ui.h:28
+#: ../ui/main_frame.ui.h:33 ../ui/main_frame_hildon.ui.h:28
 msgid "_Algebraic"
 msgstr "_Алгебарски"
 
-#: ../ui/main_frame.ui.h:30 ../ui/main_frame_hildon.ui.h:29
+#: ../ui/main_frame.ui.h:34 ../ui/main_frame_hildon.ui.h:29
 msgid "_Reverse Polish (RPN)"
 msgstr "_Обрнуто пољско (ОПБ)"
 
-#: ../ui/main_frame.ui.h:31 ../ui/main_frame_hildon.ui.h:30
+#: ../ui/main_frame.ui.h:35 ../ui/main_frame_hildon.ui.h:30
 msgid "_Formula Entry"
 msgstr "_Унос формуле"
 
-#: ../ui/main_frame.ui.h:32 ../ui/main_frame_hildon.ui.h:31
+#: ../ui/main_frame.ui.h:36 ../ui/main_frame_hildon.ui.h:31
 msgid "_Help"
 msgstr "По_моћ"
 
@@ -809,479 +747,555 @@ msgstr "_Убаци као вредност приказа"
 msgid "_About..."
 msgstr "_О програму..."
 
-#: ../ui/prefs_gtk2.ui.h:1 ../ui/prefs_gtk3.ui.h:1
+#: ../ui/prefs_gtk3.ui.h:1
 msgid "Decimal"
 msgstr "Децимална"
 
-#: ../ui/prefs_gtk2.ui.h:2 ../ui/prefs_gtk3.ui.h:2
+#: ../ui/prefs_gtk3.ui.h:2
 msgid "Hexadecimal"
 msgstr "Хексадецимална"
 
-#: ../ui/prefs_gtk2.ui.h:3 ../ui/prefs_gtk3.ui.h:3
+#: ../ui/prefs_gtk3.ui.h:3
 msgid "Octal"
 msgstr "Октална"
 
-#: ../ui/prefs_gtk2.ui.h:4 ../ui/prefs_gtk3.ui.h:4
+#: ../ui/prefs_gtk3.ui.h:4
 msgid "Binary"
 msgstr "Бинарна"
 
-#: ../ui/prefs_gtk2.ui.h:5 ../ui/prefs_gtk3.ui.h:5 ../ui/prefs-ume.ui.h:1
+#: ../ui/prefs_gtk3.ui.h:5 ../ui/prefs-ume.ui.h:1
 msgid "talculator - Preferences"
 msgstr "Поставке галкулатора"
 
-#: ../ui/prefs_gtk2.ui.h:6 ../ui/prefs_gtk3.ui.h:6 ../ui/prefs-ume.ui.h:2
+#: ../ui/prefs_gtk3.ui.h:6 ../ui/prefs-ume.ui.h:2
 msgid "A dialog that is used to change preferences settings."
 msgstr "Прозорче које се користи за мењање подешавања поставки."
 
-#: ../ui/prefs_gtk2.ui.h:7 ../ui/prefs_gtk3.ui.h:7 ../ui/prefs-ume.ui.h:3
+#: ../ui/prefs_gtk3.ui.h:7 ../ui/prefs-ume.ui.h:3
 msgid "Closes the dialog."
 msgstr "Затворите прозорче."
 
-#: ../ui/prefs_gtk2.ui.h:8 ../ui/prefs_gtk3.ui.h:8
+#: ../ui/prefs_gtk3.ui.h:8
 msgid "<b>Appearance</b>"
 msgstr "<b>Изглед</b>"
 
-#: ../ui/prefs_gtk2.ui.h:9 ../ui/prefs_gtk3.ui.h:9 ../ui/prefs-ume.ui.h:5
+#: ../ui/prefs_gtk3.ui.h:9 ../ui/prefs-ume.ui.h:5
 msgid "    "
 msgstr "    "
 
-#: ../ui/prefs_gtk2.ui.h:10 ../ui/prefs_gtk3.ui.h:10
+#: ../ui/prefs_gtk3.ui.h:10
 msgid "Result font:"
 msgstr "Словолик резултата:"
 
-#: ../ui/prefs_gtk2.ui.h:11 ../ui/prefs_gtk3.ui.h:11
+#: ../ui/prefs_gtk3.ui.h:11
 msgid "Inactive module color:"
 msgstr "Боја нерадног модула:"
 
-#: ../ui/prefs_gtk2.ui.h:12 ../ui/prefs_gtk3.ui.h:12
+#: ../ui/prefs_gtk3.ui.h:12
 msgid "Active module color:"
 msgstr "Боја радног модула:"
 
-#: ../ui/prefs_gtk2.ui.h:13 ../ui/prefs_gtk3.ui.h:13
+#: ../ui/prefs_gtk3.ui.h:13
 msgid "Result font color:"
 msgstr "Боја словолика резултата:"
 
-#: ../ui/prefs_gtk2.ui.h:14 ../ui/prefs_gtk3.ui.h:14
+#: ../ui/prefs_gtk3.ui.h:14
 msgid "Background color:"
 msgstr "Боја позадине:"
 
-#: ../ui/prefs_gtk2.ui.h:15 ../ui/prefs_gtk3.ui.h:15
+#: ../ui/prefs_gtk3.ui.h:15
 msgid "Module font:"
 msgstr "Словолик модула:"
 
-#: ../ui/prefs_gtk2.ui.h:16 ../ui/prefs_gtk3.ui.h:16
+#: ../ui/prefs_gtk3.ui.h:16
 msgid "RPN stack font:"
 msgstr "Словолик спремника ОПБ-а:"
 
-#: ../ui/prefs_gtk2.ui.h:17 ../ui/prefs_gtk3.ui.h:17
+#: ../ui/prefs_gtk3.ui.h:17
 msgid "RPN stack color:"
 msgstr "Боја спремника ОПБ-а:"
 
-#: ../ui/prefs_gtk2.ui.h:18 ../ui/prefs_gtk3.ui.h:18
+#: ../ui/prefs_gtk3.ui.h:18
 msgid "Pick a Display Background Color"
 msgstr "Изаберите боју позадине приказа"
 
-#: ../ui/prefs_gtk2.ui.h:19 ../ui/prefs_gtk3.ui.h:19
+#: ../ui/prefs_gtk3.ui.h:19
 msgid "Pick a Display Result Font Color"
 msgstr "Изаберите боју словолика резултата"
 
-#: ../ui/prefs_gtk2.ui.h:20 ../ui/prefs_gtk3.ui.h:20
+#: ../ui/prefs_gtk3.ui.h:20
 msgid "Pick a RPN Stack Color"
 msgstr "Изаберите боју спремника ОБП-а"
 
-#: ../ui/prefs_gtk2.ui.h:21 ../ui/prefs_gtk3.ui.h:21
+#: ../ui/prefs_gtk3.ui.h:21
 msgid "Pick a Inactive Module Color"
 msgstr "Изаберите боју нерадног модула"
 
-#: ../ui/prefs_gtk2.ui.h:22 ../ui/prefs_gtk3.ui.h:22
+#: ../ui/prefs_gtk3.ui.h:22
 msgid "Pick a Active Module Color"
 msgstr "Изаберите боју радног модула"
 
-#: ../ui/prefs_gtk2.ui.h:23 ../ui/prefs_gtk3.ui.h:23
+#: ../ui/prefs_gtk3.ui.h:23
 msgid "Pick a Result Font"
 msgstr "Изаберите словолик резултата"
 
-#: ../ui/prefs_gtk2.ui.h:24 ../ui/prefs_gtk3.ui.h:24
+#: ../ui/prefs_gtk3.ui.h:24
 msgid "Pick a RPN Stack Font"
 msgstr "Изаберите словолик спремника ОБП-а"
 
-#: ../ui/prefs_gtk2.ui.h:25 ../ui/prefs_gtk3.ui.h:25
+#: ../ui/prefs_gtk3.ui.h:25
 msgid "Pick a Module Font"
 msgstr "Изаберите словолик модула"
 
-#: ../ui/prefs_gtk2.ui.h:26 ../ui/prefs_gtk3.ui.h:26 ../ui/prefs-ume.ui.h:4
+#: ../ui/prefs_gtk3.ui.h:26 ../ui/prefs-ume.ui.h:4
 msgid "<b>Modules Visibility</b>"
 msgstr "<b>Видљивост модула</b>"
 
-#: ../ui/prefs_gtk2.ui.h:27 ../ui/prefs_gtk3.ui.h:27 ../ui/prefs-ume.ui.h:6
+#: ../ui/prefs_gtk3.ui.h:27 ../ui/prefs-ume.ui.h:6
 msgid "Angle base units"
 msgstr "Јединице основе углова"
 
-#: ../ui/prefs_gtk2.ui.h:28 ../ui/prefs_gtk3.ui.h:28 ../ui/prefs-ume.ui.h:7
+#: ../ui/prefs_gtk3.ui.h:28 ../ui/prefs-ume.ui.h:7
 msgid "Notation"
 msgstr "Бележење"
 
-#: ../ui/prefs_gtk2.ui.h:29 ../ui/prefs_gtk3.ui.h:29 ../ui/prefs-ume.ui.h:8
+#: ../ui/prefs_gtk3.ui.h:29 ../ui/prefs-ume.ui.h:8
 msgid "Arithmetic operation"
 msgstr "Аритметичка операција"
 
-#: ../ui/prefs_gtk2.ui.h:30 ../ui/prefs_gtk3.ui.h:30 ../ui/prefs-ume.ui.h:9
+#: ../ui/prefs_gtk3.ui.h:30 ../ui/prefs-ume.ui.h:9
 msgid "Open brackets"
 msgstr "Отворене заграде"
 
-#: ../ui/prefs_gtk2.ui.h:31 ../ui/prefs_gtk3.ui.h:31 ../ui/prefs-ume.ui.h:10
+#: ../ui/prefs_gtk3.ui.h:31 ../ui/prefs-ume.ui.h:10
 msgid "Number base units"
 msgstr "Јединице основе броја"
 
-#: ../ui/prefs_gtk2.ui.h:32 ../ui/prefs_gtk3.ui.h:32 ../ui/prefs-ume.ui.h:11
+#: ../ui/prefs_gtk3.ui.h:32 ../ui/prefs-ume.ui.h:11
 msgid "Display"
 msgstr "Приказ"
 
-#: ../ui/prefs_gtk2.ui.h:33 ../ui/prefs_gtk3.ui.h:33 ../ui/prefs-ume.ui.h:12
+#: ../ui/prefs_gtk3.ui.h:33 ../ui/prefs-ume.ui.h:12
 msgid "<b>Font</b>"
 msgstr "<b>Словолик</b>"
 
-#: ../ui/prefs_gtk2.ui.h:34 ../ui/prefs_gtk3.ui.h:34 ../ui/prefs-ume.ui.h:13
+#: ../ui/prefs_gtk3.ui.h:34 ../ui/prefs-ume.ui.h:13
 msgid "Use custom button font"
 msgstr "Користи произвољни словолик дугмета"
 
-#: ../ui/prefs_gtk2.ui.h:35 ../ui/prefs_gtk3.ui.h:35 ../ui/prefs-ume.ui.h:14
+#: ../ui/prefs_gtk3.ui.h:35 ../ui/prefs-ume.ui.h:14
 msgid "Button font:"
 msgstr "Словолик дугмета:"
 
-#: ../ui/prefs_gtk2.ui.h:36 ../ui/prefs_gtk3.ui.h:36 ../ui/prefs-ume.ui.h:15
+#: ../ui/prefs_gtk3.ui.h:36 ../ui/prefs-ume.ui.h:15
 msgid "Pick a Button Font"
 msgstr "Изаберите словолик дугмета"
 
-#: ../ui/prefs_gtk2.ui.h:37 ../ui/prefs_gtk3.ui.h:37 ../ui/prefs-ume.ui.h:16
+#: ../ui/prefs_gtk3.ui.h:37 ../ui/prefs-ume.ui.h:16
 msgid "<b>Dimension</b>"
 msgstr "<b>Величина</b>"
 
-#: ../ui/prefs_gtk2.ui.h:38 ../ui/prefs_gtk3.ui.h:38 ../ui/prefs-ume.ui.h:17
+#: ../ui/prefs_gtk3.ui.h:38 ../ui/prefs-ume.ui.h:17
 msgid "Minimal button width:"
 msgstr "Најмања ширина дугмета:"
 
-#: ../ui/prefs_gtk2.ui.h:39 ../ui/prefs_gtk3.ui.h:39 ../ui/prefs-ume.ui.h:18
+#: ../ui/prefs_gtk3.ui.h:39 ../ui/prefs-ume.ui.h:18
 msgid "Minimal button height:"
 msgstr "Најмања висина дугмета:"
 
-#: ../ui/prefs_gtk2.ui.h:41 ../ui/prefs_gtk3.ui.h:41
+#: ../ui/prefs_gtk3.ui.h:41
 msgid "<b>User defined constants:</b>"
 msgstr "<b>Константе које је одредио корисник:</b>"
 
-#: ../ui/prefs_gtk2.ui.h:42 ../ui/prefs_gtk3.ui.h:42
+#: ../ui/prefs_gtk3.ui.h:42
 msgid "Name:"
 msgstr "Назив:"
 
-#: ../ui/prefs_gtk2.ui.h:43 ../ui/prefs_gtk3.ui.h:43
+#: ../ui/prefs_gtk3.ui.h:43
 msgid "Value:"
 msgstr "Вредност:"
 
-#: ../ui/prefs_gtk2.ui.h:44 ../ui/prefs_gtk3.ui.h:44
+#: ../ui/prefs_gtk3.ui.h:44
 msgid "Description:"
 msgstr "Опис:"
 
-#: ../ui/prefs_gtk2.ui.h:45 ../ui/prefs_gtk3.ui.h:45
+#: ../ui/prefs_gtk3.ui.h:45
 msgid "Add"
 msgstr "Додај"
 
-#: ../ui/prefs_gtk2.ui.h:46 ../ui/prefs_gtk3.ui.h:46
+#: ../ui/prefs_gtk3.ui.h:46
 msgid "Update"
 msgstr "Освежи"
 
-#: ../ui/prefs_gtk2.ui.h:47 ../ui/prefs_gtk3.ui.h:47
+#: ../ui/prefs_gtk3.ui.h:47
 msgid "Delete"
 msgstr "Обриши"
 
-#: ../ui/prefs_gtk2.ui.h:48 ../ui/prefs_gtk3.ui.h:48
+#: ../ui/prefs_gtk3.ui.h:48
 msgid "Clear"
 msgstr "Очисти"
 
-#: ../ui/prefs_gtk2.ui.h:49 ../ui/prefs_gtk3.ui.h:49
-#: ../ui/scientific_buttons_gtk2.ui.h:21 ../ui/scientific_buttons_gtk3.ui.h:21
+#: ../ui/prefs_gtk3.ui.h:49 ../ui/scientific_buttons_gtk3.ui.h:21
 msgid "Constants"
 msgstr "Константе"
 
-#: ../ui/prefs_gtk2.ui.h:50 ../ui/prefs_gtk3.ui.h:50
+#: ../ui/prefs_gtk3.ui.h:50
 msgid "<b>User defined functions:</b>"
 msgstr "<b>Функције које је одредио корисник:</b>"
 
-#: ../ui/prefs_gtk2.ui.h:51 ../ui/prefs_gtk3.ui.h:51
+#: ../ui/prefs_gtk3.ui.h:51
 msgid "Variable:"
 msgstr "Променљива:"
 
-#: ../ui/prefs_gtk2.ui.h:52 ../ui/prefs_gtk3.ui.h:52
+#: ../ui/prefs_gtk3.ui.h:52
 msgid "Expression:"
 msgstr "Израз:"
 
-#: ../ui/prefs_gtk2.ui.h:54 ../ui/prefs_gtk3.ui.h:54 ../ui/prefs-ume.ui.h:20
+#: ../ui/prefs_gtk3.ui.h:54 ../ui/prefs-ume.ui.h:20
 msgid "Configure number base: "
 msgstr "Поставите основу бројева:"
 
-#: ../ui/prefs_gtk2.ui.h:55 ../ui/prefs_gtk3.ui.h:55
+#: ../ui/prefs_gtk3.ui.h:55
 msgid "<b>Decimal Settings</b>"
 msgstr "<b>Децимална подешавања</b>"
 
-#: ../ui/prefs_gtk2.ui.h:56 ../ui/prefs_gtk3.ui.h:56
+#: ../ui/prefs_gtk3.ui.h:56
 msgid "Show thousands separator"
 msgstr "Прикажи раздвајач хиљада"
 
-#: ../ui/prefs_gtk2.ui.h:57 ../ui/prefs_gtk3.ui.h:57
+#: ../ui/prefs_gtk3.ui.h:57
 msgid "Separator character:"
 msgstr "Знак за раздвајање:"
 
-#: ../ui/prefs_gtk2.ui.h:58 ../ui/prefs_gtk3.ui.h:58
+#: ../ui/prefs_gtk3.ui.h:58
 msgid "Separator block length:"
 msgstr "Дужина блока раздвајача:"
 
-#: ../ui/prefs_gtk2.ui.h:59 ../ui/prefs_gtk3.ui.h:59
+#: ../ui/prefs_gtk3.ui.h:59
 msgid " "
 msgstr " "
 
-#: ../ui/prefs_gtk2.ui.h:60 ../ui/prefs_gtk3.ui.h:60
+#: ../ui/prefs_gtk3.ui.h:60
 msgid "<b>Hexadecimal Settings</b>"
 msgstr "<b>Хексадецимална подешавања</b>"
 
-#: ../ui/prefs_gtk2.ui.h:61 ../ui/prefs_gtk3.ui.h:61
+#: ../ui/prefs_gtk3.ui.h:61
 msgid "Signed"
 msgstr "Са знаком"
 
-#: ../ui/prefs_gtk2.ui.h:62 ../ui/prefs_gtk3.ui.h:62
+#: ../ui/prefs_gtk3.ui.h:62
 msgid "Show separator"
 msgstr "Покажи раздвајач"
 
-#: ../ui/prefs_gtk2.ui.h:63 ../ui/prefs_gtk3.ui.h:63
+#: ../ui/prefs_gtk3.ui.h:63
 msgid "Number of bits: "
 msgstr "Број битова: "
 
-#: ../ui/prefs_gtk2.ui.h:64 ../ui/prefs_gtk3.ui.h:64
+#: ../ui/prefs_gtk3.ui.h:64
 msgid "<b>Octal Settings</b>"
 msgstr "<b>Октална подешавања</b>"
 
-#: ../ui/prefs_gtk2.ui.h:65 ../ui/prefs_gtk3.ui.h:65
+#: ../ui/prefs_gtk3.ui.h:65
 msgid "<b>Binary Settings</b>"
 msgstr "<b>Бинарна подешавања</b>"
 
-#: ../ui/prefs_gtk2.ui.h:66 ../ui/prefs_gtk3.ui.h:66
+#: ../ui/prefs_gtk3.ui.h:66
 msgid "Fix length to a multiple of"
 msgstr "Стална дужина на умножак од"
 
-#: ../ui/prefs_gtk2.ui.h:67 ../ui/prefs_gtk3.ui.h:67 ../ui/prefs-ume.ui.h:21
+#: ../ui/prefs_gtk3.ui.h:67 ../ui/prefs-ume.ui.h:21
 msgid "Numbers"
 msgstr "Бројеви"
 
-#: ../ui/prefs_gtk2.ui.h:68 ../ui/prefs_gtk3.ui.h:68 ../ui/prefs-ume.ui.h:22
+#: ../ui/prefs_gtk3.ui.h:68 ../ui/prefs-ume.ui.h:22
 msgid "<b>RPN</b>"
 msgstr "<b>Обрнуто пољско бележење</b>"
 
-#: ../ui/prefs_gtk2.ui.h:69 ../ui/prefs_gtk3.ui.h:69 ../ui/prefs-ume.ui.h:23
+#: ../ui/prefs_gtk3.ui.h:69 ../ui/prefs-ume.ui.h:23
 msgid "finite stack size (x, y, z, t)"
 msgstr "ограничена величина спремника (x, y, z, t)"
 
-#: ../ui/prefs_gtk2.ui.h:70 ../ui/prefs_gtk3.ui.h:70 ../ui/prefs-ume.ui.h:24
+#: ../ui/prefs_gtk3.ui.h:70 ../ui/prefs-ume.ui.h:24
 msgid "infinite stack size"
 msgstr "неограничена величина спремника"
 
-#: ../ui/prefs_gtk2.ui.h:71 ../ui/prefs_gtk3.ui.h:71 ../ui/prefs-ume.ui.h:25
+#: ../ui/prefs_gtk3.ui.h:71 ../ui/prefs-ume.ui.h:25
 msgid "<b>Startup</b>"
 msgstr "<b>Почетак</b>"
 
-#: ../ui/prefs_gtk2.ui.h:72 ../ui/prefs_gtk3.ui.h:72 ../ui/prefs-ume.ui.h:26
+#: ../ui/prefs_gtk3.ui.h:72 ../ui/prefs-ume.ui.h:26
 msgid "Remember display value on exit"
 msgstr "Запамти вредност приказа приликом изласка"
 
-#: ../ui/prefs_gtk2.ui.h:73 ../ui/prefs_gtk3.ui.h:73
+#: ../ui/prefs_gtk3.ui.h:73
 msgid "<b>Visibility</b>"
 msgstr "<b>Видљивост</b>"
 
-#: ../ui/prefs_gtk2.ui.h:74 ../ui/prefs_gtk3.ui.h:74
+#: ../ui/prefs_gtk3.ui.h:74
 msgid "Show menu bar"
 msgstr "Прикажи траку изборника"
 
-#: ../ui/prefs_gtk2.ui.h:75 ../ui/prefs_gtk3.ui.h:75 ../ui/prefs-ume.ui.h:27
+#: ../ui/prefs_gtk3.ui.h:75 ../ui/prefs-ume.ui.h:27
 msgid "General"
 msgstr "Опште"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:1 ../ui/scientific_buttons_gtk3.ui.h:1
+#: ../ui/scientific_buttons_gtk3.ui.h:1
 msgid "tan"
 msgstr "tan"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:2 ../ui/scientific_buttons_gtk3.ui.h:2
+#: ../ui/scientific_buttons_gtk3.ui.h:2
 msgid "Tangent"
 msgstr "Тангенс"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:3 ../ui/scientific_buttons_gtk3.ui.h:3
+#: ../ui/scientific_buttons_gtk3.ui.h:3
 msgid "ln"
 msgstr "ln"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:4 ../ui/scientific_buttons_gtk3.ui.h:4
+#: ../ui/scientific_buttons_gtk3.ui.h:4
 msgid "Natural logarithm (base: e)"
 msgstr "Природни логаритам (основа: e)"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:7 ../ui/scientific_buttons_gtk3.ui.h:7
+#: ../ui/scientific_buttons_gtk3.ui.h:7
 msgid "n!"
 msgstr "n!"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:8 ../ui/scientific_buttons_gtk3.ui.h:8
+#: ../ui/scientific_buttons_gtk3.ui.h:8
 msgid "Factorial"
 msgstr "Факторијел"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:9 ../ui/scientific_buttons_gtk3.ui.h:9
+#: ../ui/scientific_buttons_gtk3.ui.h:9
 msgid "EE"
 msgstr "УИ"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:10 ../ui/scientific_buttons_gtk3.ui.h:10
+#: ../ui/scientific_buttons_gtk3.ui.h:10
 msgid "Enter exponent (base: 10)"
 msgstr "Унесите изложилац (основа: 10)"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:11 ../ui/scientific_buttons_gtk3.ui.h:11
+#: ../ui/scientific_buttons_gtk3.ui.h:11
 msgid "cos"
 msgstr "cos"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:12 ../ui/scientific_buttons_gtk3.ui.h:12
+#: ../ui/scientific_buttons_gtk3.ui.h:12
 msgid "Cosine"
 msgstr "Косинус"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:13 ../ui/scientific_buttons_gtk3.ui.h:13
+#: ../ui/scientific_buttons_gtk3.ui.h:13
 msgid "log"
 msgstr "log"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:14 ../ui/scientific_buttons_gtk3.ui.h:14
+#: ../ui/scientific_buttons_gtk3.ui.h:14
 msgid "Logarithm (base: 10)"
 msgstr "Логаритам (основа: 10)"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:15 ../ui/scientific_buttons_gtk3.ui.h:15
+#: ../ui/scientific_buttons_gtk3.ui.h:15
 msgid "x^2"
 msgstr "x^2"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:16 ../ui/scientific_buttons_gtk3.ui.h:16
+#: ../ui/scientific_buttons_gtk3.ui.h:16
 msgid "Square"
 msgstr "Квадратни корен"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:19 ../ui/scientific_buttons_gtk3.ui.h:19
+#: ../ui/scientific_buttons_gtk3.ui.h:19
 msgid "User defined functions"
 msgstr "Функције које је одредио корисник"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:20 ../ui/scientific_buttons_gtk3.ui.h:20
+#: ../ui/scientific_buttons_gtk3.ui.h:20
 msgid "fun"
 msgstr "фун"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:22 ../ui/scientific_buttons_gtk3.ui.h:22
+#: ../ui/scientific_buttons_gtk3.ui.h:22
 msgid "con"
 msgstr "кон"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:26 ../ui/scientific_buttons_gtk3.ui.h:26
+#: ../ui/scientific_buttons_gtk3.ui.h:26
 msgid "inv"
 msgstr "inv"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:27 ../ui/scientific_buttons_gtk3.ui.h:27
+#: ../ui/scientific_buttons_gtk3.ui.h:27
 msgid "Inverse mode"
 msgstr "Инверзни режим"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:28 ../ui/scientific_buttons_gtk3.ui.h:28
+#: ../ui/scientific_buttons_gtk3.ui.h:28
 msgid "hyp"
 msgstr "hyp"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:29 ../ui/scientific_buttons_gtk3.ui.h:29
+#: ../ui/scientific_buttons_gtk3.ui.h:29
 msgid "Hyperbolic mode"
 msgstr "Хиперболични режим"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:30 ../ui/scientific_buttons_gtk3.ui.h:30
+#: ../ui/scientific_buttons_gtk3.ui.h:30
 msgid "sin"
 msgstr "sin"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:31 ../ui/scientific_buttons_gtk3.ui.h:31
+#: ../ui/scientific_buttons_gtk3.ui.h:31
 msgid "Sine"
 msgstr "Синус"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:32 ../ui/scientific_buttons_gtk3.ui.h:32
+#: ../ui/scientific_buttons_gtk3.ui.h:32
 msgid "AND"
 msgstr "И"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:33 ../ui/scientific_buttons_gtk3.ui.h:33
+#: ../ui/scientific_buttons_gtk3.ui.h:33
 msgid "Logical AND"
 msgstr "Логичко И"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:34 ../ui/scientific_buttons_gtk3.ui.h:34
+#: ../ui/scientific_buttons_gtk3.ui.h:34
 msgid "OR"
 msgstr "ИЛИ"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:35 ../ui/scientific_buttons_gtk3.ui.h:35
+#: ../ui/scientific_buttons_gtk3.ui.h:35
 msgid "Logical OR"
 msgstr "Логичко ИЛИ"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:36 ../ui/scientific_buttons_gtk3.ui.h:36
+#: ../ui/scientific_buttons_gtk3.ui.h:36
 msgid "XOR"
 msgstr "ИЛЛИ"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:37 ../ui/scientific_buttons_gtk3.ui.h:37
+#: ../ui/scientific_buttons_gtk3.ui.h:37
 msgid "Logical XOR"
 msgstr "Логичко ИЛЛИ"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:38 ../ui/scientific_buttons_gtk3.ui.h:38
+#: ../ui/scientific_buttons_gtk3.ui.h:38
 msgid "CMP"
 msgstr "ЦМП"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:39 ../ui/scientific_buttons_gtk3.ui.h:39
+#: ../ui/scientific_buttons_gtk3.ui.h:39
 msgid "Bitwise complement"
 msgstr "Допуна на нивоу бита"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:41 ../ui/scientific_buttons_gtk3.ui.h:41
+#: ../ui/scientific_buttons_gtk3.ui.h:41
 msgid "Hexadecimal 0xC"
 msgstr "Хексадецимално 0xC"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:42 ../ui/scientific_buttons_gtk3.ui.h:42
+#: ../ui/scientific_buttons_gtk3.ui.h:42
 msgid "D"
 msgstr "Д"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:43 ../ui/scientific_buttons_gtk3.ui.h:43
+#: ../ui/scientific_buttons_gtk3.ui.h:43
 msgid "Hexadecimal 0xD"
 msgstr "Хексадецимално 0xD"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:44 ../ui/scientific_buttons_gtk3.ui.h:44
+#: ../ui/scientific_buttons_gtk3.ui.h:44
 msgid "E"
 msgstr "Е"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:45 ../ui/scientific_buttons_gtk3.ui.h:45
+#: ../ui/scientific_buttons_gtk3.ui.h:45
 msgid "Hexadecimal 0xE"
 msgstr "Хексадецимално 0xE"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:46 ../ui/scientific_buttons_gtk3.ui.h:46
+#: ../ui/scientific_buttons_gtk3.ui.h:46
 msgid "F"
 msgstr "Ф"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:47 ../ui/scientific_buttons_gtk3.ui.h:47
+#: ../ui/scientific_buttons_gtk3.ui.h:47
 msgid "Hexadecimal 0xF"
 msgstr "Хексадецимално 0xF"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:48 ../ui/scientific_buttons_gtk3.ui.h:48
+#: ../ui/scientific_buttons_gtk3.ui.h:48
 msgid "B"
 msgstr "Б"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:49 ../ui/scientific_buttons_gtk3.ui.h:49
+#: ../ui/scientific_buttons_gtk3.ui.h:49
 msgid "Hexadecimal 0xB"
 msgstr "Хексадецимално 0xB"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:50 ../ui/scientific_buttons_gtk3.ui.h:50
+#: ../ui/scientific_buttons_gtk3.ui.h:50
 msgid "A"
 msgstr "А"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:51 ../ui/scientific_buttons_gtk3.ui.h:51
+#: ../ui/scientific_buttons_gtk3.ui.h:51
 msgid "Hexadecimal 0xA"
 msgstr "Хексадецимално 0xA"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:60 ../ui/scientific_buttons_gtk3.ui.h:60
+#: ../ui/scientific_buttons_gtk3.ui.h:60
 msgid "MOD"
 msgstr "МОД"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:61 ../ui/scientific_buttons_gtk3.ui.h:61
+#: ../ui/scientific_buttons_gtk3.ui.h:61
 msgid "Modulus"
 msgstr "Модул"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:74 ../ui/scientific_buttons_gtk3.ui.h:74
+#: ../ui/scientific_buttons_gtk3.ui.h:74
 msgid "LSH"
 msgstr "ЛПМ"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:75 ../ui/scientific_buttons_gtk3.ui.h:75
+#: ../ui/scientific_buttons_gtk3.ui.h:75
 msgid "Left shift"
 msgstr "Леви помак"
+
+#, c-format
+#~ msgid "[%s] %c - unknown operation character. %s\n"
+#~ msgstr "[%s] %c — непознат знак операције. %s\n"
+
+#, c-format
+#~ msgid ""
+#~ "[%s] Conversion of floating point number in float2string failed because "
+#~ "buffer was too small. %s\n"
+#~ ")"
+#~ msgstr ""
+#~ "[%s] Претварање броја покретног зареза у „float2string“ није успело због "
+#~ "премале међумеморије. %s\n"
+#~ ")"
+
+#, c-format
+#~ msgid ""
+#~ "[%s] Conversion of floating point number in float2stringP failed because "
+#~ "buffer was too small. %s\n"
+#~ ")"
+#~ msgstr ""
+#~ "[%s] Претварање броја покретног зареза у „float2stringP“ није успело због "
+#~ "премале међумеморије. %s\n"
+#~ ")"
+
+#~ msgid "unsupported inverse function"
+#~ msgstr "неподржана инверзна функција"
+
+#~ msgid "unsupported hyperbolic function"
+#~ msgstr "неподржана хиперболичка функција"
+
+#, c-format
+#~ msgid "[%s] failed to convert char %c in function \"axtof\". %s\n"
+#~ msgstr "[%s] нисам успео да претворим знак „%c“ у функцији „axtof“. %s\n"
+
+#, c-format
+#~ msgid "[%s] failed to convert %s in function \"ftoax\". %s\n"
+#~ msgstr "[%s] нисам успео да претворим „%s“ у функцији „ftoax“. %s\n"
+
+#~ msgid "unknown number base"
+#~ msgstr "непозната основа броја"
+
+#, c-format
+#~ msgid ""
+#~ "[%s] unknown number base in function \"get_display_number_string\". %s\n"
+#~ msgstr ""
+#~ "[%s] непозната основа броја у функцији „get_display_number_string“. %s\n"
+
+#, c-format
+#~ msgid ""
+#~ "[%s] failed to convert %s to a number properly in function "
+#~ "\"string2double\". Have you changed your locales? Deleting your "
+#~ "configuration file might solve this problem. %s\n"
+#~ msgstr ""
+#~ "[%s] нисам успео исправно да претворим „%s“ у број у функцији "
+#~ "„string2double“. Да ли сте изменили језик? Брисање датотеке подешавања "
+#~ "може да реши овај проблем. %s\n"
+
+#, c-format
+#~ msgid "[%s] unknown number base in function \"string2double\". %s\n"
+#~ msgstr "[%s] непозната основа броја у функцији „string2double“. %s\n"
+
+#, c-format
+#~ msgid "[%s] unknown angle base in function \"x2rad\". %s\n"
+#~ msgstr "[%s] непозната основа угла у функцији „x2rad“. %s\n"
+
+#, c-format
+#~ msgid "[%s] unknown angle base in function \"rad2x\". %s\n"
+#~ msgstr "[%s] непозната основа угла у функцији „rad2x“. %s\n"
+
+#, c-format
+#~ msgid ""
+#~ "[%s] flex parser was called more than %i times. Do you know what you are "
+#~ "doing? If not: %s\n"
+#~ msgstr ""
+#~ "[%s] флекс обрађивач је позван више од %i пута. Да ли знате шта радите? "
+#~ "Ако не знате: %s\n"

@@ -1,43 +1,44 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# 
+#
 # Translators:
 # 白铭骢 <jeffbaichina@members.fsf.org>, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: MATE Desktop Environment\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-17 16:18+0100\n"
+"POT-Creation-Date: 2026-04-18 00:32+0700\n"
 "PO-Revision-Date: 2014-03-18 20:16+0000\n"
 "Last-Translator: 白铭骢 <jeffbaichina@members.fsf.org>\n"
-"Language-Team: Chinese (China) (http://www.transifex.com/mate/MATE/language/zh_CN/)\n"
+"Language-Team: Chinese (China) (http://www.transifex.com/mate/MATE/language/"
+"zh_CN/)\n"
+"Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: zh_CN\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
 #: ../talculator.desktop.in.h:1
 msgid "Perform simple and scientific calculations"
 msgstr "执行简单和科学级别的计算"
 
-#: ../src/callbacks.c:1051
+#: ../src/callbacks.c:1483
 msgid "save here"
 msgstr "在此保存"
 
-#: ../src/callbacks.c:1427
+#: ../src/callbacks.c:1904
 #, c-format
 msgid "[%s] on_prefs_number_combo_changed failed to retrieve iter. %s\n"
 msgstr "[%s] on_prefs_number_combo_changed 获取 iter 失败。%s\n"
 
-#: ../src/callbacks.c:1590
+#: ../src/callbacks.c:2067
 #, c-format
 msgid "[%s] on_main_window_check_resize should not get called. %s\n"
 msgstr "[%s] on_main_window_check_resize 不应被调用。%s\n"
 
-#: ../src/main.c:61
-#, c-format
+#: ../src/main.c:87
+#, fuzzy, c-format
 msgid ""
 "\n"
 "%s v%s, (c) 2002-2014 Simon Flöry\n"
@@ -51,44 +52,45 @@ msgid ""
 "\n"
 "Compiled against GTK version %i.%i.%i\n"
 "Linked against GTK version %i.%i.%i\n"
-"%s-precision floating point numbers.\n"
-msgstr "\n%s v%s, (c) 2002-2014 Simon Flöry\n\n用法: %s [选项]\n\n选项:\n(GTK 选项)\n-h, --helpShow        显示此用法信息\n-v, --version        显示版本信息\n\n编译于 GTK+ 版本 %i.%i.%i\n链接于 GTK+ 版本 %i.%i.%i\n%s-精度浮点数字。\n"
+"Evaluation engine: libqalculate.\n"
+msgstr ""
+"\n"
+"%s v%s, (c) 2002-2014 Simon Flöry\n"
+"\n"
+"用法: %s [选项]\n"
+"\n"
+"选项:\n"
+"(GTK 选项)\n"
+"-h, --helpShow        显示此用法信息\n"
+"-v, --version        显示版本信息\n"
+"\n"
+"编译于 GTK+ 版本 %i.%i.%i\n"
+"链接于 GTK+ 版本 %i.%i.%i\n"
+"%s-精度浮点数字。\n"
 
-#: ../src/main.c:196
+#: ../src/main.c:143
+#, c-format
+msgid "[%s] libqalculate backend unavailable; exiting.\n"
+msgstr ""
+
+#: ../src/main.c:168
 #, c-format
 msgid "[%s] configuration file: Failed to create directory %s.\n"
 msgstr "[%s] 配置文件: 创建目录 %s 失败。\n"
 
-#: ../src/main.c:201
+#: ../src/main.c:173
 #, c-format
 msgid ""
 "[%s] configuration file: We will move the configuration file from %s to %s. "
 "After you quit %s, you may remove the configuration file from its old "
 "location %s.\n"
-msgstr "[%s] 配置文件: 我们将会从 %s 移动配置文件到 %s。在你退出 %s 后，你可以在 %s 删除旧的配置文件。\n"
+msgstr ""
+"[%s] 配置文件: 我们将会从 %s 移动配置文件到 %s。在你退出 %s 后，你可以在 %s "
+"删除旧的配置文件。\n"
 
-#: ../src/talculator.h:92
+#: ../src/talculator.h:78
 msgid "Please submit a bugreport."
 msgstr "请提交一个 Bug 报告"
-
-#: ../src/calc_basic.c:300
-#, c-format
-msgid "[%s] %c - unknown operation character. %s\n"
-msgstr "[%s] %c - 未知运算符。%s\n"
-
-#: ../src/calc_basic.c:690
-#, c-format
-msgid ""
-"[%s] Conversion of floating point number in float2string failed because buffer was too small. %s\n"
-")"
-msgstr "[%s] 使用 float2string 进行的浮点数转换失败，因为缓冲区太小。%s\n)"
-
-#: ../src/calc_basic.c:719
-#, c-format
-msgid ""
-"[%s] Conversion of floating point number in float2stringP failed because buffer was too small. %s\n"
-")"
-msgstr "[%s] 使用 float2stringP 进行的浮点数转换失败，因为缓冲区太小。%s\n)"
 
 #: ../src/config_file.c:180
 msgid "Pi"
@@ -120,8 +122,8 @@ msgstr "[%s] 配置文件: %s 必须为 TRUE 或 FALSE。使用默认值。%s\n"
 #: ../src/config_file.c:262
 #, c-format
 msgid ""
-"[%s] configuration file: failed to convert %s to a number properly. Have you"
-" changed your locales? %s\n"
+"[%s] configuration file: failed to convert %s to a number properly. Have you "
+"changed your locales? %s\n"
 msgstr "[%s] 配置文件: 无法正确转换 %s 为一个数字。你是否更换了地区配置？%s\n"
 
 #: ../src/config_file.c:265
@@ -130,274 +132,222 @@ msgid ""
 "[%s] configuration file: ignoring unknown key_type in config structure. %s\n"
 msgstr "[%s] 配置文件: 忽略配置构架中的未知 key_type . %s\n"
 
-#: ../src/config_file.c:284
+#: ../src/config_file.c:287
 #, c-format
 msgid ""
 "[%s] found unknown section %s in configuration file %s. Using preceding "
 "section.\n"
 msgstr "[%s] 在配置文件 %s 找到了一个未知区块 %s . 使用前一个区块。\n"
 
-#: ../src/config_file.c:403
+#: ../src/config_file.c:406
 #, c-format
 msgid ""
 "[%s] configuration file: couldn't open configuration file %s for reading. "
 "Nothing to worry about if you are starting %s for the first time. Using "
 "defaults.\n"
-msgstr "[%s] 配置文件: 无法打开配置文件 %s 以读取。如果你是首次运行 %s 则大可忽略此消息。使用默认值。\n"
+msgstr ""
+"[%s] 配置文件: 无法打开配置文件 %s 以读取。如果你是首次运行 %s 则大可忽略此消"
+"息。使用默认值。\n"
 
-#: ../src/config_file.c:432
+#: ../src/config_file.c:435
 #, c-format
 msgid ""
 "[%s] configuration file - We reset at least one separator character as it "
 "coincides with the decimal point. If you recently changed your locales "
 "settings, this is nothing to worry about.\n"
-msgstr "[%s] 配置文件 - 我们重置了至少一个分隔符，因为它和一个小数点重合。如果你最近更改了地域配置，则无需担心。\n"
+msgstr ""
+"[%s] 配置文件 - 我们重置了至少一个分隔符，因为它和一个小数点重合。如果你最近"
+"更改了地域配置，则无需担心。\n"
 
-#: ../src/config_file.c:470
+#: ../src/config_file.c:474
 #, c-format
 msgid ""
 "[%s] configuration file: strange boolean when writing. Skipping this key. "
 "%s\n"
 msgstr "[%s] 配置文件: 在写入时发现陌生布理值。跳过这个键值。%s\n"
 
-#: ../src/config_file.c:478
+#: ../src/config_file.c:482
 #, c-format
 msgid ""
 "[%s] configuration file: ignoring unknown \"key_type\" in "
 "\"config_structure\". %s\n"
 msgstr "[%s] 配置文件: 忽略 \"config_structure\" 中的未知 \"key_type\" . %s\n"
 
-#: ../src/config_file.c:501
-#, c-format
-msgid "[%s] configuration file: couldn't save/write to configuration file %s.\n"
-msgstr "[%s] 配置文件: 无法保存/写入到配置文件 %s .\n"
-
-#: ../src/display.c:420
+#: ../src/config_file.c:507
 #, c-format
 msgid ""
-"[%s] Line_index exceeds valid range in function \"display_delete_line\". "
-"%s\n"
+"[%s] configuration file: couldn't save/write to configuration file %s.\n"
+msgstr "[%s] 配置文件: 无法保存/写入到配置文件 %s .\n"
+
+#: ../src/display.c:502
+#, c-format
+msgid ""
+"[%s] Line_index exceeds valid range in function \"display_delete_line\". %s\n"
 msgstr "[%s] Line_index 超出了函数 \"display_delete_line\" 的有效范围。%s\n"
 
-#: ../src/display.c:598
+#: ../src/display.c:681
 #, c-format
 msgid "[%s] unknown display option in function \"display_change_option\""
 msgstr "[%s] 在函数 \"display_change_options\" 中存在未知显示选项。"
-
-#: ../src/general_functions.c:43
-msgid "unsupported inverse function"
-msgstr "不支持的反函数"
-
-#: ../src/general_functions.c:49
-msgid "unsupported hyperbolic function"
-msgstr "不支持的双曲函数"
 
 #: ../src/general_functions.c:112
 #, c-format
 msgid "[%s] unknown notation mode in function \"all_clear\". %s\n"
 msgstr "[%s] 函数 \"all_clear\" 中存在未知符号模式。%s\n"
 
-#: ../src/general_functions.c:138
-#, c-format
-msgid "[%s] failed to convert char %c in function \"axtof\". %s\n"
-msgstr "[%s] 在函数 \"axtof\" 中转换 char %c 失败。%s\n"
-
-#: ../src/general_functions.c:194
-#, c-format
-msgid "[%s] failed to convert %s in function \"ftoax\". %s\n"
-msgstr "[%s] 在函数 \"ftoax\" 中转换 %s 失败。%s\n"
-
-#: ../src/general_functions.c:274
+#: ../src/general_functions.c:200
 #, c-format
 msgid "[%s] failed to convert color %s in function \"set_button_color\". %s\n"
 msgstr "[%s] 在函数 \"set_button_color\" 中转换颜色 %s 失败。%s\n"
 
-#: ../src/general_functions.c:395
+#: ../src/general_functions.c:308
 #, c-format
 msgid "[%s] failed to find widget %s in function \"activate_menu_item\". %s\n"
 msgstr "[%s] 在函数 \"activate_menu_item\" 中寻找挂件 %s 失败。%s\n"
 
-#: ../src/general_functions.c:437
-msgid "unknown number base"
-msgstr "未知基数"
-
-#: ../src/general_functions.c:438
-#, c-format
-msgid "[%s] unknown number base in function \"get_display_number_string\". %s\n"
-msgstr "[%s] 在函数 \"get_display_number_string\" 中存在未知基数。%s\n"
-
-#: ../src/general_functions.c:459
-#, c-format
-msgid "[%s] unknown number base in function \"get_display_number_length\". %s\n"
-msgstr "[%s] 在 \"get_display_number_length\" 中存在未知基数。%s\n"
-
-#: ../src/general_functions.c:568
+#: ../src/general_functions.c:327
 #, c-format
 msgid ""
-"[%s] failed to convert %s to a number properly in function "
-"\"string2double\". Have you changed your locales? Deleting your "
-"configuration file might solve this problem. %s\n"
-msgstr "[%s] 在函数 \"string2double\" 中转换 %s 到一个数字失败。你是否更换了地区设置？删除你的配置文件也许可以解决此问题。%s\n"
+"[%s] unknown number base in function \"get_display_number_length\". %s\n"
+msgstr "[%s] 在 \"get_display_number_length\" 中存在未知基数。%s\n"
 
-#: ../src/general_functions.c:586
-#, c-format
-msgid "[%s] unknown number base in function \"string2double\". %s\n"
-msgstr "[%s] 在函数 \"string2double\" 中存在未知基数。%s\n"
-
-#: ../src/general_functions.c:741
-#, c-format
-msgid "[%s] unknown angle base in function \"x2rad\". %s\n"
-msgstr "[%s] 在函数 \"x2rad\" 中存在未知基角。%s\n"
-
-#: ../src/general_functions.c:756
-#, c-format
-msgid "[%s] unknown angle base in function \"rad2x\". %s\n"
-msgstr "[%s] 在函数 \"rad2x\" 中存在未知基角。%s\n"
-
-#: ../src/general_functions.c:773
+#: ../src/general_functions.c:591
 #, c-format
 msgid "[%s] unknown number base in function \"get_sep\". %s\n"
 msgstr "[%s] 在函数 \"get_sep\" 中存在未知基数。%s\n"
 
-#: ../src/general_functions.c:790
+#: ../src/general_functions.c:608
 #, c-format
 msgid "[%s] unknown number base in function \"get_sep_length\". %s\n"
 msgstr "[%s] 在函数 \"get_sep_length\" 中存在未知基数。%s\n"
 
-#: ../src/general_functions.c:807
+#: ../src/general_functions.c:625
 #, c-format
 msgid "[%s] unknown number base in function \"get_sep_char\". %s\n"
 msgstr "[%s] 在函数 \"get_sep_char\" 中存在未知基数。%s\n"
 
-#: ../src/general_functions.c:875
+#: ../src/general_functions.c:697
 msgid "unknown display option in function \"change_option\""
 msgstr "在函数 \"change_option\" 中存在未知显示选项"
 
-#: ../src/general_functions.c:915
+#: ../src/general_functions.c:742
 #, c-format
 msgid ""
 "[%s] length of decimal point (in locale) is not supported: >%s<\n"
 "You might face problems when using %s! %s\n"
 ")"
-msgstr "[%s] (在地区配置中的) 小数点长度不被支持: >%s<\n你在使用 %s 时很可能遇到麻烦！%s\n)"
+msgstr ""
+"[%s] (在地区配置中的) 小数点长度不被支持: >%s<\n"
+"你在使用 %s 时很可能遇到麻烦！%s\n"
+")"
 
-#: ../src/ui.c:89
+#: ../src/ui.c:106
 #, c-format
 msgid ""
-"[%s] Couldn't load %s. This file is necessary     to build talculator's user"
-" interface. Make sure you did a make install and the file     is "
-"accessible!\n"
-msgstr "[%s] 无法载入 %s . 这个文件在构建 talculator 的用户界面时是必须的。请确定你已经运行 make install 并且此文件可以访问！\n"
+"[%s] Couldn't load %s. This file is necessary     to build talculator's user "
+"interface. Make sure you did a make install and the file     is accessible!\n"
+msgstr ""
+"[%s] 无法载入 %s . 这个文件在构建 talculator 的用户界面时是必须的。请确定你已"
+"经运行 make install 并且此文件可以访问！\n"
 
-#: ../src/ui.c:959 ../ui/main_frame.ui.h:17 ../ui/main_frame_hildon.ui.h:16
+#: ../src/ui.c:563 ../src/ui.c:585 ../src/ui.c:592
+msgid "Tab"
+msgstr ""
+
+#: ../src/ui.c:1475 ../ui/main_frame.ui.h:21 ../ui/main_frame_hildon.ui.h:16
 msgid "Show _menu bar"
 msgstr "显示菜单栏（_m）"
 
-#: ../src/ui.c:999
+#: ../src/ui.c:1508
 #, c-format
 msgid "%s Preferences"
 msgstr "%s 首选项"
 
-#: ../src/ui.c:1043 ../src/ui.c:1075
+#: ../src/ui.c:1552 ../src/ui.c:1584
 msgid "Name"
 msgstr "名字"
 
-#: ../src/ui.c:1046
+#: ../src/ui.c:1555
 msgid "Value"
 msgstr "值"
 
-#: ../src/ui.c:1049
+#: ../src/ui.c:1558
 msgid "Description"
 msgstr "说明"
 
-#: ../src/ui.c:1078
+#: ../src/ui.c:1587
 msgid "Variable"
 msgstr "变量"
 
-#: ../src/ui.c:1081
+#: ../src/ui.c:1590
 msgid "Expression"
 msgstr "表达式"
 
-#: ../src/ui.c:1211 ../ui/basic_buttons_gtk2.ui.h:43
-#: ../ui/basic_buttons_gtk3.ui.h:43 ../ui/scientific_buttons_gtk2.ui.h:98
+#: ../src/ui.c:1711 ../ui/basic_buttons_gtk3.ui.h:43
 #: ../ui/scientific_buttons_gtk3.ui.h:98
 msgid "="
 msgstr "="
 
-#: ../src/ui.c:1211 ../src/ui.c:1223 ../ui/basic_buttons_gtk2.ui.h:44
-#: ../ui/basic_buttons_gtk3.ui.h:44 ../ui/paper_view.ui.h:2
-#: ../ui/scientific_buttons_gtk2.ui.h:99 ../ui/scientific_buttons_gtk3.ui.h:99
+#: ../src/ui.c:1711 ../src/ui.c:1723 ../ui/basic_buttons_gtk3.ui.h:44
+#: ../ui/paper_view.ui.h:2 ../ui/scientific_buttons_gtk3.ui.h:99
 msgid "Enter"
 msgstr "计算"
 
-#: ../src/ui.c:1213 ../ui/scientific_buttons_gtk2.ui.h:17
-#: ../ui/scientific_buttons_gtk3.ui.h:17
+#: ../src/ui.c:1713 ../ui/scientific_buttons_gtk3.ui.h:17
 msgid "x^y"
 msgstr "x^y"
 
-#: ../src/ui.c:1213 ../src/ui.c:1225 ../ui/scientific_buttons_gtk2.ui.h:18
-#: ../ui/scientific_buttons_gtk3.ui.h:18
+#: ../src/ui.c:1713 ../src/ui.c:1725 ../ui/scientific_buttons_gtk3.ui.h:18
 msgid "Power"
 msgstr "乘方"
 
-#: ../src/ui.c:1215 ../ui/basic_buttons_gtk2.ui.h:33
-#: ../ui/basic_buttons_gtk3.ui.h:33 ../ui/scientific_buttons_gtk2.ui.h:88
+#: ../src/ui.c:1715 ../ui/basic_buttons_gtk3.ui.h:33
 #: ../ui/scientific_buttons_gtk3.ui.h:88
 msgid "("
 msgstr "("
 
-#: ../src/ui.c:1215 ../ui/basic_buttons_gtk2.ui.h:34
-#: ../ui/basic_buttons_gtk3.ui.h:34 ../ui/scientific_buttons_gtk2.ui.h:89
+#: ../src/ui.c:1715 ../ui/basic_buttons_gtk3.ui.h:34
 #: ../ui/scientific_buttons_gtk3.ui.h:89
 msgid "Open Bracket"
 msgstr "打开的括号"
 
-#: ../src/ui.c:1217 ../ui/basic_buttons_gtk2.ui.h:31
-#: ../ui/basic_buttons_gtk3.ui.h:31 ../ui/scientific_buttons_gtk2.ui.h:86
+#: ../src/ui.c:1717 ../ui/basic_buttons_gtk3.ui.h:31
 #: ../ui/scientific_buttons_gtk3.ui.h:86
 msgid ")"
 msgstr ")"
 
-#: ../src/ui.c:1217 ../ui/basic_buttons_gtk2.ui.h:32
-#: ../ui/basic_buttons_gtk3.ui.h:32 ../ui/scientific_buttons_gtk2.ui.h:87
+#: ../src/ui.c:1717 ../ui/basic_buttons_gtk3.ui.h:32
 #: ../ui/scientific_buttons_gtk3.ui.h:87
 msgid "Close Bracket"
 msgstr "关闭括号"
 
-#: ../src/ui.c:1223
+#: ../src/ui.c:1723
 msgid "ENT"
 msgstr "ENT"
 
-#: ../src/ui.c:1225
+#: ../src/ui.c:1725
 msgid "y^x"
 msgstr "y^x"
 
-#: ../src/ui.c:1227
+#: ../src/ui.c:1727
 msgid "x<>y"
 msgstr "x<>y"
 
-#: ../src/ui.c:1227
+#: ../src/ui.c:1727
 msgid "swap current number with top of stack"
 msgstr "使用栈顶端替换当前数字"
 
-#: ../src/ui.c:1229
+#: ../src/ui.c:1729
 msgid "roll"
 msgstr "滚动"
 
-#: ../src/ui.c:1229
+#: ../src/ui.c:1729
 msgid "roll down stack"
 msgstr "下滚栈"
 
-#: ../src/ui.c:1300
+#: ../src/ui.c:1817
 msgid "Result Display"
 msgstr "结果显示"
-
-#: ../src/flex_parser.l:233
-#, c-format
-msgid ""
-"[%s] flex parser was called more than %i times. Do you know what you are "
-"doing? If not: %s\n"
-msgstr "[%s] flex 解析器已经被调用超过 %i 次。你确定你自己在做什么吗？否则: %s\n"
 
 #: ../ui/about.ui.in.h:1
 msgid "About talculator"
@@ -411,215 +361,173 @@ msgstr "版权所有 (c) 2002-2014 - Simon Flöry <simon.floery@rechenraum.com>"
 msgid "a GTK+ based scientific calculator"
 msgstr "一个基于 GTK+ 的科学计算器"
 
-#: ../ui/basic_buttons_gtk2.ui.h:1 ../ui/basic_buttons_gtk3.ui.h:1
-#: ../ui/scientific_buttons_gtk2.ui.h:52 ../ui/scientific_buttons_gtk3.ui.h:52
+#: ../ui/basic_buttons_gtk3.ui.h:1 ../ui/scientific_buttons_gtk3.ui.h:52
 msgid "7"
 msgstr "7"
 
-#: ../ui/basic_buttons_gtk2.ui.h:2 ../ui/basic_buttons_gtk3.ui.h:2
-#: ../ui/scientific_buttons_gtk2.ui.h:53 ../ui/scientific_buttons_gtk3.ui.h:53
+#: ../ui/basic_buttons_gtk3.ui.h:2 ../ui/scientific_buttons_gtk3.ui.h:53
 msgid "Seven"
 msgstr "七"
 
-#: ../ui/basic_buttons_gtk2.ui.h:3 ../ui/basic_buttons_gtk3.ui.h:3
-#: ../ui/scientific_buttons_gtk2.ui.h:54 ../ui/scientific_buttons_gtk3.ui.h:54
+#: ../ui/basic_buttons_gtk3.ui.h:3 ../ui/scientific_buttons_gtk3.ui.h:54
 msgid "8"
 msgstr "8"
 
-#: ../ui/basic_buttons_gtk2.ui.h:4 ../ui/basic_buttons_gtk3.ui.h:4
-#: ../ui/scientific_buttons_gtk2.ui.h:55 ../ui/scientific_buttons_gtk3.ui.h:55
+#: ../ui/basic_buttons_gtk3.ui.h:4 ../ui/scientific_buttons_gtk3.ui.h:55
 msgid "Eight"
 msgstr "八"
 
-#: ../ui/basic_buttons_gtk2.ui.h:5 ../ui/basic_buttons_gtk3.ui.h:5
-#: ../ui/scientific_buttons_gtk2.ui.h:56 ../ui/scientific_buttons_gtk3.ui.h:56
+#: ../ui/basic_buttons_gtk3.ui.h:5 ../ui/scientific_buttons_gtk3.ui.h:56
 msgid "9"
 msgstr "9"
 
-#: ../ui/basic_buttons_gtk2.ui.h:6 ../ui/basic_buttons_gtk3.ui.h:6
-#: ../ui/scientific_buttons_gtk2.ui.h:57 ../ui/scientific_buttons_gtk3.ui.h:57
+#: ../ui/basic_buttons_gtk3.ui.h:6 ../ui/scientific_buttons_gtk3.ui.h:57
 msgid "Nine"
 msgstr "九"
 
-#: ../ui/basic_buttons_gtk2.ui.h:7 ../ui/basic_buttons_gtk3.ui.h:7
-#: ../ui/scientific_buttons_gtk2.ui.h:58 ../ui/scientific_buttons_gtk3.ui.h:58
+#: ../ui/basic_buttons_gtk3.ui.h:7 ../ui/scientific_buttons_gtk3.ui.h:58
 msgid "/"
 msgstr "/"
 
-#: ../ui/basic_buttons_gtk2.ui.h:8 ../ui/basic_buttons_gtk3.ui.h:8
-#: ../ui/scientific_buttons_gtk2.ui.h:59 ../ui/scientific_buttons_gtk3.ui.h:59
+#: ../ui/basic_buttons_gtk3.ui.h:8 ../ui/scientific_buttons_gtk3.ui.h:59
 msgid "Divide"
 msgstr "除法"
 
-#: ../ui/basic_buttons_gtk2.ui.h:9 ../ui/basic_buttons_gtk3.ui.h:9
-#: ../ui/scientific_buttons_gtk2.ui.h:62 ../ui/scientific_buttons_gtk3.ui.h:62
+#: ../ui/basic_buttons_gtk3.ui.h:9 ../ui/scientific_buttons_gtk3.ui.h:62
 msgid "4"
 msgstr "4"
 
-#: ../ui/basic_buttons_gtk2.ui.h:10 ../ui/basic_buttons_gtk3.ui.h:10
-#: ../ui/scientific_buttons_gtk2.ui.h:63 ../ui/scientific_buttons_gtk3.ui.h:63
+#: ../ui/basic_buttons_gtk3.ui.h:10 ../ui/scientific_buttons_gtk3.ui.h:63
 msgid "Four"
 msgstr "四"
 
-#: ../ui/basic_buttons_gtk2.ui.h:11 ../ui/basic_buttons_gtk3.ui.h:11
-#: ../ui/scientific_buttons_gtk2.ui.h:64 ../ui/scientific_buttons_gtk3.ui.h:64
+#: ../ui/basic_buttons_gtk3.ui.h:11 ../ui/scientific_buttons_gtk3.ui.h:64
 msgid "5"
 msgstr "5"
 
-#: ../ui/basic_buttons_gtk2.ui.h:12 ../ui/basic_buttons_gtk3.ui.h:12
-#: ../ui/scientific_buttons_gtk2.ui.h:65 ../ui/scientific_buttons_gtk3.ui.h:65
+#: ../ui/basic_buttons_gtk3.ui.h:12 ../ui/scientific_buttons_gtk3.ui.h:65
 msgid "Five"
 msgstr "五"
 
-#: ../ui/basic_buttons_gtk2.ui.h:13 ../ui/basic_buttons_gtk3.ui.h:13
-#: ../ui/scientific_buttons_gtk2.ui.h:66 ../ui/scientific_buttons_gtk3.ui.h:66
+#: ../ui/basic_buttons_gtk3.ui.h:13 ../ui/scientific_buttons_gtk3.ui.h:66
 msgid "6"
 msgstr "6"
 
-#: ../ui/basic_buttons_gtk2.ui.h:14 ../ui/basic_buttons_gtk3.ui.h:14
-#: ../ui/scientific_buttons_gtk2.ui.h:67 ../ui/scientific_buttons_gtk3.ui.h:67
+#: ../ui/basic_buttons_gtk3.ui.h:14 ../ui/scientific_buttons_gtk3.ui.h:67
 msgid "Six"
 msgstr "六"
 
-#: ../ui/basic_buttons_gtk2.ui.h:15 ../ui/basic_buttons_gtk3.ui.h:15
-#: ../ui/scientific_buttons_gtk2.ui.h:68 ../ui/scientific_buttons_gtk3.ui.h:68
+#: ../ui/basic_buttons_gtk3.ui.h:15 ../ui/scientific_buttons_gtk3.ui.h:68
 msgid "3"
 msgstr "3"
 
-#: ../ui/basic_buttons_gtk2.ui.h:16 ../ui/basic_buttons_gtk3.ui.h:16
-#: ../ui/scientific_buttons_gtk2.ui.h:69 ../ui/scientific_buttons_gtk3.ui.h:69
+#: ../ui/basic_buttons_gtk3.ui.h:16 ../ui/scientific_buttons_gtk3.ui.h:69
 msgid "Three"
 msgstr "三"
 
-#: ../ui/basic_buttons_gtk2.ui.h:17 ../ui/basic_buttons_gtk3.ui.h:17
-#: ../ui/scientific_buttons_gtk2.ui.h:70 ../ui/scientific_buttons_gtk3.ui.h:70
+#: ../ui/basic_buttons_gtk3.ui.h:17 ../ui/scientific_buttons_gtk3.ui.h:70
 msgid "-"
 msgstr "-"
 
-#: ../ui/basic_buttons_gtk2.ui.h:18 ../ui/basic_buttons_gtk3.ui.h:18
-#: ../ui/scientific_buttons_gtk2.ui.h:71 ../ui/scientific_buttons_gtk3.ui.h:71
+#: ../ui/basic_buttons_gtk3.ui.h:18 ../ui/scientific_buttons_gtk3.ui.h:71
 msgid "Subtract"
 msgstr "减"
 
-#: ../ui/basic_buttons_gtk2.ui.h:19 ../ui/basic_buttons_gtk3.ui.h:19
-#: ../ui/scientific_buttons_gtk2.ui.h:72 ../ui/scientific_buttons_gtk3.ui.h:72
+#: ../ui/basic_buttons_gtk3.ui.h:19 ../ui/scientific_buttons_gtk3.ui.h:72
 msgid "+"
 msgstr "+"
 
-#: ../ui/basic_buttons_gtk2.ui.h:20 ../ui/basic_buttons_gtk3.ui.h:20
-#: ../ui/scientific_buttons_gtk2.ui.h:73 ../ui/scientific_buttons_gtk3.ui.h:73
+#: ../ui/basic_buttons_gtk3.ui.h:20 ../ui/scientific_buttons_gtk3.ui.h:73
 msgid "Sum"
 msgstr "求和"
 
-#: ../ui/basic_buttons_gtk2.ui.h:21 ../ui/basic_buttons_gtk3.ui.h:21
-#: ../ui/scientific_buttons_gtk2.ui.h:76 ../ui/scientific_buttons_gtk3.ui.h:76
+#: ../ui/basic_buttons_gtk3.ui.h:21 ../ui/scientific_buttons_gtk3.ui.h:76
 msgid "+/-"
 msgstr "+/-"
 
-#: ../ui/basic_buttons_gtk2.ui.h:22 ../ui/basic_buttons_gtk3.ui.h:22
-#: ../ui/scientific_buttons_gtk2.ui.h:77 ../ui/scientific_buttons_gtk3.ui.h:77
+#: ../ui/basic_buttons_gtk3.ui.h:22 ../ui/scientific_buttons_gtk3.ui.h:77
 msgid "Change sign"
 msgstr "修改符号"
 
-#: ../ui/basic_buttons_gtk2.ui.h:23 ../ui/basic_buttons_gtk3.ui.h:23
-#: ../ui/main_frame_hildon.ui.h:34 ../ui/scientific_buttons_gtk2.ui.h:78
+#: ../ui/basic_buttons_gtk3.ui.h:23 ../ui/main_frame_hildon.ui.h:34
 #: ../ui/scientific_buttons_gtk3.ui.h:78
 msgid "*"
 msgstr "*"
 
-#: ../ui/basic_buttons_gtk2.ui.h:24 ../ui/basic_buttons_gtk3.ui.h:24
-#: ../ui/scientific_buttons_gtk2.ui.h:79 ../ui/scientific_buttons_gtk3.ui.h:79
+#: ../ui/basic_buttons_gtk3.ui.h:24 ../ui/scientific_buttons_gtk3.ui.h:79
 msgid "Multiply"
 msgstr "乘"
 
-#: ../ui/basic_buttons_gtk2.ui.h:25 ../ui/basic_buttons_gtk3.ui.h:25
-#: ../ui/scientific_buttons_gtk2.ui.h:80 ../ui/scientific_buttons_gtk3.ui.h:80
+#: ../ui/basic_buttons_gtk3.ui.h:25 ../ui/scientific_buttons_gtk3.ui.h:80
 msgid "Add current display value to memory"
 msgstr "将显示值累加到存储器"
 
-#: ../ui/basic_buttons_gtk2.ui.h:26 ../ui/basic_buttons_gtk3.ui.h:26
-#: ../ui/scientific_buttons_gtk2.ui.h:81 ../ui/scientific_buttons_gtk3.ui.h:81
+#: ../ui/basic_buttons_gtk3.ui.h:26 ../ui/scientific_buttons_gtk3.ui.h:81
 msgid "M+"
 msgstr "M+"
 
-#: ../ui/basic_buttons_gtk2.ui.h:27 ../ui/basic_buttons_gtk3.ui.h:27
-#: ../ui/scientific_buttons_gtk2.ui.h:82 ../ui/scientific_buttons_gtk3.ui.h:82
+#: ../ui/basic_buttons_gtk3.ui.h:27 ../ui/scientific_buttons_gtk3.ui.h:82
 msgid "Read from memory"
 msgstr "从存储器读入"
 
-#: ../ui/basic_buttons_gtk2.ui.h:28 ../ui/basic_buttons_gtk3.ui.h:28
-#: ../ui/scientific_buttons_gtk2.ui.h:83 ../ui/scientific_buttons_gtk3.ui.h:83
+#: ../ui/basic_buttons_gtk3.ui.h:28 ../ui/scientific_buttons_gtk3.ui.h:83
 msgid "MR"
 msgstr "MR"
 
-#: ../ui/basic_buttons_gtk2.ui.h:29 ../ui/basic_buttons_gtk3.ui.h:29
-#: ../ui/scientific_buttons_gtk2.ui.h:84 ../ui/scientific_buttons_gtk3.ui.h:84
+#: ../ui/basic_buttons_gtk3.ui.h:29 ../ui/scientific_buttons_gtk3.ui.h:84
 msgid "Save to memory"
 msgstr "保存到存储器"
 
-#: ../ui/basic_buttons_gtk2.ui.h:30 ../ui/basic_buttons_gtk3.ui.h:30
-#: ../ui/scientific_buttons_gtk2.ui.h:85 ../ui/scientific_buttons_gtk3.ui.h:85
+#: ../ui/basic_buttons_gtk3.ui.h:30 ../ui/scientific_buttons_gtk3.ui.h:85
 msgid "MS"
 msgstr "MS"
 
-#: ../ui/basic_buttons_gtk2.ui.h:35 ../ui/basic_buttons_gtk3.ui.h:35
-#: ../ui/scientific_buttons_gtk2.ui.h:90 ../ui/scientific_buttons_gtk3.ui.h:90
+#: ../ui/basic_buttons_gtk3.ui.h:35 ../ui/scientific_buttons_gtk3.ui.h:90
 msgid "0"
 msgstr "0"
 
-#: ../ui/basic_buttons_gtk2.ui.h:36 ../ui/basic_buttons_gtk3.ui.h:36
-#: ../ui/scientific_buttons_gtk2.ui.h:91 ../ui/scientific_buttons_gtk3.ui.h:91
+#: ../ui/basic_buttons_gtk3.ui.h:36 ../ui/scientific_buttons_gtk3.ui.h:91
 msgid "Zero"
 msgstr "零"
 
-#: ../ui/basic_buttons_gtk2.ui.h:37 ../ui/basic_buttons_gtk3.ui.h:37
-#: ../ui/scientific_buttons_gtk2.ui.h:92 ../ui/scientific_buttons_gtk3.ui.h:92
+#: ../ui/basic_buttons_gtk3.ui.h:37 ../ui/scientific_buttons_gtk3.ui.h:92
 msgid "."
 msgstr "."
 
-#: ../ui/basic_buttons_gtk2.ui.h:38 ../ui/basic_buttons_gtk3.ui.h:38
-#: ../ui/scientific_buttons_gtk2.ui.h:93 ../ui/scientific_buttons_gtk3.ui.h:93
+#: ../ui/basic_buttons_gtk3.ui.h:38 ../ui/scientific_buttons_gtk3.ui.h:93
 msgid "Decimal point"
 msgstr "小数点"
 
-#: ../ui/basic_buttons_gtk2.ui.h:39 ../ui/basic_buttons_gtk3.ui.h:39
-#: ../ui/scientific_buttons_gtk2.ui.h:94 ../ui/scientific_buttons_gtk3.ui.h:94
+#: ../ui/basic_buttons_gtk3.ui.h:39 ../ui/scientific_buttons_gtk3.ui.h:94
 msgid "1"
 msgstr "1"
 
-#: ../ui/basic_buttons_gtk2.ui.h:40 ../ui/basic_buttons_gtk3.ui.h:40
-#: ../ui/scientific_buttons_gtk2.ui.h:95 ../ui/scientific_buttons_gtk3.ui.h:95
+#: ../ui/basic_buttons_gtk3.ui.h:40 ../ui/scientific_buttons_gtk3.ui.h:95
 msgid "One"
 msgstr "一"
 
-#: ../ui/basic_buttons_gtk2.ui.h:41 ../ui/basic_buttons_gtk3.ui.h:41
-#: ../ui/scientific_buttons_gtk2.ui.h:96 ../ui/scientific_buttons_gtk3.ui.h:96
+#: ../ui/basic_buttons_gtk3.ui.h:41 ../ui/scientific_buttons_gtk3.ui.h:96
 msgid "2"
 msgstr "2"
 
-#: ../ui/basic_buttons_gtk2.ui.h:42 ../ui/basic_buttons_gtk3.ui.h:42
-#: ../ui/scientific_buttons_gtk2.ui.h:97 ../ui/scientific_buttons_gtk3.ui.h:97
+#: ../ui/basic_buttons_gtk3.ui.h:42 ../ui/scientific_buttons_gtk3.ui.h:97
 msgid "Two"
 msgstr "二"
 
-#: ../ui/basic_buttons_gtk2.ui.h:45 ../ui/basic_buttons_gtk3.ui.h:45
-#: ../ui/scientific_buttons_gtk2.ui.h:5 ../ui/scientific_buttons_gtk3.ui.h:5
+#: ../ui/basic_buttons_gtk3.ui.h:45 ../ui/scientific_buttons_gtk3.ui.h:5
 msgid "sqrt"
 msgstr "sqrt"
 
-#: ../ui/basic_buttons_gtk2.ui.h:46 ../ui/basic_buttons_gtk3.ui.h:46
-#: ../ui/scientific_buttons_gtk2.ui.h:6 ../ui/scientific_buttons_gtk3.ui.h:6
+#: ../ui/basic_buttons_gtk3.ui.h:46 ../ui/scientific_buttons_gtk3.ui.h:6
 msgid "Square root"
 msgstr "平方根"
 
-#: ../ui/basic_buttons_gtk2.ui.h:48 ../ui/basic_buttons_gtk3.ui.h:48
-#: ../ui/scientific_buttons_gtk2.ui.h:24 ../ui/scientific_buttons_gtk3.ui.h:24
+#: ../ui/basic_buttons_gtk3.ui.h:48 ../ui/scientific_buttons_gtk3.ui.h:24
 #, no-c-format
 msgid "%"
 msgstr "%"
 
-#: ../ui/basic_buttons_gtk2.ui.h:49 ../ui/basic_buttons_gtk3.ui.h:49
-#: ../ui/scientific_buttons_gtk2.ui.h:25 ../ui/scientific_buttons_gtk3.ui.h:25
+#: ../ui/basic_buttons_gtk3.ui.h:49 ../ui/scientific_buttons_gtk3.ui.h:25
 msgid "Percent"
 msgstr "百分比"
 
@@ -632,45 +540,33 @@ msgstr "主程序窗口。"
 msgid "Formula entry text field - enter string expression to compute here."
 msgstr "公式文字输入栏 - 输入一个表达式字符串以在此计算。"
 
-#: ../ui/dispctrl_bottom_gtk2.ui.h:1 ../ui/dispctrl_bottom_gtk3.ui.h:1
-#: ../ui/dispctrl_right_gtk2.ui.h:1 ../ui/dispctrl_right_gtk3.ui.h:1
-#: ../ui/dispctrl_right_vertical_gtk2.ui.h:5
+#: ../ui/dispctrl_bottom_gtk3.ui.h:1 ../ui/dispctrl_right_gtk3.ui.h:1
 #: ../ui/dispctrl_right_vertical_gtk3.ui.h:5
 msgid "AC"
 msgstr "复位"
 
-#: ../ui/dispctrl_bottom_gtk2.ui.h:2 ../ui/dispctrl_bottom_gtk3.ui.h:2
-#: ../ui/dispctrl_right_gtk2.ui.h:2 ../ui/dispctrl_right_gtk3.ui.h:2
-#: ../ui/dispctrl_right_vertical_gtk2.ui.h:6
+#: ../ui/dispctrl_bottom_gtk3.ui.h:2 ../ui/dispctrl_right_gtk3.ui.h:2
 #: ../ui/dispctrl_right_vertical_gtk3.ui.h:6
 msgid "Reset calculator (clear all)"
 msgstr "重置计算器（清除所有）"
 
-#: ../ui/dispctrl_bottom_gtk2.ui.h:3 ../ui/dispctrl_bottom_gtk3.ui.h:3
-#: ../ui/dispctrl_right_gtk2.ui.h:5 ../ui/dispctrl_right_gtk3.ui.h:5
-#: ../ui/dispctrl_right_vertical_gtk2.ui.h:3
+#: ../ui/dispctrl_bottom_gtk3.ui.h:3 ../ui/dispctrl_right_gtk3.ui.h:5
 #: ../ui/dispctrl_right_vertical_gtk3.ui.h:3
-#: ../ui/scientific_buttons_gtk2.ui.h:40 ../ui/scientific_buttons_gtk3.ui.h:40
+#: ../ui/scientific_buttons_gtk3.ui.h:40
 msgid "C"
 msgstr "C"
 
-#: ../ui/dispctrl_bottom_gtk2.ui.h:4 ../ui/dispctrl_bottom_gtk3.ui.h:4
-#: ../ui/dispctrl_right_gtk2.ui.h:6 ../ui/dispctrl_right_gtk3.ui.h:6
-#: ../ui/dispctrl_right_vertical_gtk2.ui.h:4
+#: ../ui/dispctrl_bottom_gtk3.ui.h:4 ../ui/dispctrl_right_gtk3.ui.h:6
 #: ../ui/dispctrl_right_vertical_gtk3.ui.h:4
 msgid "Clear display"
 msgstr "清除显示"
 
-#: ../ui/dispctrl_bottom_gtk2.ui.h:5 ../ui/dispctrl_bottom_gtk3.ui.h:5
-#: ../ui/dispctrl_right_gtk2.ui.h:3 ../ui/dispctrl_right_gtk3.ui.h:3
-#: ../ui/dispctrl_right_vertical_gtk2.ui.h:1
+#: ../ui/dispctrl_bottom_gtk3.ui.h:5 ../ui/dispctrl_right_gtk3.ui.h:3
 #: ../ui/dispctrl_right_vertical_gtk3.ui.h:1
 msgid "<-"
 msgstr "退格"
 
-#: ../ui/dispctrl_bottom_gtk2.ui.h:6 ../ui/dispctrl_bottom_gtk3.ui.h:6
-#: ../ui/dispctrl_right_gtk2.ui.h:4 ../ui/dispctrl_right_gtk3.ui.h:4
-#: ../ui/dispctrl_right_vertical_gtk2.ui.h:2
+#: ../ui/dispctrl_bottom_gtk3.ui.h:6 ../ui/dispctrl_right_gtk3.ui.h:4
 #: ../ui/dispctrl_right_vertical_gtk3.ui.h:2
 msgid "Backspace"
 msgstr "退格"
@@ -679,121 +575,138 @@ msgstr "退格"
 msgid "_File"
 msgstr "文件（_F）"
 
-#: ../ui/main_frame.ui.h:3 ../ui/main_frame_hildon.ui.h:3
+#: ../ui/main_frame.ui.h:3
+msgid "_New Tab"
+msgstr ""
+
+#: ../ui/main_frame.ui.h:4
+#, fuzzy
+msgid "_Close Tab"
+msgstr "关闭括号"
+
+#: ../ui/main_frame.ui.h:5 ../ui/main_frame_hildon.ui.h:3
 msgid "_Edit"
 msgstr "编辑（_E）"
 
-#: ../ui/main_frame.ui.h:4 ../ui/main_frame_hildon.ui.h:4
+#: ../ui/main_frame.ui.h:6 ../ui/main_frame_hildon.ui.h:4
 msgid "Cu_t Display Value"
 msgstr "剪切（_t）"
 
-#: ../ui/main_frame.ui.h:5 ../ui/main_frame_hildon.ui.h:5
+#: ../ui/main_frame.ui.h:7 ../ui/main_frame_hildon.ui.h:5
 msgid "_Copy Display Value"
 msgstr "复制（_C）"
 
-#: ../ui/main_frame.ui.h:6
+#: ../ui/main_frame.ui.h:8
 msgid "_Paste and Append to Display Value"
 msgstr "粘贴并追加到显示值 (_P)"
 
-#: ../ui/main_frame.ui.h:7 ../ui/main_frame_hildon.ui.h:7
+#: ../ui/main_frame.ui.h:9
+msgid "_Undo Input"
+msgstr ""
+
+#: ../ui/main_frame.ui.h:10
+msgid "_Redo Input"
+msgstr ""
+
+#: ../ui/main_frame.ui.h:11 ../ui/main_frame_hildon.ui.h:7
 msgid "_Preferences..."
 msgstr "个性设置（_P）……"
 
-#: ../ui/main_frame.ui.h:8 ../ui/main_frame_hildon.ui.h:8
+#: ../ui/main_frame.ui.h:12 ../ui/main_frame_hildon.ui.h:8
 msgid "_View"
 msgstr "视图（_V）"
 
-#: ../ui/main_frame.ui.h:9 ../ui/main_frame_hildon.ui.h:9
+#: ../ui/main_frame.ui.h:13 ../ui/main_frame_hildon.ui.h:9
 msgid "_Basic Mode"
 msgstr "简单模式（_B）"
 
-#: ../ui/main_frame.ui.h:10 ../ui/main_frame_hildon.ui.h:10
+#: ../ui/main_frame.ui.h:14 ../ui/main_frame_hildon.ui.h:10
 msgid "_Scientific Mode"
 msgstr "科学模式（_S）"
 
-#: ../ui/main_frame.ui.h:11
+#: ../ui/main_frame.ui.h:15
 msgid "_Paper Mode"
 msgstr "页模式"
 
-#: ../ui/main_frame.ui.h:12 ../ui/main_frame_hildon.ui.h:11
-#: ../ui/prefs_gtk2.ui.h:40 ../ui/prefs_gtk3.ui.h:40 ../ui/prefs-ume.ui.h:19
+#: ../ui/main_frame.ui.h:16 ../ui/main_frame_hildon.ui.h:11
+#: ../ui/prefs_gtk3.ui.h:40 ../ui/prefs-ume.ui.h:19
 msgid "Buttons"
 msgstr "按钮"
 
-#: ../ui/main_frame.ui.h:13 ../ui/main_frame_hildon.ui.h:12
+#: ../ui/main_frame.ui.h:17 ../ui/main_frame_hildon.ui.h:12
 msgid "Display Control"
 msgstr "控制"
 
-#: ../ui/main_frame.ui.h:14 ../ui/main_frame_hildon.ui.h:13
-#: ../ui/prefs_gtk2.ui.h:53 ../ui/prefs_gtk3.ui.h:53
+#: ../ui/main_frame.ui.h:18 ../ui/main_frame_hildon.ui.h:13
+#: ../ui/prefs_gtk3.ui.h:53
 msgid "Functions"
 msgstr "函数"
 
-#: ../ui/main_frame.ui.h:15 ../ui/main_frame_hildon.ui.h:14
+#: ../ui/main_frame.ui.h:19 ../ui/main_frame_hildon.ui.h:14
 msgid "Logical"
 msgstr "逻辑"
 
-#: ../ui/main_frame.ui.h:16 ../ui/main_frame_hildon.ui.h:15
+#: ../ui/main_frame.ui.h:20 ../ui/main_frame_hildon.ui.h:15
 msgid "Standard"
 msgstr "标准"
 
-#: ../ui/main_frame.ui.h:18 ../ui/main_frame_hildon.ui.h:17
+#: ../ui/main_frame.ui.h:22 ../ui/main_frame_hildon.ui.h:17
 msgid "_Calculator"
 msgstr "计算器（_C）"
 
-#: ../ui/main_frame.ui.h:19 ../ui/main_frame_hildon.ui.h:18
+#: ../ui/main_frame.ui.h:23 ../ui/main_frame_hildon.ui.h:18
 msgid "_Number bases"
 msgstr "数值进制"
 
-#: ../ui/main_frame.ui.h:20 ../ui/main_frame_hildon.ui.h:19
+#: ../ui/main_frame.ui.h:24 ../ui/main_frame_hildon.ui.h:19
 msgid "_Decimal"
 msgstr "十进制（_D）"
 
-#: ../ui/main_frame.ui.h:21 ../ui/main_frame_hildon.ui.h:20
+#: ../ui/main_frame.ui.h:25 ../ui/main_frame_hildon.ui.h:20
 msgid "_Hexadecimal"
 msgstr "十六进制（_H）"
 
-#: ../ui/main_frame.ui.h:22 ../ui/main_frame_hildon.ui.h:21
+#: ../ui/main_frame.ui.h:26 ../ui/main_frame_hildon.ui.h:21
 msgid "_Octal"
 msgstr "八进制（_O）"
 
-#: ../ui/main_frame.ui.h:23 ../ui/main_frame_hildon.ui.h:22
+#: ../ui/main_frame.ui.h:27 ../ui/main_frame_hildon.ui.h:22
 msgid "_Binary"
 msgstr "二进制（_B）"
 
-#: ../ui/main_frame.ui.h:24 ../ui/main_frame_hildon.ui.h:23
+#: ../ui/main_frame.ui.h:28 ../ui/main_frame_hildon.ui.h:23
 msgid "Angle _units"
 msgstr "角度单位（_u）"
 
-#: ../ui/main_frame.ui.h:25 ../ui/main_frame_hildon.ui.h:24
+#: ../ui/main_frame.ui.h:29 ../ui/main_frame_hildon.ui.h:24
 msgid "D_egrees"
 msgstr "度（_e）"
 
-#: ../ui/main_frame.ui.h:26 ../ui/main_frame_hildon.ui.h:25
+#: ../ui/main_frame.ui.h:30 ../ui/main_frame_hildon.ui.h:25
 msgid "_Radians"
 msgstr "幅度（_R）"
 
-#: ../ui/main_frame.ui.h:27 ../ui/main_frame_hildon.ui.h:26
+#: ../ui/main_frame.ui.h:31 ../ui/main_frame_hildon.ui.h:26
 msgid "_Gradians"
 msgstr "梯度（_G）"
 
-#: ../ui/main_frame.ui.h:28 ../ui/main_frame_hildon.ui.h:27
+#: ../ui/main_frame.ui.h:32 ../ui/main_frame_hildon.ui.h:27
 msgid "Notation _modes"
 msgstr "输入模式（_m）"
 
-#: ../ui/main_frame.ui.h:29 ../ui/main_frame_hildon.ui.h:28
+#: ../ui/main_frame.ui.h:33 ../ui/main_frame_hildon.ui.h:28
 msgid "_Algebraic"
 msgstr "代数"
 
-#: ../ui/main_frame.ui.h:30 ../ui/main_frame_hildon.ui.h:29
+#: ../ui/main_frame.ui.h:34 ../ui/main_frame_hildon.ui.h:29
 msgid "_Reverse Polish (RPN)"
 msgstr "逆波兰式（_R）"
 
-#: ../ui/main_frame.ui.h:31 ../ui/main_frame_hildon.ui.h:30
+#: ../ui/main_frame.ui.h:35 ../ui/main_frame_hildon.ui.h:30
 msgid "_Formula Entry"
 msgstr "公式输入（_F）"
 
-#: ../ui/main_frame.ui.h:32 ../ui/main_frame_hildon.ui.h:31
+#: ../ui/main_frame.ui.h:36 ../ui/main_frame_hildon.ui.h:31
 msgid "_Help"
 msgstr "帮助（_H）"
 
@@ -809,479 +722,550 @@ msgstr "粘贴（_P）"
 msgid "_About..."
 msgstr "关于……"
 
-#: ../ui/prefs_gtk2.ui.h:1 ../ui/prefs_gtk3.ui.h:1
+#: ../ui/prefs_gtk3.ui.h:1
 msgid "Decimal"
 msgstr "十进制"
 
-#: ../ui/prefs_gtk2.ui.h:2 ../ui/prefs_gtk3.ui.h:2
+#: ../ui/prefs_gtk3.ui.h:2
 msgid "Hexadecimal"
 msgstr "十六进制"
 
-#: ../ui/prefs_gtk2.ui.h:3 ../ui/prefs_gtk3.ui.h:3
+#: ../ui/prefs_gtk3.ui.h:3
 msgid "Octal"
 msgstr "八进制"
 
-#: ../ui/prefs_gtk2.ui.h:4 ../ui/prefs_gtk3.ui.h:4
+#: ../ui/prefs_gtk3.ui.h:4
 msgid "Binary"
 msgstr "二进制"
 
-#: ../ui/prefs_gtk2.ui.h:5 ../ui/prefs_gtk3.ui.h:5 ../ui/prefs-ume.ui.h:1
+#: ../ui/prefs_gtk3.ui.h:5 ../ui/prefs-ume.ui.h:1
 msgid "talculator - Preferences"
 msgstr "talculator - 个性化"
 
-#: ../ui/prefs_gtk2.ui.h:6 ../ui/prefs_gtk3.ui.h:6 ../ui/prefs-ume.ui.h:2
+#: ../ui/prefs_gtk3.ui.h:6 ../ui/prefs-ume.ui.h:2
 msgid "A dialog that is used to change preferences settings."
 msgstr "用来修改个性设置的对话框"
 
-#: ../ui/prefs_gtk2.ui.h:7 ../ui/prefs_gtk3.ui.h:7 ../ui/prefs-ume.ui.h:3
+#: ../ui/prefs_gtk3.ui.h:7 ../ui/prefs-ume.ui.h:3
 msgid "Closes the dialog."
 msgstr "关闭对话框。"
 
-#: ../ui/prefs_gtk2.ui.h:8 ../ui/prefs_gtk3.ui.h:8
+#: ../ui/prefs_gtk3.ui.h:8
 msgid "<b>Appearance</b>"
 msgstr "<b>外观</b>"
 
-#: ../ui/prefs_gtk2.ui.h:9 ../ui/prefs_gtk3.ui.h:9 ../ui/prefs-ume.ui.h:5
+#: ../ui/prefs_gtk3.ui.h:9 ../ui/prefs-ume.ui.h:5
 msgid "    "
 msgstr "    "
 
-#: ../ui/prefs_gtk2.ui.h:10 ../ui/prefs_gtk3.ui.h:10
+#: ../ui/prefs_gtk3.ui.h:10
 msgid "Result font:"
 msgstr "结果字体："
 
-#: ../ui/prefs_gtk2.ui.h:11 ../ui/prefs_gtk3.ui.h:11
+#: ../ui/prefs_gtk3.ui.h:11
 msgid "Inactive module color:"
 msgstr "未启用模块颜色："
 
-#: ../ui/prefs_gtk2.ui.h:12 ../ui/prefs_gtk3.ui.h:12
+#: ../ui/prefs_gtk3.ui.h:12
 msgid "Active module color:"
 msgstr "激活模块颜色:"
 
-#: ../ui/prefs_gtk2.ui.h:13 ../ui/prefs_gtk3.ui.h:13
+#: ../ui/prefs_gtk3.ui.h:13
 msgid "Result font color:"
 msgstr "结果字体颜色："
 
-#: ../ui/prefs_gtk2.ui.h:14 ../ui/prefs_gtk3.ui.h:14
+#: ../ui/prefs_gtk3.ui.h:14
 msgid "Background color:"
 msgstr "背景色："
 
-#: ../ui/prefs_gtk2.ui.h:15 ../ui/prefs_gtk3.ui.h:15
+#: ../ui/prefs_gtk3.ui.h:15
 msgid "Module font:"
 msgstr "模块字体："
 
-#: ../ui/prefs_gtk2.ui.h:16 ../ui/prefs_gtk3.ui.h:16
+#: ../ui/prefs_gtk3.ui.h:16
 msgid "RPN stack font:"
 msgstr "【逆波兰式】栈字体"
 
-#: ../ui/prefs_gtk2.ui.h:17 ../ui/prefs_gtk3.ui.h:17
+#: ../ui/prefs_gtk3.ui.h:17
 msgid "RPN stack color:"
 msgstr "【逆波兰式】栈颜色："
 
-#: ../ui/prefs_gtk2.ui.h:18 ../ui/prefs_gtk3.ui.h:18
+#: ../ui/prefs_gtk3.ui.h:18
 msgid "Pick a Display Background Color"
 msgstr "选择一个背景显示颜色"
 
-#: ../ui/prefs_gtk2.ui.h:19 ../ui/prefs_gtk3.ui.h:19
+#: ../ui/prefs_gtk3.ui.h:19
 msgid "Pick a Display Result Font Color"
 msgstr "选择一个结果显示字体颜色"
 
-#: ../ui/prefs_gtk2.ui.h:20 ../ui/prefs_gtk3.ui.h:20
+#: ../ui/prefs_gtk3.ui.h:20
 msgid "Pick a RPN Stack Color"
 msgstr "选择一个 RPN 栈颜色"
 
-#: ../ui/prefs_gtk2.ui.h:21 ../ui/prefs_gtk3.ui.h:21
+#: ../ui/prefs_gtk3.ui.h:21
 msgid "Pick a Inactive Module Color"
 msgstr "选择一个非活动模块颜色"
 
-#: ../ui/prefs_gtk2.ui.h:22 ../ui/prefs_gtk3.ui.h:22
+#: ../ui/prefs_gtk3.ui.h:22
 msgid "Pick a Active Module Color"
 msgstr "选择一个活动模块颜色"
 
-#: ../ui/prefs_gtk2.ui.h:23 ../ui/prefs_gtk3.ui.h:23
+#: ../ui/prefs_gtk3.ui.h:23
 msgid "Pick a Result Font"
 msgstr "选择一个结果zi ti"
 
-#: ../ui/prefs_gtk2.ui.h:24 ../ui/prefs_gtk3.ui.h:24
+#: ../ui/prefs_gtk3.ui.h:24
 msgid "Pick a RPN Stack Font"
 msgstr "选择一个 RPN 栈字体"
 
-#: ../ui/prefs_gtk2.ui.h:25 ../ui/prefs_gtk3.ui.h:25
+#: ../ui/prefs_gtk3.ui.h:25
 msgid "Pick a Module Font"
 msgstr "选择一个模块字体"
 
-#: ../ui/prefs_gtk2.ui.h:26 ../ui/prefs_gtk3.ui.h:26 ../ui/prefs-ume.ui.h:4
+#: ../ui/prefs_gtk3.ui.h:26 ../ui/prefs-ume.ui.h:4
 msgid "<b>Modules Visibility</b>"
 msgstr "<b>模块可见性</b>"
 
-#: ../ui/prefs_gtk2.ui.h:27 ../ui/prefs_gtk3.ui.h:27 ../ui/prefs-ume.ui.h:6
+#: ../ui/prefs_gtk3.ui.h:27 ../ui/prefs-ume.ui.h:6
 msgid "Angle base units"
 msgstr "角度基本单位"
 
-#: ../ui/prefs_gtk2.ui.h:28 ../ui/prefs_gtk3.ui.h:28 ../ui/prefs-ume.ui.h:7
+#: ../ui/prefs_gtk3.ui.h:28 ../ui/prefs-ume.ui.h:7
 msgid "Notation"
 msgstr "输入模式"
 
-#: ../ui/prefs_gtk2.ui.h:29 ../ui/prefs_gtk3.ui.h:29 ../ui/prefs-ume.ui.h:8
+#: ../ui/prefs_gtk3.ui.h:29 ../ui/prefs-ume.ui.h:8
 msgid "Arithmetic operation"
 msgstr "算法操作"
 
-#: ../ui/prefs_gtk2.ui.h:30 ../ui/prefs_gtk3.ui.h:30 ../ui/prefs-ume.ui.h:9
+#: ../ui/prefs_gtk3.ui.h:30 ../ui/prefs-ume.ui.h:9
 msgid "Open brackets"
 msgstr "打开的括号"
 
-#: ../ui/prefs_gtk2.ui.h:31 ../ui/prefs_gtk3.ui.h:31 ../ui/prefs-ume.ui.h:10
+#: ../ui/prefs_gtk3.ui.h:31 ../ui/prefs-ume.ui.h:10
 msgid "Number base units"
 msgstr "数字基本单元"
 
-#: ../ui/prefs_gtk2.ui.h:32 ../ui/prefs_gtk3.ui.h:32 ../ui/prefs-ume.ui.h:11
+#: ../ui/prefs_gtk3.ui.h:32 ../ui/prefs-ume.ui.h:11
 msgid "Display"
 msgstr "显示"
 
-#: ../ui/prefs_gtk2.ui.h:33 ../ui/prefs_gtk3.ui.h:33 ../ui/prefs-ume.ui.h:12
+#: ../ui/prefs_gtk3.ui.h:33 ../ui/prefs-ume.ui.h:12
 msgid "<b>Font</b>"
 msgstr "<b>字体</b>"
 
-#: ../ui/prefs_gtk2.ui.h:34 ../ui/prefs_gtk3.ui.h:34 ../ui/prefs-ume.ui.h:13
+#: ../ui/prefs_gtk3.ui.h:34 ../ui/prefs-ume.ui.h:13
 msgid "Use custom button font"
 msgstr "使用自定义按钮字体"
 
-#: ../ui/prefs_gtk2.ui.h:35 ../ui/prefs_gtk3.ui.h:35 ../ui/prefs-ume.ui.h:14
+#: ../ui/prefs_gtk3.ui.h:35 ../ui/prefs-ume.ui.h:14
 msgid "Button font:"
 msgstr "按钮字体："
 
-#: ../ui/prefs_gtk2.ui.h:36 ../ui/prefs_gtk3.ui.h:36 ../ui/prefs-ume.ui.h:15
+#: ../ui/prefs_gtk3.ui.h:36 ../ui/prefs-ume.ui.h:15
 msgid "Pick a Button Font"
 msgstr "选择一个an niu zi ti"
 
-#: ../ui/prefs_gtk2.ui.h:37 ../ui/prefs_gtk3.ui.h:37 ../ui/prefs-ume.ui.h:16
+#: ../ui/prefs_gtk3.ui.h:37 ../ui/prefs-ume.ui.h:16
 msgid "<b>Dimension</b>"
 msgstr "<b>分隔符</b>"
 
-#: ../ui/prefs_gtk2.ui.h:38 ../ui/prefs_gtk3.ui.h:38 ../ui/prefs-ume.ui.h:17
+#: ../ui/prefs_gtk3.ui.h:38 ../ui/prefs-ume.ui.h:17
 msgid "Minimal button width:"
 msgstr "按钮最小宽度："
 
-#: ../ui/prefs_gtk2.ui.h:39 ../ui/prefs_gtk3.ui.h:39 ../ui/prefs-ume.ui.h:18
+#: ../ui/prefs_gtk3.ui.h:39 ../ui/prefs-ume.ui.h:18
 msgid "Minimal button height:"
 msgstr "按钮最小高度："
 
-#: ../ui/prefs_gtk2.ui.h:41 ../ui/prefs_gtk3.ui.h:41
+#: ../ui/prefs_gtk3.ui.h:41
 msgid "<b>User defined constants:</b>"
 msgstr "<b>用户常量：</b>"
 
-#: ../ui/prefs_gtk2.ui.h:42 ../ui/prefs_gtk3.ui.h:42
+#: ../ui/prefs_gtk3.ui.h:42
 msgid "Name:"
 msgstr "名字："
 
-#: ../ui/prefs_gtk2.ui.h:43 ../ui/prefs_gtk3.ui.h:43
+#: ../ui/prefs_gtk3.ui.h:43
 msgid "Value:"
 msgstr "值："
 
-#: ../ui/prefs_gtk2.ui.h:44 ../ui/prefs_gtk3.ui.h:44
+#: ../ui/prefs_gtk3.ui.h:44
 msgid "Description:"
 msgstr "说明："
 
-#: ../ui/prefs_gtk2.ui.h:45 ../ui/prefs_gtk3.ui.h:45
+#: ../ui/prefs_gtk3.ui.h:45
 msgid "Add"
 msgstr "添加"
 
-#: ../ui/prefs_gtk2.ui.h:46 ../ui/prefs_gtk3.ui.h:46
+#: ../ui/prefs_gtk3.ui.h:46
 msgid "Update"
 msgstr "更新"
 
-#: ../ui/prefs_gtk2.ui.h:47 ../ui/prefs_gtk3.ui.h:47
+#: ../ui/prefs_gtk3.ui.h:47
 msgid "Delete"
 msgstr "删除"
 
-#: ../ui/prefs_gtk2.ui.h:48 ../ui/prefs_gtk3.ui.h:48
+#: ../ui/prefs_gtk3.ui.h:48
 msgid "Clear"
 msgstr "清除"
 
-#: ../ui/prefs_gtk2.ui.h:49 ../ui/prefs_gtk3.ui.h:49
-#: ../ui/scientific_buttons_gtk2.ui.h:21 ../ui/scientific_buttons_gtk3.ui.h:21
+#: ../ui/prefs_gtk3.ui.h:49 ../ui/scientific_buttons_gtk3.ui.h:21
 msgid "Constants"
 msgstr "常量"
 
-#: ../ui/prefs_gtk2.ui.h:50 ../ui/prefs_gtk3.ui.h:50
+#: ../ui/prefs_gtk3.ui.h:50
 msgid "<b>User defined functions:</b>"
 msgstr "<b>用户定义功能：</b>"
 
-#: ../ui/prefs_gtk2.ui.h:51 ../ui/prefs_gtk3.ui.h:51
+#: ../ui/prefs_gtk3.ui.h:51
 msgid "Variable:"
 msgstr "变量："
 
-#: ../ui/prefs_gtk2.ui.h:52 ../ui/prefs_gtk3.ui.h:52
+#: ../ui/prefs_gtk3.ui.h:52
 msgid "Expression:"
 msgstr "表达式："
 
-#: ../ui/prefs_gtk2.ui.h:54 ../ui/prefs_gtk3.ui.h:54 ../ui/prefs-ume.ui.h:20
+#: ../ui/prefs_gtk3.ui.h:54 ../ui/prefs-ume.ui.h:20
 msgid "Configure number base: "
 msgstr "配置数值进制"
 
-#: ../ui/prefs_gtk2.ui.h:55 ../ui/prefs_gtk3.ui.h:55
+#: ../ui/prefs_gtk3.ui.h:55
 msgid "<b>Decimal Settings</b>"
 msgstr "<b>十进制设置</b>"
 
-#: ../ui/prefs_gtk2.ui.h:56 ../ui/prefs_gtk3.ui.h:56
+#: ../ui/prefs_gtk3.ui.h:56
 msgid "Show thousands separator"
 msgstr "显示千位分隔符"
 
-#: ../ui/prefs_gtk2.ui.h:57 ../ui/prefs_gtk3.ui.h:57
+#: ../ui/prefs_gtk3.ui.h:57
 msgid "Separator character:"
 msgstr "分割字符："
 
-#: ../ui/prefs_gtk2.ui.h:58 ../ui/prefs_gtk3.ui.h:58
+#: ../ui/prefs_gtk3.ui.h:58
 msgid "Separator block length:"
 msgstr "分割块宽度"
 
-#: ../ui/prefs_gtk2.ui.h:59 ../ui/prefs_gtk3.ui.h:59
+#: ../ui/prefs_gtk3.ui.h:59
 msgid " "
 msgstr " "
 
-#: ../ui/prefs_gtk2.ui.h:60 ../ui/prefs_gtk3.ui.h:60
+#: ../ui/prefs_gtk3.ui.h:60
 msgid "<b>Hexadecimal Settings</b>"
 msgstr "<b>十六进制设置</b>"
 
-#: ../ui/prefs_gtk2.ui.h:61 ../ui/prefs_gtk3.ui.h:61
+#: ../ui/prefs_gtk3.ui.h:61
 msgid "Signed"
 msgstr "符号位"
 
-#: ../ui/prefs_gtk2.ui.h:62 ../ui/prefs_gtk3.ui.h:62
+#: ../ui/prefs_gtk3.ui.h:62
 msgid "Show separator"
 msgstr "显示分隔符"
 
-#: ../ui/prefs_gtk2.ui.h:63 ../ui/prefs_gtk3.ui.h:63
+#: ../ui/prefs_gtk3.ui.h:63
 msgid "Number of bits: "
 msgstr "位数："
 
-#: ../ui/prefs_gtk2.ui.h:64 ../ui/prefs_gtk3.ui.h:64
+#: ../ui/prefs_gtk3.ui.h:64
 msgid "<b>Octal Settings</b>"
 msgstr "<b>八进制设置</b>"
 
-#: ../ui/prefs_gtk2.ui.h:65 ../ui/prefs_gtk3.ui.h:65
+#: ../ui/prefs_gtk3.ui.h:65
 msgid "<b>Binary Settings</b>"
 msgstr "<b>二进制设置</b>"
 
-#: ../ui/prefs_gtk2.ui.h:66 ../ui/prefs_gtk3.ui.h:66
+#: ../ui/prefs_gtk3.ui.h:66
 msgid "Fix length to a multiple of"
 msgstr "修正长度到该数字的倍数: "
 
-#: ../ui/prefs_gtk2.ui.h:67 ../ui/prefs_gtk3.ui.h:67 ../ui/prefs-ume.ui.h:21
+#: ../ui/prefs_gtk3.ui.h:67 ../ui/prefs-ume.ui.h:21
 msgid "Numbers"
 msgstr "数字"
 
-#: ../ui/prefs_gtk2.ui.h:68 ../ui/prefs_gtk3.ui.h:68 ../ui/prefs-ume.ui.h:22
+#: ../ui/prefs_gtk3.ui.h:68 ../ui/prefs-ume.ui.h:22
 msgid "<b>RPN</b>"
 msgstr "<b>逆波兰式</b>"
 
-#: ../ui/prefs_gtk2.ui.h:69 ../ui/prefs_gtk3.ui.h:69 ../ui/prefs-ume.ui.h:23
+#: ../ui/prefs_gtk3.ui.h:69 ../ui/prefs-ume.ui.h:23
 msgid "finite stack size (x, y, z, t)"
 msgstr "限制栈大小"
 
-#: ../ui/prefs_gtk2.ui.h:70 ../ui/prefs_gtk3.ui.h:70 ../ui/prefs-ume.ui.h:24
+#: ../ui/prefs_gtk3.ui.h:70 ../ui/prefs-ume.ui.h:24
 msgid "infinite stack size"
 msgstr "不限制栈大小"
 
-#: ../ui/prefs_gtk2.ui.h:71 ../ui/prefs_gtk3.ui.h:71 ../ui/prefs-ume.ui.h:25
+#: ../ui/prefs_gtk3.ui.h:71 ../ui/prefs-ume.ui.h:25
 msgid "<b>Startup</b>"
 msgstr "<b>启动设置</b>"
 
-#: ../ui/prefs_gtk2.ui.h:72 ../ui/prefs_gtk3.ui.h:72 ../ui/prefs-ume.ui.h:26
+#: ../ui/prefs_gtk3.ui.h:72 ../ui/prefs-ume.ui.h:26
 msgid "Remember display value on exit"
 msgstr "退出时保存显示值"
 
-#: ../ui/prefs_gtk2.ui.h:73 ../ui/prefs_gtk3.ui.h:73
+#: ../ui/prefs_gtk3.ui.h:73
 msgid "<b>Visibility</b>"
 msgstr "<b>外观</b>"
 
-#: ../ui/prefs_gtk2.ui.h:74 ../ui/prefs_gtk3.ui.h:74
+#: ../ui/prefs_gtk3.ui.h:74
 msgid "Show menu bar"
 msgstr "显示菜单栏"
 
-#: ../ui/prefs_gtk2.ui.h:75 ../ui/prefs_gtk3.ui.h:75 ../ui/prefs-ume.ui.h:27
+#: ../ui/prefs_gtk3.ui.h:75 ../ui/prefs-ume.ui.h:27
 msgid "General"
 msgstr "通用选项"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:1 ../ui/scientific_buttons_gtk3.ui.h:1
+#: ../ui/scientific_buttons_gtk3.ui.h:1
 msgid "tan"
 msgstr "tan"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:2 ../ui/scientific_buttons_gtk3.ui.h:2
+#: ../ui/scientific_buttons_gtk3.ui.h:2
 msgid "Tangent"
 msgstr "正切"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:3 ../ui/scientific_buttons_gtk3.ui.h:3
+#: ../ui/scientific_buttons_gtk3.ui.h:3
 msgid "ln"
 msgstr "ln"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:4 ../ui/scientific_buttons_gtk3.ui.h:4
+#: ../ui/scientific_buttons_gtk3.ui.h:4
 msgid "Natural logarithm (base: e)"
 msgstr "以自然对数e为底的对数"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:7 ../ui/scientific_buttons_gtk3.ui.h:7
+#: ../ui/scientific_buttons_gtk3.ui.h:7
 msgid "n!"
 msgstr "n!"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:8 ../ui/scientific_buttons_gtk3.ui.h:8
+#: ../ui/scientific_buttons_gtk3.ui.h:8
 msgid "Factorial"
 msgstr "阶乘"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:9 ../ui/scientific_buttons_gtk3.ui.h:9
+#: ../ui/scientific_buttons_gtk3.ui.h:9
 msgid "EE"
 msgstr "EE"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:10 ../ui/scientific_buttons_gtk3.ui.h:10
+#: ../ui/scientific_buttons_gtk3.ui.h:10
 msgid "Enter exponent (base: 10)"
 msgstr "输入指数（以10为底）"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:11 ../ui/scientific_buttons_gtk3.ui.h:11
+#: ../ui/scientific_buttons_gtk3.ui.h:11
 msgid "cos"
 msgstr "cos"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:12 ../ui/scientific_buttons_gtk3.ui.h:12
+#: ../ui/scientific_buttons_gtk3.ui.h:12
 msgid "Cosine"
 msgstr "余弦"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:13 ../ui/scientific_buttons_gtk3.ui.h:13
+#: ../ui/scientific_buttons_gtk3.ui.h:13
 msgid "log"
 msgstr "log"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:14 ../ui/scientific_buttons_gtk3.ui.h:14
+#: ../ui/scientific_buttons_gtk3.ui.h:14
 msgid "Logarithm (base: 10)"
 msgstr "以10为底的对数"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:15 ../ui/scientific_buttons_gtk3.ui.h:15
+#: ../ui/scientific_buttons_gtk3.ui.h:15
 msgid "x^2"
 msgstr "x^2"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:16 ../ui/scientific_buttons_gtk3.ui.h:16
+#: ../ui/scientific_buttons_gtk3.ui.h:16
 msgid "Square"
 msgstr "平方"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:19 ../ui/scientific_buttons_gtk3.ui.h:19
+#: ../ui/scientific_buttons_gtk3.ui.h:19
 msgid "User defined functions"
 msgstr "用户定义功能"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:20 ../ui/scientific_buttons_gtk3.ui.h:20
+#: ../ui/scientific_buttons_gtk3.ui.h:20
 msgid "fun"
 msgstr "函数"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:22 ../ui/scientific_buttons_gtk3.ui.h:22
+#: ../ui/scientific_buttons_gtk3.ui.h:22
 msgid "con"
 msgstr "常量"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:26 ../ui/scientific_buttons_gtk3.ui.h:26
+#: ../ui/scientific_buttons_gtk3.ui.h:26
 msgid "inv"
 msgstr "inv"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:27 ../ui/scientific_buttons_gtk3.ui.h:27
+#: ../ui/scientific_buttons_gtk3.ui.h:27
 msgid "Inverse mode"
 msgstr "插入模式"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:28 ../ui/scientific_buttons_gtk3.ui.h:28
+#: ../ui/scientific_buttons_gtk3.ui.h:28
 msgid "hyp"
 msgstr "hyp"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:29 ../ui/scientific_buttons_gtk3.ui.h:29
+#: ../ui/scientific_buttons_gtk3.ui.h:29
 msgid "Hyperbolic mode"
 msgstr "双曲模式"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:30 ../ui/scientific_buttons_gtk3.ui.h:30
+#: ../ui/scientific_buttons_gtk3.ui.h:30
 msgid "sin"
 msgstr "sin"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:31 ../ui/scientific_buttons_gtk3.ui.h:31
+#: ../ui/scientific_buttons_gtk3.ui.h:31
 msgid "Sine"
 msgstr "正弦"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:32 ../ui/scientific_buttons_gtk3.ui.h:32
+#: ../ui/scientific_buttons_gtk3.ui.h:32
 msgid "AND"
 msgstr "与"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:33 ../ui/scientific_buttons_gtk3.ui.h:33
+#: ../ui/scientific_buttons_gtk3.ui.h:33
 msgid "Logical AND"
 msgstr "逻辑与"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:34 ../ui/scientific_buttons_gtk3.ui.h:34
+#: ../ui/scientific_buttons_gtk3.ui.h:34
 msgid "OR"
 msgstr "或"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:35 ../ui/scientific_buttons_gtk3.ui.h:35
+#: ../ui/scientific_buttons_gtk3.ui.h:35
 msgid "Logical OR"
 msgstr "逻辑或"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:36 ../ui/scientific_buttons_gtk3.ui.h:36
+#: ../ui/scientific_buttons_gtk3.ui.h:36
 msgid "XOR"
 msgstr "异或"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:37 ../ui/scientific_buttons_gtk3.ui.h:37
+#: ../ui/scientific_buttons_gtk3.ui.h:37
 msgid "Logical XOR"
 msgstr "逻辑异或"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:38 ../ui/scientific_buttons_gtk3.ui.h:38
+#: ../ui/scientific_buttons_gtk3.ui.h:38
 msgid "CMP"
 msgstr "位取反"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:39 ../ui/scientific_buttons_gtk3.ui.h:39
+#: ../ui/scientific_buttons_gtk3.ui.h:39
 msgid "Bitwise complement"
 msgstr "位取反"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:41 ../ui/scientific_buttons_gtk3.ui.h:41
+#: ../ui/scientific_buttons_gtk3.ui.h:41
 msgid "Hexadecimal 0xC"
 msgstr "十六进制 0xC"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:42 ../ui/scientific_buttons_gtk3.ui.h:42
+#: ../ui/scientific_buttons_gtk3.ui.h:42
 msgid "D"
 msgstr "D"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:43 ../ui/scientific_buttons_gtk3.ui.h:43
+#: ../ui/scientific_buttons_gtk3.ui.h:43
 msgid "Hexadecimal 0xD"
 msgstr "十六进制  0xD"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:44 ../ui/scientific_buttons_gtk3.ui.h:44
+#: ../ui/scientific_buttons_gtk3.ui.h:44
 msgid "E"
 msgstr "E"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:45 ../ui/scientific_buttons_gtk3.ui.h:45
+#: ../ui/scientific_buttons_gtk3.ui.h:45
 msgid "Hexadecimal 0xE"
 msgstr "十六进制 0xE"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:46 ../ui/scientific_buttons_gtk3.ui.h:46
+#: ../ui/scientific_buttons_gtk3.ui.h:46
 msgid "F"
 msgstr "F"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:47 ../ui/scientific_buttons_gtk3.ui.h:47
+#: ../ui/scientific_buttons_gtk3.ui.h:47
 msgid "Hexadecimal 0xF"
 msgstr "十六进制 0xF"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:48 ../ui/scientific_buttons_gtk3.ui.h:48
+#: ../ui/scientific_buttons_gtk3.ui.h:48
 msgid "B"
 msgstr "B"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:49 ../ui/scientific_buttons_gtk3.ui.h:49
+#: ../ui/scientific_buttons_gtk3.ui.h:49
 msgid "Hexadecimal 0xB"
 msgstr "十六进制 0xB"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:50 ../ui/scientific_buttons_gtk3.ui.h:50
+#: ../ui/scientific_buttons_gtk3.ui.h:50
 msgid "A"
 msgstr "A"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:51 ../ui/scientific_buttons_gtk3.ui.h:51
+#: ../ui/scientific_buttons_gtk3.ui.h:51
 msgid "Hexadecimal 0xA"
 msgstr "十六进制 0xA"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:60 ../ui/scientific_buttons_gtk3.ui.h:60
+#: ../ui/scientific_buttons_gtk3.ui.h:60
 msgid "MOD"
 msgstr "MOD"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:61 ../ui/scientific_buttons_gtk3.ui.h:61
+#: ../ui/scientific_buttons_gtk3.ui.h:61
 msgid "Modulus"
 msgstr "取模"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:74 ../ui/scientific_buttons_gtk3.ui.h:74
+#: ../ui/scientific_buttons_gtk3.ui.h:74
 msgid "LSH"
 msgstr "LSH"
 
-#: ../ui/scientific_buttons_gtk2.ui.h:75 ../ui/scientific_buttons_gtk3.ui.h:75
+#: ../ui/scientific_buttons_gtk3.ui.h:75
 msgid "Left shift"
 msgstr "左移位"
+
+#, c-format
+#~ msgid "[%s] %c - unknown operation character. %s\n"
+#~ msgstr "[%s] %c - 未知运算符。%s\n"
+
+#, c-format
+#~ msgid ""
+#~ "[%s] Conversion of floating point number in float2string failed because "
+#~ "buffer was too small. %s\n"
+#~ ")"
+#~ msgstr ""
+#~ "[%s] 使用 float2string 进行的浮点数转换失败，因为缓冲区太小。%s\n"
+#~ ")"
+
+#, c-format
+#~ msgid ""
+#~ "[%s] Conversion of floating point number in float2stringP failed because "
+#~ "buffer was too small. %s\n"
+#~ ")"
+#~ msgstr ""
+#~ "[%s] 使用 float2stringP 进行的浮点数转换失败，因为缓冲区太小。%s\n"
+#~ ")"
+
+#~ msgid "unsupported inverse function"
+#~ msgstr "不支持的反函数"
+
+#~ msgid "unsupported hyperbolic function"
+#~ msgstr "不支持的双曲函数"
+
+#, c-format
+#~ msgid "[%s] failed to convert char %c in function \"axtof\". %s\n"
+#~ msgstr "[%s] 在函数 \"axtof\" 中转换 char %c 失败。%s\n"
+
+#, c-format
+#~ msgid "[%s] failed to convert %s in function \"ftoax\". %s\n"
+#~ msgstr "[%s] 在函数 \"ftoax\" 中转换 %s 失败。%s\n"
+
+#~ msgid "unknown number base"
+#~ msgstr "未知基数"
+
+#, c-format
+#~ msgid ""
+#~ "[%s] unknown number base in function \"get_display_number_string\". %s\n"
+#~ msgstr "[%s] 在函数 \"get_display_number_string\" 中存在未知基数。%s\n"
+
+#, c-format
+#~ msgid ""
+#~ "[%s] failed to convert %s to a number properly in function "
+#~ "\"string2double\". Have you changed your locales? Deleting your "
+#~ "configuration file might solve this problem. %s\n"
+#~ msgstr ""
+#~ "[%s] 在函数 \"string2double\" 中转换 %s 到一个数字失败。你是否更换了地区设"
+#~ "置？删除你的配置文件也许可以解决此问题。%s\n"
+
+#, c-format
+#~ msgid "[%s] unknown number base in function \"string2double\". %s\n"
+#~ msgstr "[%s] 在函数 \"string2double\" 中存在未知基数。%s\n"
+
+#, c-format
+#~ msgid "[%s] unknown angle base in function \"x2rad\". %s\n"
+#~ msgstr "[%s] 在函数 \"x2rad\" 中存在未知基角。%s\n"
+
+#, c-format
+#~ msgid "[%s] unknown angle base in function \"rad2x\". %s\n"
+#~ msgstr "[%s] 在函数 \"rad2x\" 中存在未知基角。%s\n"
+
+#, c-format
+#~ msgid ""
+#~ "[%s] flex parser was called more than %i times. Do you know what you are "
+#~ "doing? If not: %s\n"
+#~ msgstr ""
+#~ "[%s] flex 解析器已经被调用超过 %i 次。你确定你自己在做什么吗？否则: %s\n"

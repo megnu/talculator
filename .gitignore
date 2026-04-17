@@ -78,6 +78,7 @@
 /po/.intltool-merge-cache
 /po/.intltool-merge-cache.lock
 /po/POTFILES
+/po/talculator.pot
 /po/stamp-it
 
 # Generated desktop metadata
