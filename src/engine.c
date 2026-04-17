@@ -26,6 +26,36 @@ static gboolean talc_identifier_is_constant_name (const char *ident)
 	return FALSE;
 }
 
+static const talc_engine_custom_constant *talc_find_custom_constant (
+	const talc_engine_context *ctx,
+	const char *ident)
+{
+	gsize i;
+
+	if (!ctx || !ident || !ctx->custom_constants) return NULL;
+	for (i = 0; i < ctx->custom_constants_len; i++) {
+		const talc_engine_custom_constant *c = &ctx->custom_constants[i];
+		if (!c->name || c->name[0] == '\0') continue;
+		if (g_ascii_strcasecmp (c->name, ident) == 0) return c;
+	}
+	return NULL;
+}
+
+static const talc_engine_custom_function *talc_find_custom_function (
+	const talc_engine_context *ctx,
+	const char *ident)
+{
+	gsize i;
+
+	if (!ctx || !ident || !ctx->custom_functions) return NULL;
+	for (i = 0; i < ctx->custom_functions_len; i++) {
+		const talc_engine_custom_function *f = &ctx->custom_functions[i];
+		if (!f->name || f->name[0] == '\0') continue;
+		if (g_ascii_strcasecmp (f->name, ident) == 0) return f;
+	}
+	return NULL;
+}
+
 static gboolean talc_identifier_is_function_name (const char *ident)
 {
 	static const char *allowed[] = {
@@ -136,7 +166,24 @@ static char *talc_engine_validate_identifiers (const talc_engine_context *ctx, c
 			g_free (ident);
 			continue;
 		}
+		if (talc_find_custom_constant (ctx, ident)) {
+			g_free (ident);
+			continue;
+		}
 		if (talc_identifier_is_function_name (ident)) {
+			if (ctx && ctx->rpn_notation) {
+				g_free (ident);
+				continue;
+			}
+			if (next_idx < 0 || expression[next_idx] != '(') {
+				char *err = g_strdup_printf ("Function requires parentheses: %s", ident);
+				g_free (ident);
+				return err;
+			}
+			g_free (ident);
+			continue;
+		}
+		if (talc_find_custom_function (ctx, ident)) {
 			if (ctx && ctx->rpn_notation) {
 				g_free (ident);
 				continue;
@@ -198,6 +245,191 @@ static gboolean talc_is_identifier_tail_char (char c)
 static gboolean talc_is_binary_left_value (char c)
 {
 	return talc_is_value_tail_char (c);
+}
+
+static gboolean talc_is_ident_char (char c)
+{
+	return g_ascii_isalnum ((guchar) c) || c == '_';
+}
+
+static int talc_find_matching_paren (const char *text, int open_idx)
+{
+	int i;
+	int depth = 0;
+
+	if (!text || open_idx < 0 || text[open_idx] != '(') return -1;
+	for (i = open_idx; text[i] != '\0'; i++) {
+		if (text[i] == '(') depth++;
+		else if (text[i] == ')') {
+			depth--;
+			if (depth == 0) return i;
+		}
+	}
+	return -1;
+}
+
+static char *talc_substitute_identifier (const char *expression,
+	const char *identifier,
+	const char *value)
+{
+	GString *out;
+	size_t i;
+	size_t ident_len;
+
+	if (!expression || !identifier || !value) return NULL;
+	ident_len = strlen (identifier);
+	if (ident_len == 0) return g_strdup (expression);
+	out = g_string_new ("");
+	for (i = 0; expression[i] != '\0';) {
+		char prev;
+		char next;
+		gboolean left_ok;
+		gboolean right_ok;
+
+		if (strncmp (&expression[i], identifier, ident_len) != 0) {
+			g_string_append_c (out, expression[i]);
+			i++;
+			continue;
+		}
+		prev = (i == 0) ? '\0' : expression[i - 1];
+		next = expression[i + ident_len];
+		left_ok = (i == 0) || !talc_is_ident_char (prev);
+		right_ok = (next == '\0') || !talc_is_ident_char (next);
+		if (left_ok && right_ok) {
+			g_string_append_printf (out, "(%s)", value);
+			i += ident_len;
+		} else {
+			g_string_append_len (out, &expression[i], ident_len);
+			i += ident_len;
+		}
+	}
+	return g_string_free (out, FALSE);
+}
+
+static char *talc_expand_custom_function_call (
+	const talc_engine_custom_function *fn,
+	const char *argument)
+{
+	if (!fn || !fn->variable || !fn->expression || !argument) return NULL;
+	return talc_substitute_identifier (fn->expression, fn->variable, argument);
+}
+
+static char *talc_expression_expand_custom_once (
+	const talc_engine_context *ctx,
+	const char *expression,
+	gboolean *out_changed,
+	const char **out_error)
+{
+	GString *out;
+	int i = 0;
+
+	if (out_changed) *out_changed = FALSE;
+	if (out_error) *out_error = NULL;
+	if (!expression) return NULL;
+	out = g_string_new ("");
+	while (expression[i] != '\0') {
+		int start = i;
+		int next_idx;
+		char *ident;
+
+		if (!(g_ascii_isalpha ((guchar) expression[i]) || expression[i] == '_')) {
+			g_string_append_c (out, expression[i]);
+			i++;
+			continue;
+		}
+		i++;
+		while (g_ascii_isalnum ((guchar) expression[i]) || expression[i] == '_') i++;
+		ident = g_strndup (&expression[start], (gsize) (i - start));
+		if (!ident) {
+			g_string_free (out, TRUE);
+			if (out_error) *out_error = "Out of memory";
+			return NULL;
+		}
+
+		next_idx = talc_next_non_space (expression, i);
+		if ((next_idx >= 0) && (expression[next_idx] == '(') &&
+			!talc_identifier_is_function_name (ident)) {
+			const talc_engine_custom_function *fn = talc_find_custom_function (ctx, ident);
+			if (fn) {
+				int close_idx = talc_find_matching_paren (expression, next_idx);
+				char *arg;
+				char *replacement;
+				if (close_idx < 0) {
+					g_free (ident);
+					g_string_free (out, TRUE);
+					if (out_error) *out_error = "Unbalanced parentheses in function call";
+					return NULL;
+				}
+				arg = g_strndup (&expression[next_idx + 1], (gsize) (close_idx - next_idx - 1));
+				replacement = talc_expand_custom_function_call (fn, arg);
+				g_free (arg);
+				if (!replacement) {
+					g_free (ident);
+					g_string_free (out, TRUE);
+					if (out_error) *out_error = "Failed to expand custom function";
+					return NULL;
+				}
+				g_string_append_printf (out, "(%s)", replacement);
+				g_free (replacement);
+				i = close_idx + 1;
+				if (out_changed) *out_changed = TRUE;
+				g_free (ident);
+				continue;
+			}
+		}
+
+		if (!talc_identifier_is_constant_name (ident) &&
+			!talc_identifier_is_function_name (ident) &&
+			!talc_identifier_is_binary_keyword (ident) &&
+			!talc_identifier_is_unary_keyword (ident)) {
+			const talc_engine_custom_constant *c = talc_find_custom_constant (ctx, ident);
+			if (c && c->value) {
+				g_string_append_printf (out, "(%s)", c->value);
+				if (out_changed) *out_changed = TRUE;
+				g_free (ident);
+				continue;
+			}
+		}
+
+		g_string_append (out, ident);
+		g_free (ident);
+	}
+	return g_string_free (out, FALSE);
+}
+
+static char *talc_expression_expand_custom_symbols (
+	const talc_engine_context *ctx,
+	const char *expression,
+	const char **out_error)
+{
+	char *current;
+	int pass;
+
+	if (out_error) *out_error = NULL;
+	if (!expression) return NULL;
+	current = g_strdup (expression);
+	if (!current) {
+		if (out_error) *out_error = "Out of memory";
+		return NULL;
+	}
+
+	for (pass = 0; pass < 32; pass++) {
+		char *expanded;
+		gboolean changed = FALSE;
+
+		expanded = talc_expression_expand_custom_once (ctx, current, &changed, out_error);
+		if (!expanded) {
+			g_free (current);
+			return NULL;
+		}
+		g_free (current);
+		current = expanded;
+		if (!changed) return current;
+	}
+
+	if (out_error) *out_error = "Custom symbol expansion exceeded recursion limit";
+	g_free (current);
+	return NULL;
 }
 
 static char *talc_expression_rewrite_word_math (const char *expression)
@@ -494,14 +726,20 @@ static char *talc_expression_rewrite_percent (const char *expression)
 	return g_string_free (expr, FALSE);
 }
 
-static char *talc_engine_normalize_expression (const char *expression, const char **out_error)
+static char *talc_engine_normalize_expression (const talc_engine_context *ctx,
+	const char *expression,
+	const char **out_error)
 {
+	char *expanded;
 	char *word_normalized;
 	char *with_mul;
 	char *with_percent;
 
 	if (out_error) *out_error = NULL;
-	word_normalized = talc_expression_rewrite_word_math (expression);
+	expanded = talc_expression_expand_custom_symbols (ctx, expression, out_error);
+	if (!expanded) return NULL;
+	word_normalized = talc_expression_rewrite_word_math (expanded);
+	g_free (expanded);
 	if (!word_normalized) {
 		if (out_error) *out_error = "Failed to rewrite expression keywords";
 		return NULL;
@@ -563,7 +801,7 @@ char *talc_engine_eval_expression (talc_engine *engine,
 		talc_engine_set_error (engine, "Empty expression");
 		return NULL;
 	}
-	normalized = talc_engine_normalize_expression (expression, &bridge_error);
+	normalized = talc_engine_normalize_expression (ctx, expression, &bridge_error);
 	if (!normalized) {
 		talc_engine_set_error (engine, bridge_error ? bridge_error : "Expression normalization failed");
 		return NULL;
@@ -606,7 +844,7 @@ char *talc_engine_eval_expression_with_contexts (talc_engine *engine,
 		talc_engine_set_error (engine, "Empty expression");
 		return NULL;
 	}
-	normalized = talc_engine_normalize_expression (expression, &bridge_error);
+	normalized = talc_engine_normalize_expression (parse_ctx, expression, &bridge_error);
 	if (!normalized) {
 		talc_engine_set_error (engine, bridge_error ? bridge_error : "Expression normalization failed");
 		return NULL;

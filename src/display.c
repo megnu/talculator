@@ -47,6 +47,20 @@ static void display_engine_context_for_base (talc_engine_context *ctx, int numbe
 static char *display_convert_base_string (const char *value, int from_base, int to_base);
 static void display_widget_css_set (GtkWidget *widget, const gchar *css, const gchar *data_key);
 
+static gsize custom_constant_count (void)
+{
+	gsize n = 0;
+	while (constant && constant[n].name) n++;
+	return n;
+}
+
+static gsize custom_function_count (void)
+{
+	gsize n = 0;
+	while (user_function && user_function[n].name) n++;
+	return n;
+}
+
 static gboolean display_bracket_module_should_render (void)
 {
 	GtkWidget *formula_hbox;
@@ -73,6 +87,10 @@ static void display_engine_context_for_base (talc_engine_context *ctx, int numbe
 	ctx->decimal_point = dec_point[0];
 	ctx->base_bits = 0;
 	ctx->base_signed = FALSE;
+	ctx->custom_constants = (const talc_engine_custom_constant *) constant;
+	ctx->custom_constants_len = custom_constant_count ();
+	ctx->custom_functions = (const talc_engine_custom_function *) user_function;
+	ctx->custom_functions_len = custom_function_count ();
 	switch (number_base_status) {
 	case CS_HEX:
 		ctx->base_bits = prefs.hex_bits;

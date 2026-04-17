@@ -177,6 +177,14 @@ static void expect_error (test_state *state, const char *name,
 int main (void)
 {
 	test_state state;
+	static const talc_engine_custom_constant custom_constants[] = {
+		{ "golden ratio", "phi", "(1+sqrt(5))/2" },
+		{ "custom c", "c", "7" }
+	};
+	static const talc_engine_custom_function custom_functions[] = {
+		{ "f", "x", "1-x" },
+		{ "g", "x", "1/f(x)" }
+	};
 	talc_engine_context dec;
 	talc_engine_context rad;
 	talc_engine_context rpn;
@@ -237,6 +245,58 @@ int main (void)
 	bin_unsigned.base_signed = FALSE;
 	bin_signed = bin_unsigned;
 	bin_signed.base_signed = TRUE;
+	dec.custom_constants = custom_constants;
+	dec.custom_constants_len = G_N_ELEMENTS (custom_constants);
+	dec.custom_functions = custom_functions;
+	dec.custom_functions_len = G_N_ELEMENTS (custom_functions);
+	rad.custom_constants = custom_constants;
+	rad.custom_constants_len = G_N_ELEMENTS (custom_constants);
+	rad.custom_functions = custom_functions;
+	rad.custom_functions_len = G_N_ELEMENTS (custom_functions);
+	rpn.custom_constants = custom_constants;
+	rpn.custom_constants_len = G_N_ELEMENTS (custom_constants);
+	rpn.custom_functions = custom_functions;
+	rpn.custom_functions_len = G_N_ELEMENTS (custom_functions);
+	rpn_rad.custom_constants = custom_constants;
+	rpn_rad.custom_constants_len = G_N_ELEMENTS (custom_constants);
+	rpn_rad.custom_functions = custom_functions;
+	rpn_rad.custom_functions_len = G_N_ELEMENTS (custom_functions);
+	rpn_bin.custom_constants = custom_constants;
+	rpn_bin.custom_constants_len = G_N_ELEMENTS (custom_constants);
+	rpn_bin.custom_functions = custom_functions;
+	rpn_bin.custom_functions_len = G_N_ELEMENTS (custom_functions);
+	hex.custom_constants = custom_constants;
+	hex.custom_constants_len = G_N_ELEMENTS (custom_constants);
+	hex.custom_functions = custom_functions;
+	hex.custom_functions_len = G_N_ELEMENTS (custom_functions);
+	dec_parse.custom_constants = custom_constants;
+	dec_parse.custom_constants_len = G_N_ELEMENTS (custom_constants);
+	dec_parse.custom_functions = custom_functions;
+	dec_parse.custom_functions_len = G_N_ELEMENTS (custom_functions);
+	hex_parse.custom_constants = custom_constants;
+	hex_parse.custom_constants_len = G_N_ELEMENTS (custom_constants);
+	hex_parse.custom_functions = custom_functions;
+	hex_parse.custom_functions_len = G_N_ELEMENTS (custom_functions);
+	hex_print.custom_constants = custom_constants;
+	hex_print.custom_constants_len = G_N_ELEMENTS (custom_constants);
+	hex_print.custom_functions = custom_functions;
+	hex_print.custom_functions_len = G_N_ELEMENTS (custom_functions);
+	bin_print_u8.custom_constants = custom_constants;
+	bin_print_u8.custom_constants_len = G_N_ELEMENTS (custom_constants);
+	bin_print_u8.custom_functions = custom_functions;
+	bin_print_u8.custom_functions_len = G_N_ELEMENTS (custom_functions);
+	bin_print_s8.custom_constants = custom_constants;
+	bin_print_s8.custom_constants_len = G_N_ELEMENTS (custom_constants);
+	bin_print_s8.custom_functions = custom_functions;
+	bin_print_s8.custom_functions_len = G_N_ELEMENTS (custom_functions);
+	bin_unsigned.custom_constants = custom_constants;
+	bin_unsigned.custom_constants_len = G_N_ELEMENTS (custom_constants);
+	bin_unsigned.custom_functions = custom_functions;
+	bin_unsigned.custom_functions_len = G_N_ELEMENTS (custom_functions);
+	bin_signed.custom_constants = custom_constants;
+	bin_signed.custom_constants_len = G_N_ELEMENTS (custom_constants);
+	bin_signed.custom_functions = custom_functions;
+	bin_signed.custom_functions_len = G_N_ELEMENTS (custom_functions);
 
 	expect_exact (&state, "add", &dec, "1+2", "3");
 	expect_exact (&state, "add_whitespace", &dec, "  1 +   2  ", "3");
@@ -307,6 +367,12 @@ int main (void)
 	expect_error (&state, "parse_sin30_implicit_invalid", &dec, "sin30");
 	expect_error (&state, "parse_pi2_implicit_mul_invalid", &dec, "pi2");
 	expect_exact (&state, "parse_parenthesized_unary", &dec, "(-2)^2", "4");
+	expect_exact (&state, "custom_constant_phi", &dec, "phi*2", "3.23606797749979");
+	expect_exact (&state, "custom_constant_c", &dec, "c+1", "8");
+	expect_exact (&state, "custom_function_f", &dec, "f(3)", "-2");
+	expect_exact (&state, "custom_function_nested_g", &dec, "g(3)", "-0.5");
+	expect_approx (&state, "custom_function_composition", &dec, "f(phi)", -0.618033988749895, 1e-15);
+	expect_exact (&state, "custom_function_nested_arg", &dec, "f(1+2)", "-2");
 	expect_exact (&state, "factorial_power_precedence", &dec, "2^3!", "64");
 	expect_exact (&state, "factorial_power_parenthesized", &dec, "(2^3)!", "40320");
 	expect_error (&state, "function_name_without_parentheses", &dec, "A+sin");

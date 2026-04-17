@@ -25,6 +25,18 @@ typedef enum {
 } talc_engine_angle;
 
 typedef struct {
+	const char *description;
+	const char *name;
+	const char *value;
+} talc_engine_custom_constant;
+
+typedef struct {
+	const char *name;
+	const char *variable;
+	const char *expression;
+} talc_engine_custom_function;
+
+typedef struct {
 	talc_engine_mode mode;
 	talc_engine_base base;
 	talc_engine_angle angle;
@@ -34,6 +46,10 @@ typedef struct {
 	char decimal_point;
 	int base_bits;
 	gboolean base_signed;
+	const talc_engine_custom_constant *custom_constants;
+	gsize custom_constants_len;
+	const talc_engine_custom_function *custom_functions;
+	gsize custom_functions_len;
 } talc_engine_context;
 
 typedef struct talc_engine talc_engine;

@@ -89,6 +89,20 @@ static gboolean cycle_tab_from_key (GdkEventKey *key_event)
     return TRUE;
 }
 
+static gsize custom_constant_count (void)
+{
+	gsize n = 0;
+	while (constant && constant[n].name) n++;
+	return n;
+}
+
+static gsize custom_function_count (void)
+{
+	gsize n = 0;
+	while (user_function && user_function[n].name) n++;
+	return n;
+}
+
 static void engine_context_from_ui_state (talc_engine_context *ctx)
 {
 	if (!ctx) return;
@@ -101,6 +115,10 @@ static void engine_context_from_ui_state (talc_engine_context *ctx)
 	ctx->decimal_point = dec_point[0];
 	ctx->base_bits = 0;
 	ctx->base_signed = FALSE;
+	ctx->custom_constants = (const talc_engine_custom_constant *) constant;
+	ctx->custom_constants_len = custom_constant_count ();
+	ctx->custom_functions = (const talc_engine_custom_function *) user_function;
+	ctx->custom_functions_len = custom_function_count ();
 	switch (current_status.number) {
 	case CS_HEX:
 		ctx->base_bits = prefs.hex_bits;
