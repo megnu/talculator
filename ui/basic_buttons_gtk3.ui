@@ -263,6 +263,8 @@
                     <property name="receives_default">False</property>
                     <property name="tooltip_text" translatable="yes">Change sign</property>
                     <property name="use_underline">True</property>
+                    <accelerator key="KP_Subtract" signal="clicked" modifiers="GDK_CONTROL_MASK"/>
+                    <accelerator key="minus" signal="clicked" modifiers="GDK_CONTROL_MASK"/>
                     <signal name="can-activate-accel" handler="on_button_can_activate_accel" swapped="no"/>
                     <signal name="released" handler="on_togglebutton_released" swapped="no"/>
                     <signal name="clicked" handler="on_gfunc_button_clicked" swapped="no"/>
@@ -306,6 +308,10 @@
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="tooltip_text" translatable="yes">Add current display value to memory</property>
+                    <accelerator key="plus" signal="clicked" modifiers="GDK_MOD1_MASK"/>
+                    <accelerator key="equal" signal="clicked" modifiers="GDK_MOD1_MASK"/>
+                    <accelerator key="KP_Add" signal="clicked" modifiers="GDK_MOD1_MASK"/>
+                    <signal name="can-activate-accel" handler="on_button_can_activate_accel" swapped="no"/>
                     <signal name="released" handler="on_togglebutton_released" swapped="no"/>
                     <signal name="clicked" handler="on_mplus_button_clicked" swapped="no"/>
                     <child>
@@ -355,6 +361,8 @@
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="tooltip_text" translatable="yes">Read from memory</property>
+                    <accelerator key="r" signal="clicked" modifiers="GDK_MOD1_MASK"/>
+                    <signal name="can-activate-accel" handler="on_button_can_activate_accel" swapped="no"/>
                     <signal name="released" handler="on_togglebutton_released" swapped="no"/>
                     <signal name="clicked" handler="on_mr_button_clicked" swapped="no"/>
                     <child>
@@ -403,6 +411,8 @@
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="tooltip_text" translatable="yes">Save to memory</property>
+                    <accelerator key="s" signal="clicked" modifiers="GDK_MOD1_MASK"/>
+                    <signal name="can-activate-accel" handler="on_button_can_activate_accel" swapped="no"/>
                     <signal name="released" handler="on_togglebutton_released" swapped="no"/>
                     <signal name="clicked" handler="on_ms_button_clicked" swapped="no"/>
                     <child>
@@ -634,6 +644,7 @@
                     <property name="receives_default">False</property>
                     <property name="tooltip_text" translatable="yes">Percent</property>
                     <property name="use_underline">True</property>
+                    <accelerator key="percent" signal="clicked"/>
                     <signal name="can-activate-accel" handler="on_button_can_activate_accel" swapped="no"/>
                     <signal name="released" handler="on_togglebutton_released" swapped="no"/>
                     <signal name="clicked" handler="on_operation_button_clicked" swapped="no"/>

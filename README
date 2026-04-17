@@ -141,8 +141,6 @@ Percent follows explicit calculator-style semantics and is distinct from modulo:
 - X-Y% = X - X*(Y/100)
 - Y% = Y/100
 
-If you press the [EE] button the display will never become 0e+ but 1e+ instead.
-
 There is a simple plausibility check for the character choosen as thousand's
 separator: it must not be a number in the configured number base and for
 a decimal number base neither decimal point nor "e" (exponent identifier

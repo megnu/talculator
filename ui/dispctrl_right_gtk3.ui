@@ -68,7 +68,6 @@
                 <property name="tooltip_text" translatable="yes">Clear display</property>
                 <property name="use_underline">True</property>
                 <accelerator key="Delete" signal="clicked"/>
-                <accelerator key="c" signal="clicked" modifiers="GDK_MOD1_MASK"/>
                 <signal name="can-activate-accel" handler="on_button_can_activate_accel" swapped="no"/>
                 <signal name="released" handler="on_togglebutton_released" swapped="no"/>
                 <signal name="clicked" handler="on_gfunc_button_clicked" swapped="no"/>

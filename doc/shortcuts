@@ -36,11 +36,11 @@ Alt-o 	Constants Menu
 Alt-u 	User defined Functions
 Alt-s	Memory Save
 Alt-r	Memory Read
-Alt-+	Memory Add
+Alt-+, Alt-=	Memory Add
 
 Functions:
 
-Ctrl-Alt-e	EE
+Ctrl-Shift-e	EE
 i, I	INV
 h, H	HYP
 !	n!
@@ -55,7 +55,7 @@ n, N	lN
 
 Display control:
 
-Delete, ALT-C		C
+Delete			C
 Ctrl-Delete, ESC	AC
 Backspace		<-
 
