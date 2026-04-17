@@ -65,6 +65,9 @@ Ctrl-Q	quit program
 Ctrl-X	Cut Display Value
 Ctrl-C	Copy Display Value
 Ctrl-V	Paste As Display Value
+Ctrl-Z	Undo Input (when an input entry is focused)
+Ctrl-Y	Redo Input (when an input entry is focused)
+Ctrl-Shift-Z	Redo Input (when an input entry is focused)
 Ctrl-P	preferences dialog
 Ctrl-D	change to decimal number base
 Ctrl-H	change to hexadecimal number base
@@ -77,3 +80,21 @@ Ctrl-A	change to (normal) algebraic notation
 Ctrl-N	change to Reverse Polish Notation (RPN)
 Ctrl-F	change to Formula Entry Mode
 Ctrl-M	Hide/Unhide Menubar
+
+Input field overrides:
+
+When the formula input field is focused, clipboard/editing shortcuts apply to
+the input field rather than the display value:
+
+Ctrl-X	cut selected input text
+Ctrl-C	copy selected input text
+Ctrl-V	paste into input field
+Ctrl-A	select all input text
+Ctrl-Z	undo input edit
+Ctrl-Y	redo input edit
+Ctrl-Shift-Z	redo input edit
+
+Esc behavior in Basic/Scientific modes:
+
+First Esc while input is focused defocuses the input field
+Second Esc triggers AC
