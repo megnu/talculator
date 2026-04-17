@@ -2043,6 +2043,26 @@ gboolean on_button_event(GtkWidget *widget, GdkEvent *event, gpointer user_data)
          (current_status.notation == CS_PAN)) &&
         (event->type == GDK_KEY_PRESS)) {
         GdkEventKey *key_event = (GdkEventKey *) event;
+        GtkWidget *formula_entry_widget;
+
+        formula_entry_widget = GTK_WIDGET(gtk_builder_get_object (view_xml, "formula_entry"));
+        if ((key_event->state & GDK_CONTROL_MASK) &&
+            !(key_event->state & GDK_SUPER_MASK) &&
+            !(key_event->state & GDK_HYPER_MASK) &&
+            !(key_event->state & GDK_META_MASK) &&
+            ((key_event->keyval == GDK_KEY_a) || (key_event->keyval == GDK_KEY_A))) {
+            if (formula_entry_widget &&
+                gtk_widget_get_visible (formula_entry_widget) &&
+                gtk_widget_get_sensitive (formula_entry_widget)) {
+                gtk_widget_grab_focus (formula_entry_widget);
+                gtk_editable_select_region (GTK_EDITABLE (formula_entry_widget), 0, -1);
+                return TRUE;
+            }
+        }
+        if ((key_event->keyval == GDK_KEY_Escape) ||
+            (key_event->keyval == GDK_KEY_Tab) ||
+            (key_event->keyval == GDK_KEY_ISO_Left_Tab))
+            return FALSE;
         /* try to rule out some obvious key presses */
         if (key_event->state & GDK_SUPER_MASK ||
              key_event->state & GDK_HYPER_MASK ||
