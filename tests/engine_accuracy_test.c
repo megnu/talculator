@@ -264,11 +264,14 @@ int main (void)
 	expect_approx (&state, "cos_deg_60", &dec, "cos(60)", 0.5, 1e-12);
 	expect_approx (&state, "tan_deg_45", &dec, "tan(45)", 1.0, 1e-12);
 	expect_approx (&state, "sin_rad_pi_2", &rad, "sin(pi/2)", 1.0, 1e-12);
+	expect_exact (&state, "log_base10_100", &dec, "log(100)", "2");
+	expect_exact (&state, "ln_natural_e", &dec, "ln(e)", "1");
 	expect_approx (&state, "sqrt2", &dec, "sqrt(2)", 1.4142135623730951, 1e-12);
 	expect_not_contains (&state, "sqrt3_not_interval", &dec, "sqrt(3)", "interval(");
 	expect_not_contains (&state, "sqrt5_not_interval", &dec, "sqrt(5)", "interval(");
 
 	expect_exact (&state, "hex_A_plus_1", &hex, "A+1", "B");
+	expect_error (&state, "hex_G_plus_1_invalid", &hex, "G+1");
 	expect_exact (&state, "bin_and", &bin_unsigned, "11110000 & 10101010", "10100000");
 	expect_exact (&state, "bin_or", &bin_unsigned, "11110000 | 10101010", "11111010");
 	expect_exact (&state, "bin_shift_left", &bin_unsigned, "1 << 7", "10000000");
@@ -301,11 +304,17 @@ int main (void)
 	expect_error (&state, "domain_invalid_percent_error", &dec, "%%");
 
 	/* function/constant parsing robustness */
-	expect_approx (&state, "parse_sin30_implicit", &dec, "sin30", 0.5, 1e-12);
-	expect_approx (&state, "parse_pi2_implicit_mul", &dec, "pi2", 2.0 * G_PI, 1e-12);
+	expect_error (&state, "parse_sin30_implicit_invalid", &dec, "sin30");
+	expect_error (&state, "parse_pi2_implicit_mul_invalid", &dec, "pi2");
 	expect_exact (&state, "parse_parenthesized_unary", &dec, "(-2)^2", "4");
 	expect_exact (&state, "factorial_power_precedence", &dec, "2^3!", "64");
 	expect_exact (&state, "factorial_power_parenthesized", &dec, "(2^3)!", "40320");
+	expect_error (&state, "function_name_without_parentheses", &dec, "A+sin");
+	expect_error (&state, "binary_keyword_invalid_position", &dec, "sin(mod)");
+	expect_exact (&state, "unary_not_infix_bitwise", &dec, "not 1", "-2");
+	expect_error (&state, "unknown_identifier_single_word", &dec, "hello");
+	expect_error (&state, "unknown_identifier_expression", &dec, "hello+1");
+	expect_error (&state, "unknown_identifier_like_variable", &dec, "abc");
 
 	/* RPN context coverage */
 	expect_exact (&state, "rpn_add", &rpn, "3 4 +", "7");
@@ -320,6 +329,11 @@ int main (void)
 	expect_approx (&state, "rpn_sin_pi_over_2_rad", &rpn_rad, "pi 2 / sin", 1.0, 1e-12);
 	expect_approx (&state, "rpn_sqrt2", &rpn, "2 sqrt", 1.4142135623730951, 1e-12);
 	expect_exact (&state, "rpn_bin_and", &rpn_bin, "1111 0011 &", "11");
+	expect_exact (&state, "rpn_word_mod", &rpn, "10 3 mod", "1");
+	expect_exact (&state, "rpn_word_and", &rpn, "10 3 and", "2");
+	expect_exact (&state, "rpn_word_or", &rpn, "10 3 or", "11");
+	expect_exact (&state, "rpn_word_xor", &rpn, "10 3 xor", "9");
+	expect_exact (&state, "rpn_word_not", &rpn, "1 not", "-2");
 	expect_exact (&state, "rpn_residual_stack_returns_top", &rpn, "3 4", "3");
 	expect_exact (&state, "rpn_residual_stack_with_operation", &rpn, "3 4 5 +", "12");
 

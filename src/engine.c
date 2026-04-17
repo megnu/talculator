@@ -11,6 +11,72 @@ struct talc_engine {
 	char *last_error;
 };
 
+static gboolean talc_identifier_is_constant_name (const char *ident)
+{
+	static const char *allowed[] = {
+		"pi", "e", "i",
+		NULL
+	};
+	int i;
+
+	if (!ident || ident[0] == '\0') return FALSE;
+	for (i = 0; allowed[i] != NULL; i++) {
+		if (g_ascii_strcasecmp (ident, allowed[i]) == 0) return TRUE;
+	}
+	return FALSE;
+}
+
+static gboolean talc_identifier_is_function_name (const char *ident)
+{
+	static const char *allowed[] = {
+		"sin", "cos", "tan",
+		"asin", "acos", "atan",
+		"sinh", "cosh", "tanh",
+		"asinh", "acosh", "atanh",
+		"log", "log10", "ln", "sqrt", "abs",
+		NULL
+	};
+	int i;
+
+	if (!ident || ident[0] == '\0') return FALSE;
+	for (i = 0; allowed[i] != NULL; i++) {
+		if (g_ascii_strcasecmp (ident, allowed[i]) == 0) return TRUE;
+	}
+	return FALSE;
+}
+
+static gboolean talc_identifier_is_binary_keyword (const char *ident)
+{
+	if (!ident || ident[0] == '\0') return FALSE;
+	return (g_ascii_strcasecmp (ident, "mod") == 0) ||
+		(g_ascii_strcasecmp (ident, "and") == 0) ||
+		(g_ascii_strcasecmp (ident, "or") == 0) ||
+		(g_ascii_strcasecmp (ident, "xor") == 0);
+}
+
+static gboolean talc_identifier_is_unary_keyword (const char *ident)
+{
+	if (!ident || ident[0] == '\0') return FALSE;
+	return (g_ascii_strcasecmp (ident, "not") == 0);
+}
+
+static gboolean talc_identifier_is_hex_literal (const talc_engine_context *ctx, const char *ident)
+{
+	int i;
+
+	if (!ctx || !ident || ident[0] == '\0') return FALSE;
+	if (ctx->base != TALC_ENGINE_BASE_HEX) return FALSE;
+	for (i = 0; ident[i] != '\0'; i++) {
+		if (!g_ascii_isxdigit ((guchar) ident[i])) return FALSE;
+	}
+	return TRUE;
+}
+
+static gboolean talc_is_value_tail_char (char c)
+{
+	return g_ascii_isalnum ((guchar) c) || c == '_' || c == '.' || c == ')' || c == '!' || c == '%';
+}
+
 static int talc_prev_non_space (const char *text, int start)
 {
 	int i;
@@ -33,9 +99,90 @@ static int talc_next_non_space (const char *text, int start)
 	return -1;
 }
 
-static gboolean talc_is_value_tail_char (char c)
+static gboolean talc_is_operand_start_char (char c)
 {
-	return g_ascii_isalnum ((guchar) c) || c == '_' || c == '.' || c == ')' || c == '!' || c == '%';
+	return g_ascii_isalnum ((guchar) c) || c == '_' || c == '.' ||
+		c == '(' || c == '+' || c == '-';
+}
+
+static char *talc_engine_validate_identifiers (const talc_engine_context *ctx, const char *expression)
+{
+	int i = 0;
+
+	if (!expression) return NULL;
+	while (expression[i] != '\0') {
+		int start = i;
+		int end;
+		int prev_idx;
+		int next_idx;
+		char *ident;
+
+		if (!(g_ascii_isalpha ((guchar) expression[i]) || expression[i] == '_')) {
+			i++;
+			continue;
+		}
+		i++;
+		while (g_ascii_isalnum ((guchar) expression[i]) || expression[i] == '_') i++;
+		end = i - 1;
+		prev_idx = talc_prev_non_space (expression, start - 1);
+		next_idx = talc_next_non_space (expression, end + 1);
+		ident = g_strndup (&expression[start], (gsize) (i - start));
+		if (!ident) return g_strdup ("Out of memory");
+		if (talc_identifier_is_hex_literal (ctx, ident)) {
+			g_free (ident);
+			continue;
+		}
+		if (talc_identifier_is_constant_name (ident)) {
+			g_free (ident);
+			continue;
+		}
+		if (talc_identifier_is_function_name (ident)) {
+			if (ctx && ctx->rpn_notation) {
+				g_free (ident);
+				continue;
+			}
+			if (next_idx < 0 || expression[next_idx] != '(') {
+				char *err = g_strdup_printf ("Function requires parentheses: %s", ident);
+				g_free (ident);
+				return err;
+			}
+			g_free (ident);
+			continue;
+		}
+		if (talc_identifier_is_binary_keyword (ident)) {
+			if (ctx && ctx->rpn_notation) {
+				g_free (ident);
+				continue;
+			}
+			if ((prev_idx < 0) || !talc_is_value_tail_char (expression[prev_idx]) ||
+				(next_idx < 0) || !talc_is_operand_start_char (expression[next_idx])) {
+				char *err = g_strdup_printf ("Invalid operator position: %s", ident);
+				g_free (ident);
+				return err;
+			}
+			g_free (ident);
+			continue;
+		}
+		if (talc_identifier_is_unary_keyword (ident)) {
+			if (ctx && ctx->rpn_notation) {
+				g_free (ident);
+				continue;
+			}
+			if ((next_idx < 0) || !talc_is_operand_start_char (expression[next_idx])) {
+				char *err = g_strdup_printf ("Invalid operator position: %s", ident);
+				g_free (ident);
+				return err;
+			}
+			g_free (ident);
+			continue;
+		}
+		{
+			char *err = g_strdup_printf ("Unknown identifier: %s", ident);
+			g_free (ident);
+			return err;
+		}
+	}
+	return NULL;
 }
 
 static gboolean talc_is_operand_char (char c)
@@ -51,6 +198,48 @@ static gboolean talc_is_identifier_tail_char (char c)
 static gboolean talc_is_binary_left_value (char c)
 {
 	return talc_is_value_tail_char (c);
+}
+
+static char *talc_expression_rewrite_word_math (const char *expression)
+{
+	GString *out;
+	int i = 0;
+
+	if (!expression) return NULL;
+	out = g_string_new ("");
+	while (expression[i] != '\0') {
+		int start = i;
+		char *ident;
+		int next_idx;
+
+		if (!(g_ascii_isalpha ((guchar) expression[i]) || expression[i] == '_')) {
+			g_string_append_c (out, expression[i]);
+			i++;
+			continue;
+		}
+		i++;
+		while (g_ascii_isalnum ((guchar) expression[i]) || expression[i] == '_') i++;
+		ident = g_strndup (&expression[start], (gsize) (i - start));
+		if (!ident) {
+			g_string_free (out, TRUE);
+			return NULL;
+		}
+		next_idx = talc_next_non_space (expression, i);
+		if ((g_ascii_strcasecmp (ident, "log") == 0) &&
+			(next_idx >= 0) && (expression[next_idx] == '(')) {
+			g_string_append (out, "log10");
+		} else if (g_ascii_strcasecmp (ident, "and") == 0) {
+			g_string_append_c (out, '&');
+		} else if (g_ascii_strcasecmp (ident, "or") == 0) {
+			g_string_append_c (out, '|');
+		} else if (g_ascii_strcasecmp (ident, "not") == 0) {
+			g_string_append_c (out, '~');
+		} else {
+			g_string_append (out, ident);
+		}
+		g_free (ident);
+	}
+	return g_string_free (out, FALSE);
 }
 
 static gboolean talc_prev_token_is_numeric_literal (const char *text, int token_end)
@@ -307,11 +496,18 @@ static char *talc_expression_rewrite_percent (const char *expression)
 
 static char *talc_engine_normalize_expression (const char *expression, const char **out_error)
 {
+	char *word_normalized;
 	char *with_mul;
 	char *with_percent;
 
 	if (out_error) *out_error = NULL;
-	with_mul = talc_expression_add_implicit_multiply (expression);
+	word_normalized = talc_expression_rewrite_word_math (expression);
+	if (!word_normalized) {
+		if (out_error) *out_error = "Failed to rewrite expression keywords";
+		return NULL;
+	}
+	with_mul = talc_expression_add_implicit_multiply (word_normalized);
+	g_free (word_normalized);
 	if (!with_mul) {
 		if (out_error) *out_error = "Failed to normalize expression";
 		return NULL;
@@ -372,6 +568,15 @@ char *talc_engine_eval_expression (talc_engine *engine,
 		talc_engine_set_error (engine, bridge_error ? bridge_error : "Expression normalization failed");
 		return NULL;
 	}
+	{
+		char *validation_error = talc_engine_validate_identifiers (ctx, normalized);
+		if (validation_error) {
+			talc_engine_set_error (engine, validation_error);
+			g_free (validation_error);
+			g_free (normalized);
+			return NULL;
+		}
+	}
 
 	if (talc_qalc_bridge_eval_formatted (ctx, normalized, &formatted, &bridge_error)) {
 		g_free (normalized);
@@ -405,6 +610,15 @@ char *talc_engine_eval_expression_with_contexts (talc_engine *engine,
 	if (!normalized) {
 		talc_engine_set_error (engine, bridge_error ? bridge_error : "Expression normalization failed");
 		return NULL;
+	}
+	{
+		char *validation_error = talc_engine_validate_identifiers (parse_ctx, normalized);
+		if (validation_error) {
+			talc_engine_set_error (engine, validation_error);
+			g_free (validation_error);
+			g_free (normalized);
+			return NULL;
+		}
 	}
 
 	if (talc_qalc_bridge_eval_formatted_with_contexts (parse_ctx, print_ctx,

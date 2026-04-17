@@ -111,6 +111,16 @@ static void talc_qalc_fill_print_options (const talc_engine_context *ctx,
 	}
 }
 
+static void talc_qalc_apply_strict_parse_policy (EvaluationOptions *eo)
+{
+	if (!eo) return;
+	/* Calculator UX policy: reject unknown identifiers and avoid accidental
+	 * implicit symbol multiplication from mistyped words.
+	 */
+	eo->parse_options.unknowns_enabled = false;
+	eo->parse_options.limit_implicit_multiplication = true;
+}
+
 static bool talc_qalc_init_once (void)
 {
 	if (s_init_attempted) return s_init_ok;
@@ -180,6 +190,7 @@ gboolean talc_qalc_bridge_eval_formatted (const talc_engine_context *ctx,
 	talc_qalc_configure_locale (ctx);
 	talc_qalc_fill_print_options (ctx, &print_opts);
 	eval_opts = default_user_evaluation_options;
+	talc_qalc_apply_strict_parse_policy (&eval_opts);
 	eval_opts.parse_options.base = talc_qalc_number_base (ctx);
 	eval_opts.parse_options.angle_unit = talc_qalc_angle_unit (ctx);
 	talc_qalc_apply_base_semantics (ctx, &eval_opts.parse_options, NULL);
@@ -245,6 +256,7 @@ gboolean talc_qalc_bridge_eval_formatted_with_contexts (
 	talc_qalc_configure_locale (print_ctx ? print_ctx : parse_ctx);
 	talc_qalc_fill_print_options (print_ctx ? print_ctx : parse_ctx, &print_opts);
 	eval_opts = default_user_evaluation_options;
+	talc_qalc_apply_strict_parse_policy (&eval_opts);
 	eval_opts.parse_options.base = talc_qalc_number_base (parse_ctx);
 	eval_opts.parse_options.angle_unit = talc_qalc_angle_unit (parse_ctx);
 	talc_qalc_apply_base_semantics (parse_ctx, &eval_opts.parse_options, NULL);
