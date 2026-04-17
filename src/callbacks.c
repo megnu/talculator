@@ -140,6 +140,184 @@ static gboolean engine_eval_expression (const char *expression,
 	return TRUE;
 }
 
+typedef struct {
+	GPtrArray *undo_stack;
+	GPtrArray *redo_stack;
+	char *last_text;
+	gboolean in_replay;
+} talc_entry_history;
+
+static void talc_entry_history_free (gpointer data)
+{
+	talc_entry_history *history = (talc_entry_history *) data;
+	if (!history) return;
+	if (history->undo_stack) g_ptr_array_free (history->undo_stack, TRUE);
+	if (history->redo_stack) g_ptr_array_free (history->redo_stack, TRUE);
+	if (history->last_text) g_free (history->last_text);
+	g_free (history);
+}
+
+static talc_entry_history *talc_entry_history_get (GtkEditable *editable, gboolean create)
+{
+	talc_entry_history *history;
+
+	if (!editable) return NULL;
+	history = (talc_entry_history *) g_object_get_data (G_OBJECT (editable), "talc-entry-history");
+	if (history || !create) return history;
+
+	history = g_new0 (talc_entry_history, 1);
+	history->undo_stack = g_ptr_array_new_with_free_func (g_free);
+	history->redo_stack = g_ptr_array_new_with_free_func (g_free);
+	history->last_text = g_strdup (gtk_entry_get_text (GTK_ENTRY (editable)));
+	g_object_set_data_full (G_OBJECT (editable), "talc-entry-history",
+		history, talc_entry_history_free);
+	return history;
+}
+
+static void talc_entry_history_push (GPtrArray *stack, const char *text)
+{
+	if (!stack) return;
+	g_ptr_array_add (stack, g_strdup (text ? text : ""));
+	if (stack->len > 256) g_ptr_array_remove_index (stack, 0);
+}
+
+static char *talc_entry_history_pop (GPtrArray *stack)
+{
+	char *text;
+
+	if (!stack || stack->len == 0) return NULL;
+	text = (char *) g_ptr_array_index (stack, stack->len - 1);
+	g_ptr_array_remove_index (stack, stack->len - 1);
+	return text;
+}
+
+static GtkWidget *focused_input_entry (void)
+{
+	GtkWidget *main_window;
+	GtkWidget *focus;
+	const char *name;
+
+	if (!main_window_xml) return NULL;
+	main_window = GTK_WIDGET (gtk_builder_get_object (main_window_xml, "main_window"));
+	if (!main_window || !GTK_IS_WINDOW (main_window)) return NULL;
+
+	focus = gtk_window_get_focus (GTK_WINDOW (main_window));
+	if (!focus || !GTK_IS_ENTRY (focus)) return NULL;
+	name = gtk_buildable_get_name (GTK_BUILDABLE (focus));
+	if ((g_strcmp0 (name, "formula_entry") == 0) ||
+		(g_strcmp0 (name, "paper_entry") == 0)) {
+		return focus;
+	}
+	return NULL;
+}
+
+static void talc_entry_history_on_changed (GtkEditable *editable)
+{
+	talc_entry_history *history;
+	const char *current_text;
+
+	if (!editable || !GTK_IS_ENTRY (editable)) return;
+	history = talc_entry_history_get (editable, TRUE);
+	if (!history) return;
+
+	current_text = gtk_entry_get_text (GTK_ENTRY (editable));
+	if (history->in_replay) {
+		g_free (history->last_text);
+		history->last_text = g_strdup (current_text);
+		return;
+	}
+
+	if (g_strcmp0 (history->last_text, current_text) == 0) return;
+
+	talc_entry_history_push (history->undo_stack, history->last_text ? history->last_text : "");
+	g_ptr_array_set_size (history->redo_stack, 0);
+	g_free (history->last_text);
+	history->last_text = g_strdup (current_text);
+}
+
+static gboolean talc_entry_history_undo (GtkEditable *editable)
+{
+	talc_entry_history *history;
+	char *previous_text;
+	const char *current_text;
+
+	if (!editable || !GTK_IS_ENTRY (editable)) return FALSE;
+	history = talc_entry_history_get (editable, TRUE);
+	if (!history || history->undo_stack->len == 0) return FALSE;
+
+	current_text = gtk_entry_get_text (GTK_ENTRY (editable));
+	talc_entry_history_push (history->redo_stack, current_text);
+
+	previous_text = talc_entry_history_pop (history->undo_stack);
+	if (!previous_text) return FALSE;
+	history->in_replay = TRUE;
+	gtk_entry_set_text (GTK_ENTRY (editable), previous_text);
+	gtk_editable_set_position (editable, -1);
+	history->in_replay = FALSE;
+	g_free (history->last_text);
+	history->last_text = previous_text;
+	return TRUE;
+}
+
+static gboolean talc_entry_history_redo (GtkEditable *editable)
+{
+	talc_entry_history *history;
+	char *next_text;
+	const char *current_text;
+
+	if (!editable || !GTK_IS_ENTRY (editable)) return FALSE;
+	history = talc_entry_history_get (editable, TRUE);
+	if (!history || history->redo_stack->len == 0) return FALSE;
+
+	current_text = gtk_entry_get_text (GTK_ENTRY (editable));
+	talc_entry_history_push (history->undo_stack, current_text);
+
+	next_text = talc_entry_history_pop (history->redo_stack);
+	if (!next_text) return FALSE;
+	history->in_replay = TRUE;
+	gtk_entry_set_text (GTK_ENTRY (editable), next_text);
+	gtk_editable_set_position (editable, -1);
+	history->in_replay = FALSE;
+	g_free (history->last_text);
+	history->last_text = next_text;
+	return TRUE;
+}
+
+static gboolean handle_entry_clipboard_shortcut (GtkWidget *widget, GdkEventKey *event)
+{
+	gboolean ctrl_only;
+	gboolean shift;
+
+	if (!widget || !GTK_IS_EDITABLE (widget) || !event) return FALSE;
+
+	ctrl_only = ((event->state & GDK_CONTROL_MASK) != 0) &&
+		((event->state & (GDK_SUPER_MASK | GDK_HYPER_MASK | GDK_META_MASK)) == 0);
+	shift = ((event->state & GDK_SHIFT_MASK) != 0);
+	if (!ctrl_only) return FALSE;
+
+	if (((event->keyval == GDK_KEY_c) || (event->keyval == GDK_KEY_C)) && !shift) {
+		gtk_editable_copy_clipboard (GTK_EDITABLE (widget));
+		return TRUE;
+	}
+	if (((event->keyval == GDK_KEY_x) || (event->keyval == GDK_KEY_X)) && !shift) {
+		gtk_editable_cut_clipboard (GTK_EDITABLE (widget));
+		return TRUE;
+	}
+	if (((event->keyval == GDK_KEY_v) || (event->keyval == GDK_KEY_V)) && !shift) {
+		gtk_editable_paste_clipboard (GTK_EDITABLE (widget));
+		return TRUE;
+	}
+	if (((event->keyval == GDK_KEY_z) || (event->keyval == GDK_KEY_Z)) && !shift) {
+		return talc_entry_history_undo (GTK_EDITABLE (widget));
+	}
+	if ((event->keyval == GDK_KEY_y) || (event->keyval == GDK_KEY_Y) ||
+		(((event->keyval == GDK_KEY_z) || (event->keyval == GDK_KEY_Z)) && shift)) {
+		return talc_entry_history_redo (GTK_EDITABLE (widget));
+	}
+
+	return FALSE;
+}
+
 static char *build_unary_function_expression (const char *fn_text, const char *operand)
 {
 	if (!fn_text || !operand) return NULL;
@@ -781,7 +959,14 @@ void
 on_cut_activate (GtkMenuItem     *menuitem,
             gpointer         user_data)
 {
+    GtkWidget *entry;
+
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
+    entry = focused_input_entry ();
+    if (entry) {
+        gtk_editable_cut_clipboard (GTK_EDITABLE (entry));
+        return;
+    }
     if (active_tab->tab_mode == PAPER_MODE) return;
     gtk_clipboard_set_text (gtk_clipboard_get (GDK_SELECTION_CLIPBOARD), 
         display_result_get(), -1);
@@ -792,15 +977,20 @@ void
 on_paste_activate (GtkMenuItem     *menuitem,
             gpointer         user_data)
 {
-    GtkWidget    *formula_entry;
+    GtkWidget    *entry;
     char        *cp_text;
     
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
+    entry = focused_input_entry ();
+    if (entry) {
+        gtk_editable_paste_clipboard (GTK_EDITABLE (entry));
+        return;
+    }
     if (active_tab->tab_mode == PAPER_MODE) return;
     cp_text = gtk_clipboard_wait_for_text (gtk_clipboard_get (GDK_SELECTION_CLIPBOARD));
     if (cp_text) {
-        if ((formula_entry = formula_entry_is_active_no_toplevel_check ()) != NULL) {
-            gtk_editable_paste_clipboard((GtkEditable *)formula_entry);
+        if ((entry = formula_entry_is_active_no_toplevel_check ()) != NULL) {
+            gtk_editable_paste_clipboard((GtkEditable *)entry);
         } else {
 			rpn_stack_lift();
 			display_result_feed (cp_text, current_status.number);
@@ -813,10 +1003,37 @@ void
 on_copy_activate (GtkMenuItem     *menuitem,
             gpointer         user_data)
 {
+    GtkWidget *entry;
+
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
+    entry = focused_input_entry ();
+    if (entry) {
+        gtk_editable_copy_clipboard (GTK_EDITABLE (entry));
+        return;
+    }
     if (active_tab->tab_mode == PAPER_MODE) return;
     gtk_clipboard_set_text (gtk_clipboard_get (GDK_SELECTION_CLIPBOARD), 
         display_result_get(), -1);
+}
+
+void
+on_undo_activate (GtkMenuItem *menuitem, gpointer user_data)
+{
+    GtkWidget *entry;
+
+    ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
+    entry = focused_input_entry ();
+    if (entry) talc_entry_history_undo (GTK_EDITABLE (entry));
+}
+
+void
+on_redo_activate (GtkMenuItem *menuitem, gpointer user_data)
+{
+    GtkWidget *entry;
+
+    ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
+    entry = focused_input_entry ();
+    if (entry) talc_entry_history_redo (GTK_EDITABLE (entry));
 }
 
 /*
@@ -1921,6 +2138,7 @@ void on_formula_entry_activate (GtkEntry *entry, gpointer user_data)
 void on_formula_entry_changed (GtkEditable *editable, gpointer user_data)
 {
     ui_bind_active_tab_from_widget (GTK_WIDGET(editable));
+    talc_entry_history_on_changed (editable);
     ui_formula_entry_state(FALSE);
 }
 
@@ -1953,6 +2171,24 @@ gboolean on_formula_entry_key_press_event (GtkWidget *widget, GdkEventKey *event
         direction = (event->keyval == GDK_KEY_ISO_Left_Tab) ? GTK_DIR_TAB_BACKWARD : GTK_DIR_TAB_FORWARD;
         return gtk_widget_child_focus (toplevel, direction);
     }
+
+    if (handle_entry_clipboard_shortcut (widget, event)) return TRUE;
+
+    return FALSE;
+}
+
+void on_paper_entry_changed (GtkEditable *editable, gpointer user_data)
+{
+    ui_bind_active_tab_from_widget (GTK_WIDGET(editable));
+    talc_entry_history_on_changed (editable);
+}
+
+gboolean on_paper_entry_key_press_event (GtkWidget *widget, GdkEventKey *event, gpointer user_data)
+{
+    ui_bind_active_tab_from_widget (widget);
+
+    if (cycle_tab_from_key (event)) return TRUE;
+    if (handle_entry_clipboard_shortcut (widget, event)) return TRUE;
 
     return FALSE;
 }

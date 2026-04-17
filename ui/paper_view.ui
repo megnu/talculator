@@ -53,6 +53,8 @@
                 <property name="primary_icon_sensitive">True</property>
                 <property name="secondary_icon_sensitive">True</property>
                 <signal name="activate" handler="on_paper_entry_activate" swapped="no"/>
+                <signal name="changed" handler="on_paper_entry_changed" swapped="no"/>
+                <signal name="key-press-event" handler="on_paper_entry_key_press_event" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">True</property>

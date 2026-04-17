@@ -191,6 +191,10 @@ G_MODULE_EXPORT void on_scientific_mode_toggled (GtkMenuItem *menuitem,
 					gpointer user_data);
 G_MODULE_EXPORT void on_paste_activate (GtkMenuItem *menuitem,
 					gpointer user_data);
+G_MODULE_EXPORT void on_undo_activate (GtkMenuItem *menuitem,
+					gpointer user_data);
+G_MODULE_EXPORT void on_redo_activate (GtkMenuItem *menuitem,
+					gpointer user_data);
 G_MODULE_EXPORT void on_functions_toggled (GtkMenuItem *menuitem,
 					gpointer user_data);
 G_MODULE_EXPORT void on_standard_toggled (GtkMenuItem *menuitem,
@@ -218,6 +222,11 @@ G_MODULE_EXPORT void user_function_list_selection_changed_cb (GtkTreeSelection *
 G_MODULE_EXPORT void on_paper_mode_toggled (GtkMenuItem *menuitem,
 					gpointer user_data);
 G_MODULE_EXPORT void on_paper_entry_activate (GtkWidget *activated_widget, 
+					gpointer user_data);
+G_MODULE_EXPORT void on_paper_entry_changed (GtkEditable *editable,
+					gpointer user_data);
+G_MODULE_EXPORT gboolean on_paper_entry_key_press_event (GtkWidget *widget,
+					GdkEventKey *event,
 					gpointer user_data);
 G_MODULE_EXPORT gboolean paper_tree_view_selection_changed_cb (GtkWidget *widget,
 				    GdkEventButton *event,
