@@ -2,7 +2,9 @@
 	* Completed math-core port to libqalculate
 	* Removed legacy internal float-based engine paths
 	* Dropped GTK2 support and GTK2 UI assets; GTK3 is now required
-	* Added engine accuracy regression tests for core calculator semantic
+	* Added engine accuracy regression tests for core calculator semantics
+	* Hardened typed-input parsing while preserving user-defined constants/functions
+	* Added Tab1..Tab6 typed keywords as read-only cross-tab value references
 
 2026-04-15 Jared (github.com/megnu)
 	* Forked from galculator and rebranded as talculator

@@ -5,6 +5,8 @@ talculator 2.2.0
 	* remove legacy internal float-based engine paths
 	* drop GTK2 support and GTK2 UI assets; GTK3 is now required
 	* add engine accuracy regression tests for core calculator semantics
+	* harden typed-input parsing while preserving user-defined constants/functions
+	* add cross-tab typed keywords Tab1..Tab6 (read-only references to tab values)
 
 talculator 2.1.4+tabs (fork update)
 	* this project is now maintained as a fork of galculator
