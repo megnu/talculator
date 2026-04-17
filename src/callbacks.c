@@ -320,6 +320,17 @@ static gboolean handle_entry_clipboard_shortcut (GtkWidget *widget, GdkEventKey 
 	return FALSE;
 }
 
+static gboolean talc_widget_is_same_or_ancestor (GtkWidget *widget, GtkWidget *possible_descendant)
+{
+	GtkWidget *cursor;
+
+	if (!widget || !possible_descendant) return FALSE;
+	for (cursor = possible_descendant; cursor != NULL; cursor = gtk_widget_get_parent (cursor)) {
+		if (cursor == widget) return TRUE;
+	}
+	return FALSE;
+}
+
 static char *build_unary_function_expression (const char *fn_text, const char *operand)
 {
 	if (!fn_text || !operand) return NULL;
@@ -2162,11 +2173,6 @@ gboolean on_formula_entry_key_press_event (GtkWidget *widget, GdkEventKey *event
         return TRUE;
     }
 
-    if (event->keyval == GDK_KEY_Escape) {
-        all_clear ();
-        return TRUE;
-    }
-
     if ((event->keyval == GDK_KEY_Tab) || (event->keyval == GDK_KEY_ISO_Left_Tab)) {
         toplevel = gtk_widget_get_toplevel (widget);
         if (!GTK_IS_WINDOW (toplevel)) return FALSE;
@@ -2302,13 +2308,47 @@ gboolean on_button_event(GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
     if (event->type == GDK_KEY_PRESS) {
         GdkEventKey *key_event = (GdkEventKey *) event;
+        GtkWidget *focus = NULL;
+
+#if GTK_CHECK_VERSION(3, 0, 0)
+        if (GTK_IS_WINDOW(widget)) {
+            focus = gtk_window_get_focus (GTK_WINDOW(widget));
+            if (focus) ui_bind_active_tab_from_widget (focus);
+        }
+#endif
         if (cycle_tab_from_key (key_event)) return TRUE;
+
+        if (key_event->keyval == GDK_KEY_Escape && active_tab->tab_mode != PAPER_MODE) {
+            GtkWidget *formula_entry_widget;
+            GtkWidget *main_window;
+            gboolean in_formula_focus = FALSE;
+            GtkWidget *allclr_button;
+
+            formula_entry_widget = GTK_WIDGET(gtk_builder_get_object (view_xml, "formula_entry"));
+            main_window = GTK_WIDGET(gtk_builder_get_object (main_window_xml, "main_window"));
+            if (focus && formula_entry_widget)
+                in_formula_focus = talc_widget_is_same_or_ancestor (formula_entry_widget, focus);
+
+            if (in_formula_focus) {
+                if (GTK_IS_EDITABLE (focus)) {
+                    gint pos = gtk_editable_get_position (GTK_EDITABLE (focus));
+                    gtk_editable_select_region (GTK_EDITABLE (focus), pos, pos);
+                }
+                if (active_tab->tab_display_view)
+                    gtk_widget_grab_focus (GTK_WIDGET (active_tab->tab_display_view));
+                else if (main_window && GTK_IS_WINDOW (main_window))
+                    gtk_window_set_focus (GTK_WINDOW (main_window), NULL);
+                return TRUE;
+            }
+            allclr_button = GTK_WIDGET(gtk_builder_get_object (dispctrl_xml, "button_allclr"));
+            if (allclr_button && gtk_widget_get_sensitive (allclr_button))
+                gtk_button_clicked (GTK_BUTTON (allclr_button));
+            else
+                all_clear ();
+            return TRUE;
+        }
     }
 #if GTK_CHECK_VERSION(3, 0, 0)
-    if (GTK_IS_WINDOW(widget)) {
-        GtkWidget *focus = gtk_window_get_focus (GTK_WINDOW(widget));
-        if (focus) ui_bind_active_tab_from_widget (focus);
-    }
     /* do all cheap checks first before calling expensive formula_entry_is_active */
     if (((current_status.notation == CS_FORMULA) ||
          (current_status.notation == CS_PAN)) &&
