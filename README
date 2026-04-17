@@ -11,9 +11,9 @@ For installation information see the INSTALL file.
 For a list of shortcuts, see doc/shortcuts
 There is a short man page (man talculator)
 Information on Formula Entry mode can be found below.
-In general, galculator's homepage galculator.sf.net is the most reliable
-and up2date source of information.
-For talculator-specific development, see https://github.com/megnu/talculator.
+For talculator-specific development, documentation, and issue tracking, see
+https://github.com/megnu/talculator.
+For historical galculator information, see http://galculator.sf.net.
 
 Formula Entry Mode
 ==================
@@ -113,18 +113,11 @@ by first activating INV and than clicking the LSH button:
 23 >> 5 	"shift 23 five times to the right" 	23 INV LSH 5
 
 You can change number base, angle base and the notation mode by simply clicking 
-on the corresponding module in the display's second line. If changing from e.g. 
-decimal number base to binary mode results in an "inf" value on the display, 
-the initial value was too big. Due to the limited display length every mode 
-has its own limits:
+on the corresponding module in the display's second line.
 
-decimal		IEEE floating point numbers
-hexadecimal	-2147483648 .. 2147483647 (0h80000000 .. 0h7FFFFFFF)
-octal		-34359738368 .. 34359738367 (0o400000000000 .. 0o377777777777)
-decimal		-32768 .. 32767 (0b1000000000000000 .. 0b111111111111111)
-
-If computing in hexadecimal, octal or binary mode, inf means that an overflow 
-has happened.
+Arithmetic evaluation is powered by libqalculate and uses arbitrary precision.
+In integer base modes (HEX/OCT/BIN), effective ranges and overflow behavior are
+determined by the configured word size and signedness.
 
 If in hexadecimal, octal or binary signed mode, a negative number won't be 
 represented with a leading minus but as 2's complement with respect to the 
@@ -157,5 +150,4 @@ Shortcuts
 
 doc/shortcuts
 
-http://galculator.sf.net
-simon floery (simon.floery@rechenraum.com)
+https://github.com/megnu/talculator
