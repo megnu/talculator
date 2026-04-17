@@ -22,23 +22,10 @@ dnl
 LT_LIB_M
 
 dnl
-dnl GTK2 or GTK 3
-dnl 
+dnl GTK3 (GTK2 support removed)
+dnl
 
-AC_ARG_ENABLE([gtk3],
-    [AS_HELP_STRING([--enable-gtk3],
-        [compile talculator against gtk+ 3.0 (default: yes)])],
-    [enable_gtk3="${enableval}"],
-    [enable_gtk3="yes"]
-)
-
-if test x"$enable_gtk3" = x"yes"; then
-    pkg_modules="gtk+-3.0"
-else
-    pkg_modules="gtk+-2.0 >= 2.16.0"
-fi
-
-PKG_CHECK_MODULES(GTK, [$pkg_modules])
+PKG_CHECK_MODULES(GTK, [gtk+-3.0])
 AC_SUBST(GTK_CFLAGS)
 AC_SUBST(GTK_LIBS)
 
