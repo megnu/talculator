@@ -30,6 +30,8 @@
 /stamp-h1
 /ylwrap
 /Makefile
+/test-driver
+/compile_commands.json
 
 # Generated Makefiles in subdirs
 /doc/Makefile
