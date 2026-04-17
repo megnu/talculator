@@ -14,7 +14,7 @@ appdata_DATA = $(appdata_in_files:.xml.in=.xml)
 
 CLEANFILES = $(desktop_DATA) $(appdata_DATA)
 
-SUBDIRS = src po ui doc pixmaps
+SUBDIRS = src tests po ui doc pixmaps
 
 # things we want to include in the source code distribution
 
@@ -26,4 +26,3 @@ EXTRA_DIST = talculator.spec \
 	intltool-update.in \
 	talculator.appdata.xml.in \
 	ABOUT-NLS
-

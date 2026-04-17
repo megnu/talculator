@@ -36,6 +36,7 @@
 /pixmaps/Makefile
 /po/Makefile
 /src/Makefile
+/tests/Makefile
 /ui/Makefile
 
 # Generated files in src build dir
@@ -44,6 +45,12 @@
 /src/flex_parser.c
 /src/*.o
 /src/talculator
+/tests/.deps/
+/tests/*.o
+/tests/*.trs
+/tests/*.log
+/tests/engine_accuracy_test
+/tests/test-suite.log
 
 # Generated templates and backups
 /*~
@@ -56,6 +63,7 @@
 /pixmaps/Makefile.in
 /po/Makefile.in
 /src/Makefile.in
+/tests/Makefile.in
 /ui/Makefile.in
 /ui/about.ui
 /intltool-extract.in

@@ -90,6 +90,7 @@ AC_CONFIG_FILES([
 Makefile
 talculator.spec
 src/Makefile
+tests/Makefile
 po/Makefile.in
 ui/Makefile
 ui/about.ui
