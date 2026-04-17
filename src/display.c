@@ -48,9 +48,7 @@ static void display_set_line (char *string, int line, char *tag);
 static char *display_get_line (int line_nr);
 static void display_engine_context_for_base (talc_engine_context *ctx, int number_base_status);
 static char *display_convert_base_string (const char *value, int from_base, int to_base);
-#if GTK_CHECK_VERSION(3, 0, 0)
 static void display_widget_css_set (GtkWidget *widget, const gchar *css, const gchar *data_key);
-#endif
 
 static gboolean display_bracket_module_should_render (void)
 {
@@ -118,7 +116,6 @@ static char *display_convert_base_string (const char *value, int from_base, int 
 	return converted;
 }
 
-#if GTK_CHECK_VERSION(3, 0, 0)
 static void display_widget_css_set (GtkWidget *widget, const gchar *css, const gchar *data_key)
 {
 	GtkStyleContext	*style_context;
@@ -136,7 +133,6 @@ static void display_widget_css_set (GtkWidget *widget, const gchar *css, const g
 	}
 	gtk_css_provider_load_from_data (provider, css, -1, NULL);
 }
-#endif
 
 /*
  * display.c mainly consists of two parts: first display setup code
@@ -692,7 +688,6 @@ void display_change_option (int old_status, int new_status, int opt_group)
 
 void display_set_bkg_color (char *color_string)
 {
-#if GTK_CHECK_VERSION(3, 0, 0)
 	gchar *css;
 	if (active_tab->tab_mode == PAPER_MODE) return;
 	if (view) {
@@ -701,13 +696,6 @@ void display_set_bkg_color (char *color_string)
 		display_widget_css_set (GTK_WIDGET(view), css, "talculator-display-css-provider");
 		g_free (css);
 	}
-#else
-	GdkColor	color;
-	if (active_tab->tab_mode == PAPER_MODE) return;
-	gdk_color_parse (color_string, &color);
-	if (view)
-        gtk_widget_modify_base ((GtkWidget *)view, GTK_STATE_NORMAL, &color);
-#endif
 }
 
 /*

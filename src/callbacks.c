@@ -1128,15 +1128,9 @@ on_prefs_result_color_set(GtkColorButton *button, gpointer user_data)
 {
     if (prefs.result_color != NULL) g_free (prefs.result_color);
 
-#if GTK_CHECK_VERSION(3, 0, 0)   
     GdkRGBA color;
     gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(button), &color);
     prefs.result_color = gdk_rgba_to_string(&color);
-#else
-    GdkColor color;
-    gtk_color_button_get_color (button, &color);
-    prefs.result_color = convert_gdk_color_to_string(color);
-#endif
 
     display_update_tags();
 }
@@ -1161,15 +1155,9 @@ on_prefs_stack_color_set(GtkColorButton *button, gpointer user_data)
 {
 	if (prefs.stack_color != NULL) g_free (prefs.stack_color);
 	
-#if GTK_CHECK_VERSION(3, 0, 0)   
     GdkRGBA color;
     gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(button), &color);
     prefs.stack_color = gdk_rgba_to_string(&color);
-#else
-    GdkColor color;
-    gtk_color_button_get_color (button, &color);
-    prefs.stack_color = convert_gdk_color_to_string(color);
-#endif    
     
     display_update_tags();
 }
@@ -1194,15 +1182,9 @@ on_prefs_act_mod_color_set(GtkColorButton *button, gpointer user_data)
 {
     if (prefs.act_mod_color != NULL) g_free (prefs.act_mod_color);
     
-#if GTK_CHECK_VERSION(3, 0, 0)   
     GdkRGBA color;
     gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(button), &color);
     prefs.act_mod_color = gdk_rgba_to_string(&color);
-#else
-    GdkColor color;
-    gtk_color_button_get_color (button, &color);
-    prefs.act_mod_color = convert_gdk_color_to_string(color);
-#endif 
     
     display_update_tags();
 }
@@ -1212,15 +1194,9 @@ on_prefs_inact_mod_color_set(GtkColorButton *button, gpointer user_data)
 {
 	if (prefs.inact_mod_color != NULL) g_free (prefs.inact_mod_color);
     
-#if GTK_CHECK_VERSION(3, 0, 0)   
     GdkRGBA color;
     gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(button), &color);
     prefs.inact_mod_color = gdk_rgba_to_string(&color);
-#else
-    GdkColor color;
-    gtk_color_button_get_color (button, &color);
-    prefs.inact_mod_color = convert_gdk_color_to_string(color);
-#endif 
 
     display_update_tags();
 }
@@ -1230,15 +1206,9 @@ on_prefs_bkg_color_set(GtkColorButton *button, gpointer user_data)
 {
 	if (prefs.bkg_color != NULL) g_free (prefs.bkg_color);
 	
-#if GTK_CHECK_VERSION(3, 0, 0)   
     GdkRGBA color;
     gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(button), &color);
     prefs.bkg_color = gdk_rgba_to_string(&color);
-#else
-    GdkColor color;
-    gtk_color_button_get_color (button, &color);
-    prefs.bkg_color = convert_gdk_color_to_string(color);
-#endif 
 
     display_set_bkg_color (prefs.bkg_color);
 }
@@ -2310,12 +2280,10 @@ gboolean on_button_event(GtkWidget *widget, GdkEvent *event, gpointer user_data)
         GdkEventKey *key_event = (GdkEventKey *) event;
         GtkWidget *focus = NULL;
 
-#if GTK_CHECK_VERSION(3, 0, 0)
         if (GTK_IS_WINDOW(widget)) {
             focus = gtk_window_get_focus (GTK_WINDOW(widget));
             if (focus) ui_bind_active_tab_from_widget (focus);
         }
-#endif
         if (cycle_tab_from_key (key_event)) return TRUE;
 
         if (key_event->keyval == GDK_KEY_Escape && active_tab->tab_mode != PAPER_MODE) {
@@ -2348,7 +2316,6 @@ gboolean on_button_event(GtkWidget *widget, GdkEvent *event, gpointer user_data)
             return TRUE;
         }
     }
-#if GTK_CHECK_VERSION(3, 0, 0)
     /* do all cheap checks first before calling expensive formula_entry_is_active */
     if (((current_status.notation == CS_FORMULA) ||
          (current_status.notation == CS_PAN)) &&
@@ -2385,7 +2352,6 @@ gboolean on_button_event(GtkWidget *widget, GdkEvent *event, gpointer user_data)
             return TRUE;
         }
     }
-#endif
     return FALSE;
 }
 

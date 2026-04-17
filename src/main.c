@@ -101,63 +101,6 @@ Evaluation engine: libqalculate.\n"),
 
 /* see GtkWidget can-activate-accel signal */
 
-/* gtk_key_snooper_install is deprecated from version 3.4 on. Anyway, the key
- * snooper was a dirty work-around for problems I had with early versions of
- * GTK2, that I can't reproduce nowadays. So try to go w/o any key snopper for
- * GTK3.
- */
-#if !(GTK_CHECK_VERSION(3, 4, 0))
-
-int key_snooper (GtkWidget *grab_widget, GdkEventKey *event, gpointer func_data)
-{
-	GtkWidget	*formula_entry;
-	
-	/* the problem: key acceleration in gtk2 works a bit strange. I do not
-	 * understand it completely. The following is in part the result of a
-	 * long trial and error process. If you can explain why it works, please
-	 * tell me.
-	 * btw, do this only if main_window is the current window. otherwise, 
-	 * keypad's 0,2,4,6,8 won't work in gtkentry etc. (e.g. found in prefs)
-	 */
-	
-	//fprintf (stderr, "[%s] key snooper (1): %i %i %s\n", PROG_NAME, event->state, event->keyval, gdk_keyval_name (event->keyval));
-#if 0	
-	if (((event->keyval != GDK_KP_2) && (event->keyval != GDK_KP_Down) &&
-		(event->keyval != GDK_KP_4) && (event->keyval != GDK_KP_Left) &&
-		(event->keyval != GDK_KP_6) && (event->keyval != GDK_KP_Right) &&
-		(event->keyval != GDK_KP_8) && (event->keyval != GDK_KP_Up) &&
-		(event->keyval != GDK_KP_0) && (event->keyval != GDK_KP_Insert)) ||
-		(strcmp (gtk_buildable_get_name (GTK_BUILDABLE(gtk_widget_get_toplevel(grab_widget))), "main_window") != 0) ||
-		(prefs.mode == PAPER_MODE))
-			event->state &= ~GDK_MOD2_MASK;
-#endif
-	//fprintf (stderr, "[%s] key snooper (2): %i %i %s\n", PROG_NAME, event->state, event->keyval, gdk_keyval_name (event->keyval));
-	
-	/* another problem: we have keyboard accelerators which are simple
-	 * keypresses, e.g. "1", "2" but also "s" for the sin button. if the
-	 * formula entry is active and user types a "s", user expects a s to
-	 * be appended. moreover the same for special keys like backspace etc.
-	 * unfortunately, accelerators have higher priority and can't be somehow
-	 * blocked (they can? tell me!). therefore if formula_entry is active
-	 * and it's a "simple" key press (is this the best solution?), then emit
-	 * the signal directly and return TRUE to prevent any further 
-	 * procession.
-	 * 
-	 * For GTK3 this is done in callbacks.c::on_button_event
-	 */
-	
-	if (((formula_entry = formula_entry_is_active(grab_widget)) != NULL) && 
-		(event->type == GDK_KEY_PRESS)) {
-		if ((event->state == 0) || (event->state == GDK_SHIFT_MASK)) {
-			gtk_widget_event (formula_entry, (GdkEvent *)event);
-			return TRUE;
-		}
-	}
-	
-	return FALSE;
-}
-#endif
-
 /*
  * main
  */
@@ -275,11 +218,6 @@ PACKAGE, config_file_name_old, config_file_name, PACKAGE, config_file_name_old);
 	memory.data = NULL;
 	memory.len = 0;
 
-	/* see function key_snooper for details */
-#if !(GTK_CHECK_VERSION(3, 0, 0))
-    gtk_key_snooper_install (key_snooper, NULL);
-#endif
-	
     /* make the window as small as possible */
 	gtk_window_resize ((GtkWindow *)main_window, 1, 1);
 

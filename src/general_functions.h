@@ -45,8 +45,6 @@ void set_button_color (GtkBuilder *xml, char *button_name, void *color_string);
 void set_stacksize (GtkBuilder *xml, char *name, void *stack_size);
 void set_entry (GtkBuilder *xml, char *entry_name, void *entry_text);
 
-char *convert_gdk_color_to_string (GdkColor color);
-
 void apply_preferences (s_preferences prefs);
 
 gboolean is_valid_number (int number_base, char number);

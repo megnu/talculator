@@ -58,9 +58,7 @@ static void ui_tabs_set_active_widget_sensitivity (GtkNotebook *notebook, gint a
 static gchar *ui_tab_default_title_new ();
 static void ui_tabs_refresh_actions ();
 #define UI_MAX_TABS 6
-#if GTK_CHECK_VERSION(3, 0, 0)
 static void ui_widget_css_set (GtkWidget *widget, const gchar *css, const gchar *data_key);
-#endif
 
 /* active_buttons. bit mask, in which modes the corresponding button is active.
  * assume TRUE for all other bases/modes!
@@ -1027,21 +1025,16 @@ static void set_table_child_font (GtkWidget		*w, gpointer user_data)
     }
 	if (GTK_IS_LABEL(w))
     {
-#if GTK_CHECK_VERSION(3, 0, 0)
 		PangoAttrList *attrs;
 
 		attrs = pango_attr_list_new ();
 		pango_attr_list_insert (attrs, pango_attr_font_desc_new (font));
 		gtk_label_set_attributes (GTK_LABEL(w), attrs);
 		pango_attr_list_unref (attrs);
-#else
-        gtk_widget_modify_font (w, font);
-#endif
     }
 	/* else do nothing */
 }
 
-#if GTK_CHECK_VERSION(3, 0, 0)
 static void ui_widget_css_set (GtkWidget *widget, const gchar *css, const gchar *data_key)
 {
 	GtkStyleContext	*style_context;
@@ -1059,7 +1052,6 @@ static void ui_widget_css_set (GtkWidget *widget, const gchar *css, const gchar 
 	}
 	gtk_css_provider_load_from_data (provider, css, -1, NULL);
 }
-#endif
 
 gboolean set_table_child_tip_accel_finder (GtkAccelKey *key, GClosure *closure, gpointer data)
 {
@@ -1116,24 +1108,12 @@ static void set_table_child_tip_accel (GtkWidget* button, gpointer user_data)
 
 static void set_all_dispctrl_buttons_property (GtkCallback func, gpointer data)
 {
-	/* The following became necessary with our migration from GtkTable to 
-	 * GtkGrid. simon20130217
-	 */
-	 
-#if GTK_CHECK_VERSION(3, 0, 0)
-#define GTK_TABLE_OR_GRID GtkGrid
-#define GTK_IS_TABLE_OR_GRID GTK_IS_GRID
-#else // GTK 3
-#define GTK_TABLE_OR_GRID GtkTable	
-#define GTK_IS_TABLE_OR_GRID GTK_IS_TABLE
-#endif // GTK 3
-
-	GTK_TABLE_OR_GRID	*table;
+	GtkGrid		*table;
     GList* table_children;
 
 	if (!dispctrl_xml) return;
 	/* at first the display control table. always there; somehow */
-    table = (GTK_TABLE_OR_GRID *) GTK_WIDGET(gtk_builder_get_object (dispctrl_xml, "table_dispctrl"));
+    table = (GtkGrid *) GTK_WIDGET(gtk_builder_get_object (dispctrl_xml, "table_dispctrl"));
 	if (!table) return;
     
     table_children = gtk_container_get_children(GTK_CONTAINER(table));
@@ -1141,13 +1121,10 @@ static void set_all_dispctrl_buttons_property (GtkCallback func, gpointer data)
 	if (!table_children) return;
 
 	/* dispctrl_right has an extra table for cosmetic reasons. */
-	if (GTK_IS_TABLE_OR_GRID (table_children->data))
-		table = (GTK_TABLE_OR_GRID *) GTK_WIDGET(table_children->data);
+	if (GTK_IS_GRID (table_children->data))
+		table = (GtkGrid *) GTK_WIDGET(table_children->data);
     g_list_free(table_children);
 	gtk_container_foreach (GTK_CONTAINER(table), (GtkCallback)func, data);
-	
-#undef GTK_TABLE_OR_GRID
-#undef GTK_IS_TABLE_OR_GRID
 }
 
 /* set_all_dispctrl_buttons_property. calls func with argument data for 
@@ -1156,30 +1133,20 @@ static void set_all_dispctrl_buttons_property (GtkCallback func, gpointer data)
 
 static void set_all_normal_buttons_property (GtkCallback func, gpointer data)
 {
-	/* The following became necessary with our migration from GtkTable to 
-	 * GtkGrid. simon20130217
-	 */
-	 
-#if GTK_CHECK_VERSION(3, 0, 0)
-#define GTK_TABLE_OR_GRID GtkGrid
-#else // GTK 3
-#define GTK_TABLE_OR_GRID GtkTable	
-#endif // GTK 3
-	
-	GTK_TABLE_OR_GRID 	*table;
+	GtkGrid 		*table;
 	
 	/* now depending on mode the remaining buttons */
 	switch (active_tab ? active_tab->tab_mode : prefs.mode) {
 	case BASIC_MODE:
-        table = (GTK_TABLE_OR_GRID *) GTK_WIDGET(gtk_builder_get_object (button_box_xml, "table_buttons"));
+        table = (GtkGrid *) GTK_WIDGET(gtk_builder_get_object (button_box_xml, "table_buttons"));
 		gtk_container_foreach (GTK_CONTAINER(table), (GtkCallback)func, data);
 		break;
 	case SCIENTIFIC_MODE:
-        table = (GTK_TABLE_OR_GRID *) GTK_WIDGET(gtk_builder_get_object (button_box_xml, "table_standard_buttons"));
+        table = (GtkGrid *) GTK_WIDGET(gtk_builder_get_object (button_box_xml, "table_standard_buttons"));
 		gtk_container_foreach (GTK_CONTAINER(table), (GtkCallback)func, data);
-        table = (GTK_TABLE_OR_GRID *) GTK_WIDGET(gtk_builder_get_object (button_box_xml, "table_bin_buttons"));
+        table = (GtkGrid *) GTK_WIDGET(gtk_builder_get_object (button_box_xml, "table_bin_buttons"));
 		gtk_container_foreach (GTK_CONTAINER(table), (GtkCallback)func, data);
-        table = (GTK_TABLE_OR_GRID *) GTK_WIDGET(gtk_builder_get_object (button_box_xml, "table_func_buttons"));
+        table = (GtkGrid *) GTK_WIDGET(gtk_builder_get_object (button_box_xml, "table_func_buttons"));
 		gtk_container_foreach (GTK_CONTAINER(table), (GtkCallback)func, data);
 		break;
 	case PAPER_MODE:
@@ -1189,7 +1156,6 @@ static void set_all_normal_buttons_property (GtkCallback func, gpointer data)
 		error_message ("Unknown mode %i in \"set_all_normal_buttons_property\"",
 			active_tab ? active_tab->tab_mode : prefs.mode);
 	}
-#undef GTK_TABLE_OR_GRID
 }
 
 /* set_all_buttons_property. calls func with argument data for every button.
@@ -1383,12 +1349,8 @@ void position_menu (GtkMenu *menu,
 	widget = GTK_WIDGET (user_data);
 	
     GtkRequisition requisition;
-#if GTK_CHECK_VERSION(3, 0, 0)
         /* see this patch: http://osdir.com/ml/general/2010-10/msg06642.html */
         gtk_widget_get_preferred_size (GTK_WIDGET (menu), &requisition, NULL);
-#else
-        gtk_widget_get_child_requisition (GTK_WIDGET (menu), &requisition);
-#endif
     menu_width = requisition.width;
 
 	/* i guess we don't need the "active" stuff from the original positioning
@@ -1405,12 +1367,8 @@ void position_menu (GtkMenu *menu,
 	for(l = children; l; l=l->next) {
 		child = GTK_WIDGET(l->data);
 		if (gtk_widget_get_visible (child))	{
-#if GTK_CHECK_VERSION(3, 0, 0)
             /* see above */
             gtk_widget_get_preferred_size (child, &requisition, NULL);
-#else
-            gtk_widget_get_child_requisition (child, &requisition);
-#endif
 			menu_ypos -= requisition.height;
 		}
 	}
@@ -1433,10 +1391,8 @@ void position_menu (GtkMenu *menu,
 			screen_width = monitor_geometry.width;
 		} else screen_width = G_MAXINT;
 	}
-#elif GTK_CHECK_VERSION(3, 0, 0)
-	screen_width = gdk_screen_get_width (gtk_widget_get_screen (widget));
 #else
-	screen_width = gdk_screen_width ();
+	screen_width = gdk_screen_get_width (gtk_widget_get_screen (widget));
 #endif
 	
 	if (menu_xpos < 0) menu_xpos = 0;
@@ -1739,7 +1695,6 @@ void ui_formula_entry_backspace ()
 void ui_formula_entry_state (gboolean error)
 {
 	GtkWidget		*formula_entry;
-#if GTK_CHECK_VERSION(3, 0, 0)
     formula_entry = GTK_WIDGET(gtk_builder_get_object (view_xml, "formula_entry"));
 	if (formula_entry) {
 		ui_widget_css_set (formula_entry, ".talculator-formula-error { color: red; }",
@@ -1751,20 +1706,6 @@ void ui_formula_entry_state (gboolean error)
 			gtk_style_context_remove_class (gtk_widget_get_style_context(formula_entry),
 				"talculator-formula-error");
 	}
-
-#else
-	GdkColor color, *pcolor = NULL;
-    formula_entry = GTK_WIDGET(gtk_builder_get_object (view_xml, "formula_entry"));
-	if (error) {
-		gdk_color_parse ("red", &color);
-        pcolor = &color;
-	}
-	gtk_widget_modify_text (formula_entry, 0, pcolor);
-	gtk_widget_modify_text (formula_entry, 1, pcolor);
-	gtk_widget_modify_text (formula_entry, 2, pcolor);
-	gtk_widget_modify_text (formula_entry, 3, pcolor);
-	gtk_widget_modify_text (formula_entry, 4, pcolor);
-#endif
 
 }
 

@@ -195,16 +195,10 @@ void set_button_color (GtkBuilder *xml, char *button_name, void *color_string)
 	char **string_var = color_string;
 		
 	if (button) {
-#if GTK_CHECK_VERSION(3, 0, 0)
 		GdkRGBA color;
 		if (!gdk_rgba_parse(&color, *string_var))
 			fprintf (stderr, _("[%s] failed to convert color %s in function \"set_button_color\". %s\n"), PROG_NAME, *string_var, BUG_REPORT);
 		gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(button), &color);
-#else
-		GdkColor color;
-		gdk_color_parse(*string_var, &color);
-		gtk_color_button_set_color (GTK_COLOR_BUTTON(button), &color);
-#endif
 	}
 }
 
@@ -229,17 +223,6 @@ void set_entry (GtkBuilder *xml, char *entry_name, void *entry_text)
 	string_var = entry_text;	
 	entry = (GtkEntry *) gtk_builder_get_object (xml, entry_name);
 	if (entry) gtk_entry_set_text (entry, *string_var);	
-}
-
-/*
- * convert given GdkColor to a string so that gdk_color_parse gives the 
- * same color again. Formerly called gdk_color_to_string but since version 2.12
- * gdk features that function by itself. For GTK3, we use gdk_rgba.
- */
-
-char *convert_gdk_color_to_string (GdkColor color)
-{
-	return g_strdup_printf ("#%04X%04X%04X", color.red, color.green, color.blue);
 }
 
 /*
@@ -732,7 +715,6 @@ void set_window_size_minimal()
     GtkWidget *main_window = GTK_WIDGET(gtk_builder_get_object (main_window_xml, "main_window"));
 	if (main_window != NULL) {
         gtk_window_resize ((GtkWindow *)GTK_WIDGET(gtk_widget_get_toplevel(main_window)), 1, 1);
-#if (GTK_CHECK_VERSION(3, 0, 0))
 		/* with gtk 3.6.0 on ubuntu I observed that simply calling gtk_window_resize
 		 * with (1,1) did not properly resize widgets and the main window. 
 		 * Interestingly, performing the subsequent query solved the problem in
@@ -740,7 +722,6 @@ void set_window_size_minimal()
 		 * pursue any further, until I get told to so.
 		 */
 		gtk_widget_get_preferred_size(GTK_WIDGET(gtk_widget_get_toplevel(main_window)), NULL, NULL);
-#endif
 	}
 }
 
