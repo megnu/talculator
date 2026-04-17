@@ -78,9 +78,7 @@ s_tab_context		default_tab_context = {
 	.tab_classic_view_xml = NULL,
 	.tab_paper_view_xml = NULL,
 	.tab_rpn_stack = NULL,
-	.tab_rpn_stack_len = 0,
-	.tab_pan_expr = NULL,
-	.tab_pan_expr_compatible = TRUE
+	.tab_rpn_stack_len = 0
 };
 s_tab_context		*active_tab = &default_tab_context;
 

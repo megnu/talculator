@@ -339,8 +339,6 @@ static s_tab_context *ui_tab_context_new ()
 	ctx->tab_display_brackets = 0;
 	ctx->tab_rpn_stack = NULL;
 	ctx->tab_rpn_stack_len = 0;
-	ctx->tab_pan_expr = g_string_new ("");
-	ctx->tab_pan_expr_compatible = TRUE;
 	return ctx;
 }
 
@@ -366,7 +364,6 @@ static void ui_tab_context_free (s_tab_context *ctx)
 		}
 		g_free (ctx->tab_rpn_stack);
 	}
-	if (ctx->tab_pan_expr) g_string_free (ctx->tab_pan_expr, TRUE);
 	g_free (ctx);
 }
 
