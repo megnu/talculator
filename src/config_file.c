@@ -459,9 +459,10 @@ void config_file_write (char *filename, s_preferences this_prefs, s_constant *th
 	prefs = this_prefs;
 	if (this_file != NULL) {
 		fprintf (this_file, "\n%s\n\n", SECTION_GENERAL);
-		while (prefs_list[counter].key != NULL) {
-			this_var = prefs_list[counter].variable;
-			switch (prefs_list[counter].key_type) {
+			while (prefs_list[counter].key != NULL) {
+				line = NULL;
+				this_var = prefs_list[counter].variable;
+				switch (prefs_list[counter].key_type) {
 				case STRING:
 					string_var = this_var;
 					line = g_strdup_printf ("%s=\"%s\"\n", prefs_list[counter].key, *string_var);
@@ -476,14 +477,16 @@ void config_file_write (char *filename, s_preferences this_prefs, s_constant *th
 					int_var = this_var;
 					line = g_strdup_printf ("%s=%i\n", prefs_list[counter].key, *int_var);
 					break;
-				default:
-					line = g_strdup_printf ("#%s=???\n", prefs_list[counter].key);
-					fprintf (stderr, _("[%s] configuration file: ignoring unknown \"key_type\" in \"config_structure\". %s\n"), PACKAGE, BUG_REPORT);
+					default:
+						line = g_strdup_printf ("#%s=???\n", prefs_list[counter].key);
+						fprintf (stderr, _("[%s] configuration file: ignoring unknown \"key_type\" in \"config_structure\". %s\n"), PACKAGE, BUG_REPORT);
+				}
+				if (line) {
+					fputs (line, this_file);
+					g_free (line);
+				}
+				counter ++;
 			}
-			fputs (line, this_file);
-			g_free (line);
-			counter ++;
-		}
 		counter = 0;
 		fprintf (this_file, "\n%s\n\n", SECTION_CONSTANTS);
 		while (cf_constant[counter].name != NULL) {

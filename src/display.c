@@ -799,6 +799,7 @@ void display_result_add_digit (char digit, int number_base_status)
 	}
 	
 	display_string = display_result_get();
+	if (!display_string) return;
 	
 	if (digit == dec_point[0]) {
 		/* don't manipulate display_result_counter here! */
@@ -835,15 +836,20 @@ void display_result_feed (char *string, int number_base_status)
 
     gboolean toggleSign = current_status.calc_entry_start_new && (strlen(string) > 0) && (*string == '-');
 
-    for (counter = 0; counter < strlen(string); counter++) {
-        switch (string[counter]) {
-        case '-': {
-            /* this only applies if we just had "EE" before */
-            char *dline = display_result_get();
-            if (strlen(dline) < 3) break;
-            if (strncmp(&dline[strlen(dline)-2], "e+", 2) == 0) display_result_toggle_sign(NULL);
-            break;
-        }
+	    for (counter = 0; counter < strlen(string); counter++) {
+	        switch (string[counter]) {
+	        case '-': {
+	            /* this only applies if we just had "EE" before */
+	            char *dline = display_result_get();
+	            if (!dline) break;
+	            if (strlen(dline) < 3) {
+				g_free (dline);
+				break;
+			}
+	            if (strncmp(&dline[strlen(dline)-2], "e+", 2) == 0) display_result_toggle_sign(NULL);
+			g_free (dline);
+	            break;
+	        }
         case 'e':
         case 'E':
 			/* In decimal mode, call display_append_e, otherwise, run into 
@@ -887,16 +893,20 @@ char *display_result_get ()
 
 void display_append_e (GtkToggleButton *button)
 {
+	char *display_line;
+
 	/* we have kind of a shortcut. we don't set to 0e+ but 1e+ */
 	if (current_status.number != CS_DEC) return;
-	if ((current_status.calc_entry_start_new == FALSE) && 
-		(strcmp (display_result_get(), "0") != 0)) {
-		if (strstr (display_result_get(), "e") == NULL) {
+	display_line = display_result_get();
+	if (!display_line) return;
+	if ((current_status.calc_entry_start_new == FALSE) &&
+		(strcmp (display_line, "0") != 0)) {
+		if (strstr (display_line, "e") == NULL) {
 			/* DISPLAY RESULT MODIFIED
 			display_get_line_end_iter (buffer, display_result_line, &end);
 			gtk_text_buffer_insert_with_tags_by_name (buffer, &end, "e+", -1, "result", NULL);
 			*/
-			char *display_string = g_strdup_printf ("%se+", display_result_get());
+			char *display_string = g_strdup_printf ("%se+", display_line);
 				display_result_set (display_string, FALSE);
 				g_free (display_string);
 			}
@@ -904,6 +914,7 @@ void display_append_e (GtkToggleButton *button)
 			display_result_set ("1e+", TRUE);
 			current_status.calc_entry_start_new = FALSE;
 		}
+	g_free (display_line);
 	display_result_counter = get_display_number_length(current_status.number) - DISPLAY_RESULT_E_LENGTH;
 }
 
@@ -913,6 +924,7 @@ void display_result_toggle_sign (GtkToggleButton *button)
 
 	if (current_status.number != CS_DEC) return;
 	result_field = display_result_get();
+	if (!result_field) return;
 	/* if there is no e? we toggle the leading sign, otherwise the sign after e */
 	if ((e_pointer = strchr (result_field, 'e')) == NULL || current_status.calc_entry_start_new) {
 		if (*result_field == '-') 
@@ -948,14 +960,15 @@ void display_result_backspace (int number_base_status)
 		if (current_status.calc_entry_start_new == TRUE) {
 			current_status.calc_entry_start_new = FALSE;
 			display_result_set (CLEARED_DISPLAY, TRUE);
-	} else {
-		current_entry = display_result_get();
-		/* to avoid an empty/senseless result field */
-		if (strlen(current_entry) == 0) strcpy(current_entry, "0");
-		else if (strlen(current_entry) == 1) current_entry[0] = '0';
-		else if ((strlen(current_entry) == 2) && (*current_entry == '-')) strcpy(current_entry, "0");
-		else if (current_entry[strlen(current_entry) - 2] == 'e') current_entry[strlen(current_entry) - 2] = '\0';
-		else current_entry[strlen(current_entry) - 1] = '\0';
+		} else {
+			current_entry = display_result_get();
+			if (!current_entry) return;
+			/* to avoid an empty/senseless result field */
+			if (strlen(current_entry) == 0) current_entry[0] = '0';
+			else if (strlen(current_entry) == 1) current_entry[0] = '0';
+			else if ((strlen(current_entry) == 2) && (*current_entry == '-')) current_entry[0] = '0';
+			else if (current_entry[strlen(current_entry) - 2] == 'e') current_entry[strlen(current_entry) - 2] = '\0';
+			else current_entry[strlen(current_entry) - 1] = '\0';
 			display_result_set (current_entry, TRUE);
 			g_free (current_entry);
 		}
