@@ -64,6 +64,7 @@
 /doc/Makefile.in
 /pixmaps/Makefile.in
 /po/Makefile.in
+/po/*.in~
 /src/Makefile.in
 /tests/Makefile.in
 /ui/Makefile.in

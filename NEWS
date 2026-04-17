@@ -1,5 +1,11 @@
 see ChangeLog
 
+talculator 2.2.0
+	* complete math-core port to libqalculate
+	* remove legacy internal float-based engine paths
+	* drop GTK2 support and GTK2 UI assets; GTK3 is now required
+	* add engine accuracy regression tests for core calculator semantics
+
 talculator 2.1.4+tabs (fork update)
 	* this project is now maintained as a fork of galculator
 	* upstream moved to https://github.com/megnu/talculator

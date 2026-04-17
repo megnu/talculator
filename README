@@ -4,6 +4,8 @@ talculator
 a GTK 3 based scientific calculator
 
 This project is a fork of galculator, supporting tabs for multiple instances.
+talculator now uses libqalculate as its computation engine (arbitrary precision)
+and is GTK3-only.
 
 For installation information see the INSTALL file.
 For a list of shortcuts, see doc/shortcuts

@@ -1,7 +1,7 @@
 # Maintainer: local
 
 pkgname=talculator
-pkgver=2.1.4
+pkgver=2.2.0
 pkgrel=1
 pkgdesc='GTK3 scientific calculator with tab support (talculator fork)'
 arch=('x86_64')
