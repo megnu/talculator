@@ -118,6 +118,9 @@ int main (void)
 	test_state state;
 	talc_engine_context dec;
 	talc_engine_context rad;
+	talc_engine_context rpn;
+	talc_engine_context rpn_rad;
+	talc_engine_context rpn_bin;
 	talc_engine_context hex;
 	talc_engine_context bin_unsigned;
 	talc_engine_context bin_signed;
@@ -137,6 +140,15 @@ int main (void)
 	dec = ctx_default ();
 	rad = dec;
 	rad.angle = TALC_ENGINE_ANGLE_RAD;
+	rpn = dec;
+	rpn.rpn_notation = TRUE;
+	rpn.formula_notation = FALSE;
+	rpn_rad = rpn;
+	rpn_rad.angle = TALC_ENGINE_ANGLE_RAD;
+	rpn_bin = rpn;
+	rpn_bin.base = TALC_ENGINE_BASE_BIN;
+	rpn_bin.base_bits = 8;
+	rpn_bin.base_signed = FALSE;
 	hex = dec;
 	hex.base = TALC_ENGINE_BASE_HEX;
 	hex.base_bits = 8;
@@ -168,6 +180,18 @@ int main (void)
 	expect_exact (&state, "hex_A_plus_1", &hex, "A+1", "B");
 	expect_exact (&state, "bin_and", &bin_unsigned, "11110000 & 10101010", "10100000");
 	expect_exact (&state, "bin_neg1_signed", &bin_signed, "-1", "11111111");
+
+	/* RPN context coverage */
+	expect_exact (&state, "rpn_add", &rpn, "3 4 +", "7");
+	expect_exact (&state, "rpn_div", &rpn, "10 2 /", "5");
+	expect_exact (&state, "rpn_nested", &rpn, "2 3 4 + *", "14");
+	expect_error (&state, "rpn_invalid_percent_chain", &rpn, "10%%");
+	expect_exact (&state, "rpn_order_sub", &rpn, "5 2 -", "3");
+	expect_exact (&state, "rpn_order_sub_infix_control", &dec, "5-2", "3");
+	expect_approx (&state, "rpn_sin_30_deg", &rpn, "30 sin", 0.5, 1e-12);
+	expect_approx (&state, "rpn_sin_pi_over_2_rad", &rpn_rad, "pi 2 / sin", 1.0, 1e-12);
+	expect_approx (&state, "rpn_sqrt2", &rpn, "2 sqrt", 1.4142135623730951, 1e-12);
+	expect_exact (&state, "rpn_bin_and", &rpn_bin, "1111 0011 &", "11");
 
 	talc_engine_free (state.engine);
 	if (state.failures > 0) {
