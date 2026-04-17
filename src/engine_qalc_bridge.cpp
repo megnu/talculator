@@ -101,6 +101,7 @@ static void talc_qalc_fill_print_options (const talc_engine_context *ctx,
 	po->digit_grouping = DIGIT_GROUPING_NONE;
 	po->spacious = false;
 	po->indicate_infinite_series = REPEATING_DECIMALS_OFF;
+	po->interval_display = INTERVAL_DISPLAY_MIDPOINT;
 	talc_qalc_apply_base_semantics (ctx, NULL, po);
 	if (ctx && ctx->display_precision > 0 && CALCULATOR) {
 		CALCULATOR->setPrecision (ctx->display_precision);

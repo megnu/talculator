@@ -91,6 +91,26 @@ static void expect_contains (test_state *state, const char *name,
 	g_free (actual);
 }
 
+static void expect_not_contains (test_state *state, const char *name,
+	const talc_engine_context *ctx, const char *expr, const char *needle)
+{
+	char *actual = talc_engine_eval_expression (state->engine, ctx, expr);
+	if (!actual) {
+		char *msg = g_strdup_printf ("expected output not containing \"%s\", got error: %s",
+			needle, talc_engine_last_error (state->engine));
+		report_failure (state, name, msg);
+		g_free (msg);
+		return;
+	}
+	if (g_strstr_len (actual, -1, needle)) {
+		char *msg = g_strdup_printf ("expected output not containing \"%s\", got \"%s\"",
+			needle, actual);
+		report_failure (state, name, msg);
+		g_free (msg);
+	}
+	g_free (actual);
+}
+
 static void expect_approx (test_state *state, const char *name,
 	const talc_engine_context *ctx, const char *expr, double expected, double tol)
 {
@@ -221,6 +241,10 @@ int main (void)
 	expect_exact (&state, "add", &dec, "1+2", "3");
 	expect_exact (&state, "precedence", &dec, "2+3*4", "14");
 	expect_exact (&state, "parentheses", &dec, "(2+3)*4", "20");
+	expect_exact (&state, "explicit_add_paren", &dec, "88+(3+2)", "93");
+	expect_exact (&state, "explicit_sub_paren", &dec, "88-(3+2)", "83");
+	expect_exact (&state, "explicit_mul_paren", &dec, "88*(3+2)", "440");
+	expect_exact (&state, "explicit_div_paren", &dec, "88/(3+2)", "17.6");
 	expect_exact (&state, "implicit_mul_num_paren", &dec, "2(3+4)", "14");
 	expect_exact (&state, "implicit_mul_paren_paren", &dec, "(1+2)(3+4)", "21");
 
@@ -234,6 +258,7 @@ int main (void)
 	expect_approx (&state, "sin_deg_30", &dec, "sin(30)", 0.5, 1e-12);
 	expect_approx (&state, "sin_rad_pi_2", &rad, "sin(pi/2)", 1.0, 1e-12);
 	expect_approx (&state, "sqrt2", &dec, "sqrt(2)", 1.4142135623730951, 1e-12);
+	expect_not_contains (&state, "sqrt3_not_interval", &dec, "sqrt(3)", "interval(");
 
 	expect_exact (&state, "hex_A_plus_1", &hex, "A+1", "B");
 	expect_exact (&state, "bin_and", &bin_unsigned, "11110000 & 10101010", "10100000");
@@ -253,7 +278,7 @@ int main (void)
 	/* percent edge chains and nested forms */
 	expect_exact (&state, "percent_nested_add", &dec, "(200+10%)", "220");
 	expect_exact (&state, "percent_then_multiply", &dec, "50%*8", "4");
-	expect_exact (&state, "percent_sub_expr", &dec, "200-(5+5)%", "199.9");
+	expect_exact (&state, "percent_sub_expr", &dec, "200-(5+5)%", "180");
 	expect_error (&state, "percent_chain_triple_invalid", &dec, "10%%%");
 
 	/* domain/error behavior */

@@ -60,6 +60,7 @@ static gboolean talc_prev_token_is_numeric_literal (const char *text, int token_
 	int len;
 
 	if (!text || token_end < 0) return FALSE;
+	if (!talc_is_operand_char (text[token_end])) return FALSE;
 	start = token_end;
 	while (start > 0 && talc_is_operand_char (text[start - 1])) start--;
 	len = token_end - start + 1;
