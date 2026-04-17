@@ -45,6 +45,28 @@ static void request_main_window_quit ()
     else gtk_main_quit();
 }
 
+static void popup_menu_for_button (GtkWidget *menu, GtkWidget *button)
+{
+#if GTK_CHECK_VERSION(3, 22, 0)
+    gtk_menu_popup_at_widget (GTK_MENU(menu), button,
+        GDK_GRAVITY_SOUTH_WEST, GDK_GRAVITY_NORTH_WEST, NULL);
+#else
+    gtk_menu_popup (GTK_MENU(menu), NULL, NULL,
+        (GtkMenuPositionFunc) position_menu, button, 0, gtk_get_current_event_time());
+#endif
+}
+
+static void popup_menu_for_event (GtkWidget *menu, GdkEventButton *event)
+{
+#if GTK_CHECK_VERSION(3, 22, 0)
+    gtk_menu_popup_at_pointer (GTK_MENU(menu), (const GdkEvent *) event);
+#else
+    gtk_menu_popup (GTK_MENU(menu), NULL, NULL, NULL, NULL,
+        event ? event->button : 0,
+        event ? event->time : gtk_get_current_event_time());
+#endif
+}
+
 static gboolean cycle_tab_from_key (GdkEventKey *key_event)
 {
     GtkNotebook *notebook;
@@ -1023,11 +1045,15 @@ on_preferences1_activate               (GtkMenuItem     *menuitem,
 void
 on_prefs_result_font_set(GtkFontButton *button, gpointer user_data)
 {
-    const char    *font_name;
-    
-    font_name = gtk_font_button_get_font_name(button);
+    char *font_name;
+
+#if GTK_CHECK_VERSION(3, 2, 0)
+    font_name = gtk_font_chooser_get_font (GTK_FONT_CHOOSER(button));
+#else
+    font_name = g_strdup (gtk_font_button_get_font_name(button));
+#endif
     if (prefs.result_font != NULL) g_free (prefs.result_font);
-    prefs.result_font = g_strdup(font_name);
+    prefs.result_font = font_name ? font_name : g_strdup ("");
     display_update_tags();
 }
 
@@ -1052,11 +1078,15 @@ on_prefs_result_color_set(GtkColorButton *button, gpointer user_data)
 void
 on_prefs_stack_font_set(GtkFontButton *button, gpointer user_data)
 {
-    const char    *font_name;
-    
-    font_name = gtk_font_button_get_font_name(button);
+    char *font_name;
+
+#if GTK_CHECK_VERSION(3, 2, 0)
+    font_name = gtk_font_chooser_get_font (GTK_FONT_CHOOSER(button));
+#else
+    font_name = g_strdup (gtk_font_button_get_font_name(button));
+#endif
     if (prefs.stack_font != NULL) g_free (prefs.stack_font);
-    prefs.stack_font = g_strdup(font_name);
+    prefs.stack_font = font_name ? font_name : g_strdup ("");
     display_update_tags();
 }
 
@@ -1081,11 +1111,15 @@ on_prefs_stack_color_set(GtkColorButton *button, gpointer user_data)
 void
 on_prefs_mod_font_set(GtkFontButton *button, gpointer user_data)
 {
-    const char    *font_name;
-    
-    font_name = gtk_font_button_get_font_name(button);
+    char *font_name;
+
+#if GTK_CHECK_VERSION(3, 2, 0)
+    font_name = gtk_font_chooser_get_font (GTK_FONT_CHOOSER(button));
+#else
+    font_name = g_strdup (gtk_font_button_get_font_name(button));
+#endif
     if (prefs.mod_font != NULL) g_free (prefs.mod_font);
-    prefs.mod_font = g_strdup(font_name);
+    prefs.mod_font = font_name ? font_name : g_strdup ("");
     display_update_tags();
 }
 
@@ -1146,12 +1180,16 @@ on_prefs_bkg_color_set(GtkColorButton *button, gpointer user_data)
 void
 on_prefs_button_font_set(GtkFontButton *button, gpointer user_data)
 {
-    const char    *font_name;
+    char        *font_name;
     char        *button_font;
-    
-    font_name = gtk_font_button_get_font_name(button);
+
+#if GTK_CHECK_VERSION(3, 2, 0)
+    font_name = gtk_font_chooser_get_font (GTK_FONT_CHOOSER(button));
+#else
+    font_name = g_strdup (gtk_font_button_get_font_name(button));
+#endif
     if (prefs.button_font != NULL) g_free (prefs.button_font);
-    prefs.button_font = g_strdup(font_name);
+    prefs.button_font = font_name ? font_name : g_strdup ("");
     if (prefs.custom_button_font == TRUE) button_font = g_strdup (prefs.button_font);
     else button_font = g_strdup ("");
     set_all_buttons_font (button_font);    
@@ -1326,8 +1364,7 @@ on_user_function_button_clicked (GtkToggleButton       *button,
     button_activation (button);
     menu = ui_user_functions_menu_create(user_function, (GCallback)user_functions_menu_handler);
     g_object_set_data (G_OBJECT(menu), "tab-context", active_tab);
-    gtk_menu_popup ((GtkMenu *)menu, NULL, NULL, (GtkMenuPositionFunc) position_menu, 
-        button, 0, 0);
+    popup_menu_for_button (menu, GTK_WIDGET(button));
 }
 
 /*
@@ -1360,8 +1397,7 @@ on_constant_button_clicked (GtkToggleButton       *button,
     button_activation (button);
     menu = ui_constants_menu_create(constant, (GCallback)constants_menu_handler);
     g_object_set_data (G_OBJECT(menu), "tab-context", active_tab);
-    gtk_menu_popup ((GtkMenu *)menu, NULL, NULL, (GtkMenuPositionFunc) position_menu, 
-        button, 0, 0);
+    popup_menu_for_button (menu, GTK_WIDGET(button));
 }
 
 /*
@@ -1407,8 +1443,7 @@ void on_ms_button_clicked (GtkToggleButton *button, gpointer user_data)
     button_activation (button);
     menu = ui_memory_menu_create (memory, (GCallback)ms_menu_handler, _("save here"));
     g_object_set_data (G_OBJECT(menu), "tab-context", active_tab);
-    gtk_menu_popup ((GtkMenu *)menu, NULL, NULL, (GtkMenuPositionFunc) position_menu, 
-        button, 0, 0);
+    popup_menu_for_button (menu, GTK_WIDGET(button));
 }
 
 void mr_menu_handler (GtkMenuItem *menuitem, gpointer user_data)
@@ -1437,8 +1472,7 @@ void on_mr_button_clicked (GtkToggleButton *button, gpointer user_data)
     button_activation (button);
     menu = ui_memory_menu_create(memory, (GCallback)mr_menu_handler, NULL);
     g_object_set_data (G_OBJECT(menu), "tab-context", active_tab);
-    gtk_menu_popup ((GtkMenu *)menu, NULL, NULL, (GtkMenuPositionFunc) position_menu,
-        button, 0, 0);
+    popup_menu_for_button (menu, GTK_WIDGET(button));
 
 }
 
@@ -1477,8 +1511,7 @@ void on_mplus_button_clicked (GtkToggleButton *button, gpointer user_data)
     button_activation (button);
     menu = ui_memory_menu_create(memory, (GCallback)mplus_menu_handler, NULL);
     g_object_set_data (G_OBJECT(menu), "tab-context", active_tab);
-    gtk_menu_popup ((GtkMenu *)menu, NULL, NULL, (GtkMenuPositionFunc) position_menu,
-        button, 0, 0);
+    popup_menu_for_button (menu, GTK_WIDGET(button));
 
 }
 
@@ -1520,8 +1553,7 @@ on_mc_button_clicked             (GtkToggleButton       *button,
     button_activation (button);
     menu = ui_memory_menu_create(memory, (GCallback)mc_menu_handler, "clear all");
     g_object_set_data (G_OBJECT(menu), "tab-context", active_tab);
-    gtk_menu_popup ((GtkMenu *)menu, NULL, NULL, (GtkMenuPositionFunc) position_menu,
-        button, 0, 0);
+    popup_menu_for_button (menu, GTK_WIDGET(button));
 
 }
 
@@ -1555,8 +1587,7 @@ on_mx_button_clicked             (GtkToggleButton       *button,
     button_activation (button);
     menu = ui_memory_menu_create(memory, (GCallback)mx_menu_handler, NULL);
     g_object_set_data (G_OBJECT(menu), "tab-context", active_tab);
-    gtk_menu_popup ((GtkMenu *)menu, NULL, NULL, (GtkMenuPositionFunc) position_menu,
-        button, 0, 0);
+    popup_menu_for_button (menu, GTK_WIDGET(button));
 
 }
 
@@ -2028,7 +2059,7 @@ gboolean on_button_press_event (GtkWidget *widget, GdkEventButton *event, gpoint
     ui_bind_active_tab_from_widget (widget);
     if (event->button != 3) return FALSE;
     menu = ui_right_mouse_menu_create ();
-    gtk_menu_popup ((GtkMenu *) menu, NULL, NULL, NULL, NULL, 3, event->time);
+    popup_menu_for_event (menu, event);
     return FALSE;
 }
 

@@ -154,7 +154,12 @@ void set_button_font (GtkBuilder *xml, char *button_name, void *new_label)
 	
 	string_var = new_label;	
 	button = (GtkButton *) gtk_builder_get_object (xml, button_name);
-	if (button) gtk_font_button_set_font_name (GTK_FONT_BUTTON(button), *string_var);	
+	if (!button) return;
+#if GTK_CHECK_VERSION(3, 2, 0)
+	gtk_font_chooser_set_font (GTK_FONT_CHOOSER(button), *string_var);
+#else
+	gtk_font_button_set_font_name (GTK_FONT_BUTTON(button), *string_var);
+#endif
 }
 
 void set_checkbutton (GtkBuilder *xml, char *checkbutton_name, void *is_active)

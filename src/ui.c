@@ -55,6 +55,9 @@ static void ui_tabs_set_active_widget_sensitivity (GtkNotebook *notebook, gint a
 static gchar *ui_tab_default_title_new ();
 static void ui_tabs_refresh_actions ();
 #define UI_MAX_TABS 6
+#if GTK_CHECK_VERSION(3, 0, 0)
+static void ui_widget_css_set (GtkWidget *widget, const gchar *css, const gchar *data_key);
+#endif
 
 /* active_buttons. bit mask, in which modes the corresponding button is active.
  * assume TRUE for all other bases/modes!
@@ -907,13 +910,38 @@ static void set_table_child_font (GtkWidget		*w, gpointer user_data)
 	if (GTK_IS_LABEL(w))
     {
 #if GTK_CHECK_VERSION(3, 0, 0)
-        gtk_widget_override_font(w, font);
+		PangoAttrList *attrs;
+
+		attrs = pango_attr_list_new ();
+		pango_attr_list_insert (attrs, pango_attr_font_desc_new (font));
+		gtk_label_set_attributes (GTK_LABEL(w), attrs);
+		pango_attr_list_unref (attrs);
 #else
         gtk_widget_modify_font (w, font);
 #endif
     }
 	/* else do nothing */
 }
+
+#if GTK_CHECK_VERSION(3, 0, 0)
+static void ui_widget_css_set (GtkWidget *widget, const gchar *css, const gchar *data_key)
+{
+	GtkStyleContext	*style_context;
+	GtkCssProvider	*provider;
+
+	if (!widget || !css || !data_key) return;
+	style_context = gtk_widget_get_style_context (widget);
+	if (!style_context) return;
+	provider = g_object_get_data (G_OBJECT(widget), data_key);
+	if (!provider) {
+		provider = gtk_css_provider_new ();
+		gtk_style_context_add_provider (style_context,
+			GTK_STYLE_PROVIDER(provider), GTK_STYLE_PROVIDER_PRIORITY_USER);
+		g_object_set_data_full (G_OBJECT(widget), data_key, provider, g_object_unref);
+	}
+	gtk_css_provider_load_from_data (provider, css, -1, NULL);
+}
+#endif
 
 gboolean set_table_child_tip_accel_finder (GtkAccelKey *key, GClosure *closure, gpointer data)
 {
@@ -1213,10 +1241,10 @@ void set_widget_visibility (GtkBuilder *xml, char *widget_name, gboolean visible
 #endif
 
 void position_menu (GtkMenu *menu, 
-		gint *x, 
-		gint *y, 
-		gboolean *push_in, 
-		gpointer user_data)
+				gint *x, 
+				gint *y, 
+				gboolean *push_in, 
+				gpointer user_data)
 {
 	/* this code is taken from GTK 2.2.1 source, therefore credits go there.
 	 *  gtk+-2.0.6/gtk/gtkoptionmenu.c (function gtk_option_menu_position)
@@ -1270,7 +1298,27 @@ void position_menu (GtkMenu *menu,
     g_list_free(children);
 	
 	/*screen_width = gdk_screen_get_width (gtk_widget_get_screen (widget));*/
+#if GTK_CHECK_VERSION(3, 22, 0)
+	{
+		GdkDisplay	*display;
+		GdkWindow	*window;
+		GdkMonitor	*monitor;
+		GdkRectangle	monitor_geometry;
+
+		display = gtk_widget_get_display (widget);
+		window = gtk_widget_get_window (widget);
+		monitor = (display && window) ? gdk_display_get_monitor_at_window (display, window) : NULL;
+		if (!monitor && display) monitor = gdk_display_get_primary_monitor (display);
+		if (monitor) {
+			gdk_monitor_get_geometry (monitor, &monitor_geometry);
+			screen_width = monitor_geometry.width;
+		} else screen_width = G_MAXINT;
+	}
+#elif GTK_CHECK_VERSION(3, 0, 0)
+	screen_width = gdk_screen_get_width (gtk_widget_get_screen (widget));
+#else
 	screen_width = gdk_screen_width ();
+#endif
 	
 	if (menu_xpos < 0) menu_xpos = 0;
 	else if ((menu_xpos + menu_width) > screen_width)
@@ -1573,16 +1621,17 @@ void ui_formula_entry_state (gboolean error)
 {
 	GtkWidget		*formula_entry;
 #if GTK_CHECK_VERSION(3, 0, 0)
-    GdkRGBA color, *pcolor = NULL;
     formula_entry = GTK_WIDGET(gtk_builder_get_object (view_xml, "formula_entry"));
-	if (error) {
-		gdk_rgba_parse (&color, "red");
-        pcolor = &color;
+	if (formula_entry) {
+		ui_widget_css_set (formula_entry, ".talculator-formula-error { color: red; }",
+			"talculator-formula-error-css-provider");
+		if (error)
+			gtk_style_context_add_class (gtk_widget_get_style_context(formula_entry),
+				"talculator-formula-error");
+		else
+			gtk_style_context_remove_class (gtk_widget_get_style_context(formula_entry),
+				"talculator-formula-error");
 	}
-	gtk_widget_override_color (formula_entry, GTK_STATE_FLAG_NORMAL, pcolor);
-    gtk_widget_override_color (formula_entry, GTK_STATE_FLAG_ACTIVE, pcolor);
-    gtk_widget_override_color (formula_entry, GTK_STATE_FLAG_PRELIGHT, pcolor);
-    gtk_widget_override_color (formula_entry, GTK_STATE_FLAG_INSENSITIVE, pcolor);
 
 #else
 	GdkColor color, *pcolor = NULL;

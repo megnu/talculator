@@ -48,6 +48,9 @@ static void display_set_line (char *string, int line, char *tag);
 static char *display_get_line (int line_nr);
 static void display_engine_context_for_base (talc_engine_context *ctx, int number_base_status);
 static char *display_convert_base_string (const char *value, int from_base, int to_base);
+#if GTK_CHECK_VERSION(3, 0, 0)
+static void display_widget_css_set (GtkWidget *widget, const gchar *css, const gchar *data_key);
+#endif
 
 static void display_engine_context_for_base (talc_engine_context *ctx, int number_base_status)
 {
@@ -100,6 +103,26 @@ static char *display_convert_base_string (const char *value, int from_base, int 
 	}
 	return converted;
 }
+
+#if GTK_CHECK_VERSION(3, 0, 0)
+static void display_widget_css_set (GtkWidget *widget, const gchar *css, const gchar *data_key)
+{
+	GtkStyleContext	*style_context;
+	GtkCssProvider	*provider;
+
+	if (!widget || !css || !data_key) return;
+	style_context = gtk_widget_get_style_context (widget);
+	if (!style_context) return;
+	provider = g_object_get_data (G_OBJECT(widget), data_key);
+	if (!provider) {
+		provider = gtk_css_provider_new ();
+		gtk_style_context_add_provider (style_context,
+			GTK_STYLE_PROVIDER(provider), GTK_STYLE_PROVIDER_PRIORITY_USER);
+		g_object_set_data_full (G_OBJECT(widget), data_key, provider, g_object_unref);
+	}
+	gtk_css_provider_load_from_data (provider, css, -1, NULL);
+}
+#endif
 
 /*
  * display.c mainly consists of two parts: first display setup code
@@ -656,12 +679,14 @@ void display_change_option (int old_status, int new_status, int opt_group)
 void display_set_bkg_color (char *color_string)
 {
 #if GTK_CHECK_VERSION(3, 0, 0)
-	GdkRGBA	color;
+	gchar *css;
 	if (prefs.mode == PAPER_MODE) return;
-	gdk_rgba_parse (&color, color_string);
-	if (view)
-        gtk_widget_override_background_color(GTK_WIDGET(view), 
-            GTK_STATE_FLAG_NORMAL, &color);
+	if (view) {
+		css = g_strdup_printf ("textview, textview text { background-color: %s; }",
+			color_string ? color_string : "#ffffff");
+		display_widget_css_set (GTK_WIDGET(view), css, "talculator-display-css-provider");
+		g_free (css);
+	}
 #else
 	GdkColor	color;
 	if (prefs.mode == PAPER_MODE) return;
