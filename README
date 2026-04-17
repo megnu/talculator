@@ -29,44 +29,45 @@ of the functions currently implemented and points out some restrictions.
 Formula entry mode accepts decimal numbers as input as well as hexadecimal, 
 binary and octal numbers. The latter three have to be entered with a prefix:
 
-Number base	Prefix(es)	Example
-decimal		none		-3.1415
-hexadecimal	0x or 0h	0xAF
-binary		0b		0b1001
-octal		0o		0o777
+| Number base | Prefix(es) | Example |
+| --- | --- | --- |
+| decimal | none | -3.1415 |
+| hexadecimal | 0x or 0h | 0xAF |
+| binary | 0b | 0b1001 |
+| octal | 0o | 0o777 |
 
 All algebraic operations and functions of the algebraic mode are supported. The 
 following table lists all available operations:
 
-Operation			identifier	
-+, -, *, /			+, -, *, /
-percent (postfix)		%
-power x^y			^
-module (MOD)			mod, MOD
-left shift (LSH)		<<
-right shift (INV + LSH)		>>
-AND				&, and, AND
-OR				|, or, OR
-XOR				xor, XOR
+| Operation | identifier |
+| --- | --- |
+| +, -, *, / | +, -, *, / |
+| percent (postfix) | % |
+| power x^y | ^ |
+| module (MOD) | mod, MOD |
+| left shift (LSH) | << |
+| right shift (INV + LSH) | >> |
+| AND | &, and, AND |
+| OR | \|, or, OR |
+| XOR | xor, XOR |
 
 Let's speak of factorial and complement as functions. Most functions' argument 
 has to be enclosed by brackets. Therefore sin 3 is not allowed and has to be 
 written as sin(3). User defined functions can be used in formula entry mode 
 without any restrictions!
 
-Function			Function identifier	Example
-Trigonometric functions: 
-Sine, Cosine, Tangent		sin, cos, tan		sin(0.5)
-their inverse			asin, acos, atan	asin(0.5)
-their hyperbolic variants	sinh, cosh, tanh	sinh(0.5)
-and the inverse of those	asinh, acosh, atanh	asinh(0.5)
-natural logarithm (base e)	ln			ln(3)
-logarithm (base 10)		log			log(3)
-square root			sqrt			sqrt(3)
-factorial			!			(3)!, 3! brackets are 
-							optional
-complement			~			~(3) brackets are 
-							mandatory
+| Function | Function identifier | Example |
+| --- | --- | --- |
+| Trigonometric functions |  |  |
+| Sine, Cosine, Tangent | sin, cos, tan | sin(0.5) |
+| their inverse | asin, acos, atan | asin(0.5) |
+| their hyperbolic variants | sinh, cosh, tanh | sinh(0.5) |
+| and the inverse of those | asinh, acosh, atanh | asinh(0.5) |
+| natural logarithm (base e) | ln | ln(3) |
+| logarithm (base 10) | log | log(3) |
+| square root | sqrt | sqrt(3) |
+| factorial | ! | (3)!, 3! (brackets optional) |
+| complement | ~ | ~(3) (brackets mandatory) |
 
 If formula entry mode's parser encounters an (syntax) error, the formula entry 
 text is turned red.
@@ -92,13 +93,15 @@ are not supported). User functions can be defined in the Preferences dialog
 So far, only a single variable is allowed. Expression gives the string 
 expression of the function with respect to the specified variable:
 
-Function		Name	Variable	Expression
-f(x)=1-x		f	x		1-x
+| Function | Name | Variable | Expression |
+| --- | --- | --- | --- |
+| f(x)=1-x | f | x | 1-x |
 
 User defined functions can depend on other user functions:
 
-Function		Name	Variable	Expression
-g(x)=1/(1-x)=1/f(x)	g	x		1/f(x)
+| Function | Name | Variable | Expression |
+| --- | --- | --- | --- |
+| g(x)=1/(1-x)=1/f(x) | g | x | 1/f(x) |
 
 User functions can also be called from formula entry mode.
 
