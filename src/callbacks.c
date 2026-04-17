@@ -184,11 +184,13 @@ static void talc_entry_history_push (GPtrArray *stack, const char *text)
 static char *talc_entry_history_pop (GPtrArray *stack)
 {
 	char *text;
+	char *copy;
 
 	if (!stack || stack->len == 0) return NULL;
 	text = (char *) g_ptr_array_index (stack, stack->len - 1);
+	copy = g_strdup (text ? text : "");
 	g_ptr_array_remove_index (stack, stack->len - 1);
-	return text;
+	return copy;
 }
 
 static GtkWidget *focused_input_entry (void)
