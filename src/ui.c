@@ -500,8 +500,9 @@ static void ui_pack_from_xml (GtkWidget *box,
     g_object_unref(child_widget);
 
     /* Destroy the toplevel dummy window so it won't be leaked. */
-    if(parent)
+    if(parent) {
         gtk_widget_destroy(child_toplevel);
+    }
 
 	gtk_box_reorder_child ((GtkBox *) box, child_widget, index);
 
@@ -1528,7 +1529,7 @@ void ui_formula_entry_activate ()
 	gtk_widget_activate(formula_entry);
 }
 
-void ui_formula_entry_set (G_CONST_RETURN gchar *text)
+void ui_formula_entry_set (const gchar *text)
 {
 	GtkWidget	*formula_entry;
 
@@ -1537,7 +1538,7 @@ void ui_formula_entry_set (G_CONST_RETURN gchar *text)
 	gtk_entry_set_text ((GtkEntry *) formula_entry, text);
 }
 
-void ui_formula_entry_insert (G_CONST_RETURN gchar *text)
+void ui_formula_entry_insert (const gchar *text)
 {
 	GtkWidget	*formula_entry;
 	int		position;
@@ -1553,10 +1554,15 @@ void ui_formula_entry_insert (G_CONST_RETURN gchar *text)
 void ui_formula_entry_backspace ()
 {
 	GtkWidget	*formula_entry;
+	const gchar	*text;
+	gint		text_len;
 	
     formula_entry = GTK_WIDGET(gtk_builder_get_object (view_xml, "formula_entry"));
-	gtk_editable_delete_text ((GtkEditable *) formula_entry, 
-		strlen(gtk_entry_get_text((GtkEntry *) formula_entry)) - 1, -1);
+	text = gtk_entry_get_text ((GtkEntry *) formula_entry);
+	if (text == NULL) return;
+	text_len = (gint) strlen (text);
+	if (text_len <= 0) return;
+	gtk_editable_delete_text ((GtkEditable *) formula_entry, text_len - 1, -1);
 }
 
 /* ui_formula_entry_state. if color == NULL looks like we get default. this is

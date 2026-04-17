@@ -94,3 +94,11 @@ Phase 5 status (completed on `libqalculate` branch):
   - constants and user functions
   - RPN operations
   - formatting and error paths
+
+## Deferred cleanup (post-port)
+- GTK deprecation migration is intentionally deferred:
+  - `gtk_menu_popup*` -> `gtk_menu_popup_at_pointer` / `gtk_menu_popup_at_widget`
+  - `gtk_font_button_get/set_font_name` -> `gtk_font_chooser_get/set_font`
+  - `gtk_widget_override_*` color/font APIs -> CSS provider/style-class based styling
+  - `gdk_screen_width` -> monitor geometry APIs
+- These are non-blocking for libqalculate math-core parity and will be handled in a dedicated UI modernization pass.

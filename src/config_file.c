@@ -275,8 +275,11 @@ int config_file_get_mode (char *line, char *filename, int old_mode)
 {
 	int	len;
 	
+	if (line == NULL) return old_mode;
 	line = g_strstrip(line);
+	if (line[0] == '\0') return old_mode;
 	len = strlen(line);
+	if (len <= 0) return old_mode;
 	if ((line[0] == '[') && (line[len - 1] == ']')) {
 		if (strcmp (line, SECTION_GENERAL) == 0) return GENERAL;
 		else if (strcmp (line, SECTION_CONSTANTS) == 0) return CONSTANTS;

@@ -84,7 +84,7 @@ void backspace ()
 	backspace_for_tab (active_tab);
 }
 
-/* clear all: display ("0"), calc_tree ... */
+/* clear all: reset display and notation-specific runtime state. */
 
 void all_clear_for_tab (s_tab_context *ctx)
 {
@@ -483,7 +483,9 @@ char *string_add_separator (char* string, gboolean separate, int block_length, c
 	int		int_length=0, frac_length=0, counter=0, new_counter=0, offset;
 	char 	*new_string;
 	
+	if (string == NULL) return g_strdup (CLEARED_DISPLAY);
 	if (!separate) return g_strdup(string);
+	if (block_length <= 0) return g_strdup(string);
 	/* at first, get length of parts pre- and succeeding the decimal point */
 	while ((string[int_length] != '\0') && (string[int_length] != dpoint) && (string[int_length] != 'e'))
 		int_length++;

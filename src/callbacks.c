@@ -21,7 +21,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 
 #include "calc_basic.h"
 #include "talculator.h"
@@ -1421,6 +1420,9 @@ void mr_menu_handler (GtkMenuItem *menuitem, gpointer user_data)
     current_status.rpn_stack_lift_enabled = TRUE;
     rpn_stack_lift();
     index = GPOINTER_TO_INT(user_data);
+    if ((index < 0) || (index >= memory.len) || (memory.data == NULL) || (memory.data[index] == NULL)) {
+        return;
+    }
     display_result_set(memory.data[index], TRUE);
     current_status.rpn_stack_lift_enabled = TRUE;
     current_status.calc_entry_start_new = TRUE;
@@ -1443,12 +1445,15 @@ void on_mr_button_clicked (GtkToggleButton *button, gpointer user_data)
 void mplus_menu_handler (GtkMenuItem *menuitem, gpointer user_data)
 {
     int        index;
-    char      *current_value;
-    char      *expression;
+    char      *current_value = NULL;
+    char      *expression = NULL;
     char      *sum_value = NULL;
     
     ui_bind_active_tab_from_menu_item (menuitem);
     index = GPOINTER_TO_INT(user_data);
+    if ((index < 0) || (index >= memory.len) || (memory.data == NULL)) {
+        return;
+    }
     current_value = display_result_get ();
     expression = g_strdup_printf ("(%s)+(%s)",
         memory.data[index] ? memory.data[index] : CLEARED_DISPLAY,
@@ -1528,6 +1533,9 @@ void mx_menu_handler (GtkMenuItem *menuitem, gpointer user_data)
     
     ui_bind_active_tab_from_menu_item (menuitem);
     index = GPOINTER_TO_INT(user_data);
+    if ((index < 0) || (index >= memory.len) || (memory.data == NULL)) {
+        return;
+    }
     temp = memory.data[index] ? g_strdup (memory.data[index]) : g_strdup (CLEARED_DISPLAY);
     current_value = display_result_get ();
     if (memory.data[index]) g_free (memory.data[index]);

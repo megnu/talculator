@@ -909,11 +909,12 @@ void display_result_backspace (int number_base_status)
 		if (current_status.calc_entry_start_new == TRUE) {
 			current_status.calc_entry_start_new = FALSE;
 			display_result_set (CLEARED_DISPLAY, TRUE);
-		} else {
+	} else {
 		current_entry = display_result_get();
 		/* to avoid an empty/senseless result field */
-		if (strlen(current_entry) == 1) current_entry[0] = '0';
-        else if ((strlen(current_entry) == 2) && (*current_entry == '-')) strcpy(current_entry, "0");
+		if (strlen(current_entry) == 0) strcpy(current_entry, "0");
+		else if (strlen(current_entry) == 1) current_entry[0] = '0';
+		else if ((strlen(current_entry) == 2) && (*current_entry == '-')) strcpy(current_entry, "0");
 		else if (current_entry[strlen(current_entry) - 2] == 'e') current_entry[strlen(current_entry) - 2] = '\0';
 		else current_entry[strlen(current_entry) - 1] = '\0';
 			display_result_set (current_entry, TRUE);
