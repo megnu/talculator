@@ -1528,9 +1528,6 @@ GtkWidget *ui_pref_dialog_create ()
     w = GTK_WIDGET(gtk_builder_get_object (prefs_xml, "prefs_button_font"));
 	gtk_widget_set_sensitive (w, prefs.custom_button_font);
 	
-    w = GTK_WIDGET(gtk_builder_get_object (prefs_xml, "prefs_bin_length"));
-	gtk_widget_set_sensitive (w, prefs.bin_fixed);
-	
 	/* make user defined constants list. */
 	
 	prefs_constant_store = gtk_list_store_new (NR_CONST_COLUMNS, 

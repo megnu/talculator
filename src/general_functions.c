@@ -629,7 +629,7 @@ void prefs_sep_char_changed (GtkEditable *editable, char **prefs_sep, int number
 	if (strlen(sep) > 0) {
 		if ((is_valid_number(number_base, *sep)) ||
 			((number_base == CS_DEC) && ((*sep == '-') ||
-			(*sep == 'e') || (*sep == dec_point[0]))) ||
+			(*sep == 'e') || (*sep == 'E') || (*sep == dec_point[0]))) ||
 			!isascii(*sep))
 			gtk_editable_delete_text (editable, 0, -1);
 		else {

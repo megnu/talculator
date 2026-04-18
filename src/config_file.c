@@ -71,14 +71,11 @@ static s_prefs_entry prefs_list[53] = {
 	{"hex_sep_length", &(prefs.hex_sep_length), INTEGER, "prefs_hex_sep_length", set_spinbutton},
 /*30*/	{"hex_sep_char", &(prefs.hex_sep_char), STRING, "prefs_hex_sep_char", set_entry},
 	{"oct_bits", &(prefs.oct_bits), INTEGER, "prefs_oct_bits", set_spinbutton},
-	{"oct_signed", &(prefs.oct_signed), BOOLEAN, "prefs_oct_signed", set_checkbutton},
 	{"oct_sep", &(prefs.oct_sep), BOOLEAN, "prefs_oct_sep", set_checkbutton},
 	{"oct_sep_length", &(prefs.oct_sep_length), INTEGER, "prefs_oct_sep_length", set_spinbutton},
 	{"oct_sep_char", &(prefs.oct_sep_char), STRING, "prefs_oct_sep_char", set_entry},
 	{"bin_bits", &(prefs.bin_bits), INTEGER, "prefs_bin_bits", set_spinbutton},
 	{"bin_signed", &(prefs.bin_signed), BOOLEAN, "prefs_bin_signed", set_checkbutton},
-	{"bin_fixed", &(prefs.bin_fixed), BOOLEAN, "prefs_bin_fixed", set_checkbutton},
-	{"bin_length", &(prefs.bin_length), INTEGER, "prefs_bin_length", set_spinbutton},
 /*40*/	{"bin_sep", &(prefs.bin_sep), BOOLEAN, "prefs_bin_sep", set_checkbutton},
 	{"bin_sep_length", &(prefs.bin_sep_length), INTEGER, "prefs_bin_sep_length", set_spinbutton},
 	{"bin_sep_char", &(prefs.bin_sep_char), STRING, "prefs_bin_sep_char", set_entry},
@@ -94,7 +91,11 @@ static s_prefs_entry prefs_list[53] = {
 	{"show_menu_bar", &(prefs.show_menu), BOOLEAN, "prefs_show_menu", set_checkbutton},
 	{NULL, NULL, 0, NULL, NULL}
 };
-static char *prefs_list_old_entries[3] = {"show_status_bar", "remembered_value", NULL};
+static char *prefs_list_old_entries[] = {
+	"show_status_bar", "remembered_value",
+	"oct_signed", "bin_fixed", "bin_length",
+	NULL
+};
 static s_constant *cf_constant=NULL;
 static s_user_function *cf_user_function=NULL;
 
@@ -143,14 +144,11 @@ static void config_file_get_default_prefs (s_preferences *this_prefs)
 	this_prefs->hex_sep_char = g_strdup (DEFAULT_HEX_SEP_CHAR);
 	this_prefs->hex_sep_length = DEFAULT_HEX_SEP_LENGTH;
 	this_prefs->oct_bits = DEFAULT_OCT_BITS;
-	this_prefs->oct_signed = DEFAULT_OCT_SIGNED;
 	this_prefs->oct_sep = DEFAULT_OCT_SEP;
 	this_prefs->oct_sep_char = g_strdup (DEFAULT_OCT_SEP_CHAR);
 	this_prefs->oct_sep_length = DEFAULT_OCT_SEP_LENGTH;
 	this_prefs->bin_bits = DEFAULT_BIN_BITS;
 	this_prefs->bin_signed = DEFAULT_BIN_SIGNED;
-	this_prefs->bin_fixed = DEFAULT_BIN_FIXED;
-	this_prefs->bin_length = DEFAULT_BIN_LENGTH;
 	this_prefs->bin_sep = DEFAULT_BIN_SEP;
 	this_prefs->bin_sep_char = g_strdup (DEFAULT_BIN_SEP_CHAR);
 	this_prefs->bin_sep_length = DEFAULT_BIN_SEP_LENGTH;

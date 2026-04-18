@@ -133,8 +133,6 @@ G_MODULE_EXPORT void on_prefs_hex_signed_toggled (GtkToggleButton *togglebutton,
 G_MODULE_EXPORT void on_prefs_oct_bits_value_changed (GtkSpinButton *spinbutton, 
 					GtkScrollType arg1, 
 					gpointer user_data);
-G_MODULE_EXPORT void on_prefs_oct_signed_toggled (GtkToggleButton *togglebutton, 
-					gpointer user_data);
 G_MODULE_EXPORT void on_prefs_bin_bits_value_changed (GtkSpinButton *spinbutton, 
 					GtkScrollType arg1, 
 					gpointer user_data);
@@ -262,11 +260,6 @@ G_MODULE_EXPORT void on_prefs_cdelete_clicked (GtkButton *button,
 G_MODULE_EXPORT void on_prefs_cclear_clicked (GtkButton *button, 
 					gpointer user_data);
 G_MODULE_EXPORT void on_prefs_bin_sep_length_value_changed (GtkSpinButton *spinbutton,
-					GtkScrollType arg1,
-					gpointer user_data);
-G_MODULE_EXPORT void on_prefs_bin_fixed_toggled (GtkToggleButton *togglebutton, 
-					gpointer user_data);
-G_MODULE_EXPORT void on_prefs_bin_length_value_changed (GtkSpinButton *spinbutton,
 					GtkScrollType arg1,
 					gpointer user_data);
 G_MODULE_EXPORT void on_prefs_button_font_set (GtkFontButton *button, 

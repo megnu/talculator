@@ -97,7 +97,6 @@ static void display_engine_context_for_base (talc_engine_context *ctx, int numbe
 		break;
 	case CS_OCT:
 		ctx->base_bits = prefs.oct_bits;
-		ctx->base_signed = prefs.oct_signed;
 		break;
 	case CS_BIN:
 		ctx->base_bits = prefs.bin_bits;

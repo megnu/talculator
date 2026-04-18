@@ -103,6 +103,53 @@ static gboolean tab_keyword_is_reserved_name (const char *name)
 		(name[4] == '\0');
 }
 
+static gboolean custom_symbol_name_has_valid_syntax (const char *name)
+{
+	int i;
+
+	if (!name || name[0] == '\0') return FALSE;
+	if (!(g_ascii_isalpha ((guchar) name[0]) || name[0] == '_')) return FALSE;
+	for (i = 1; name[i] != '\0'; i++) {
+		if (!(g_ascii_isalnum ((guchar) name[i]) || name[i] == '_')) return FALSE;
+	}
+	return TRUE;
+}
+
+static gboolean custom_symbol_name_is_reserved (const char *name)
+{
+	static const char *reserved[] = {
+		"pi", "e", "i",
+		"sin", "cos", "tan",
+		"asin", "acos", "atan",
+		"sinh", "cosh", "tanh",
+		"asinh", "acosh", "atanh",
+		"log", "log10", "ln", "sqrt", "abs",
+		"mod", "and", "or", "xor", "not",
+		NULL
+	};
+	int i;
+
+	if (!name) return FALSE;
+	if (tab_keyword_is_reserved_name (name)) return TRUE;
+	for (i = 0; reserved[i] != NULL; i++) {
+		if (g_ascii_strcasecmp (name, reserved[i]) == 0) return TRUE;
+	}
+	return FALSE;
+}
+
+static gboolean custom_symbol_name_is_accepted (const char *name, const char *kind)
+{
+	if (!custom_symbol_name_has_valid_syntax (name)) {
+		error_message (_("%s name must match [A-Za-z_][A-Za-z0-9_]*."), kind);
+		return FALSE;
+	}
+	if (custom_symbol_name_is_reserved (name)) {
+		error_message (_("%s name is reserved."), kind);
+		return FALSE;
+	}
+	return TRUE;
+}
+
 static char *tab_keyword_display_value_by_index (int tab_index_1based)
 {
 	GtkNotebook *notebook;
@@ -210,7 +257,6 @@ static void engine_context_from_ui_state (talc_engine_context *ctx)
 		break;
 	case CS_OCT:
 		ctx->base_bits = prefs.oct_bits;
-		ctx->base_signed = prefs.oct_signed;
 		break;
 	case CS_BIN:
 		ctx->base_bits = prefs.bin_bits;
@@ -523,12 +569,9 @@ on_main_window_destroy               (GtkWidget*         widget,
         }
     }
     
-    /* remember some things */
-    if (active_tab->tab_mode != BASIC_MODE) {
-        /* save number and angle mode only in scientific mode. */
-        prefs.def_number = current_status.number;
-        prefs.def_angle = current_status.angle;
-    }
+    /* Keep startup defaults as explicit preferences; do not overwrite from the
+     * currently active tab at shutdown.
+     */
     /* if we have the classic view display we remember the display values */
     if (active_tab->tab_mode != PAPER_MODE) {
         if (prefs.rem_valuex) g_free (prefs.rem_valuex);
@@ -547,7 +590,6 @@ on_main_window_destroy               (GtkWidget*         widget,
             g_free (stack[2]);
             g_free (stack);
         }
-        prefs.def_notation = current_status.notation;
     }
 
     g_object_unref(main_window_xml);
@@ -1779,8 +1821,7 @@ void on_prefs_ufadd_clicked (GtkButton *button, gpointer user_data)
         g_free (desc);
         return;
     }
-	if (tab_keyword_is_reserved_name (name)) {
-		error_message (_("Names Tab1..Tab6 are reserved for tab value references."));
+	if (!custom_symbol_name_is_accepted (name, _("Function"))) {
 		g_free (name);
 		g_free (value);
 		g_free (desc);
@@ -1857,8 +1898,7 @@ void on_prefs_ufupdate_clicked (GtkButton *button, gpointer user_data)
     entry = GTK_WIDGET(gtk_builder_get_object (prefs_xml, "prefs_ufname_entry"));
 	{
 		const char *new_name = gtk_entry_get_text ((GtkEntry *) entry);
-		if (tab_keyword_is_reserved_name (new_name)) {
-			error_message (_("Names Tab1..Tab6 are reserved for tab value references."));
+		if (!custom_symbol_name_is_accepted (new_name, _("Function"))) {
 			return;
 		}
 		if (user_function[index].name) g_free (user_function[index].name);
@@ -1910,8 +1950,7 @@ void on_prefs_cadd_clicked (GtkButton *button, gpointer user_data)
         g_free (desc);
         return;
     }
-	if (tab_keyword_is_reserved_name (name)) {
-		error_message (_("Names Tab1..Tab6 are reserved for tab value references."));
+	if (!custom_symbol_name_is_accepted (name, _("Constant"))) {
 		g_free (name);
 		g_free (value);
 		g_free (desc);
@@ -1987,8 +2026,7 @@ void on_prefs_cupdate_clicked (GtkButton *button, gpointer user_data)
     entry = GTK_WIDGET(gtk_builder_get_object (prefs_xml, "prefs_cname_entry"));
 	{
 		const char *new_name = gtk_entry_get_text ((GtkEntry *) entry);
-		if (tab_keyword_is_reserved_name (new_name)) {
-			error_message (_("Names Tab1..Tab6 are reserved for tab value references."));
+		if (!custom_symbol_name_is_accepted (new_name, _("Constant"))) {
 			return;
 		}
 		if (constant[index].name) g_free (constant[index].name);
@@ -2028,12 +2066,6 @@ void on_prefs_oct_bits_value_changed (GtkSpinButton *spinbutton,
     prefs.oct_bits = (int) gtk_spin_button_get_value (spinbutton);
 }
 
-void on_prefs_oct_signed_toggled (GtkToggleButton *togglebutton, 
-                    gpointer user_data)
-{
-    prefs.oct_signed = gtk_toggle_button_get_active (togglebutton);
-}
-
 void on_prefs_bin_bits_value_changed (GtkSpinButton *spinbutton,
                     GtkScrollType arg1,
                     gpointer user_data)
@@ -2047,24 +2079,6 @@ void on_prefs_bin_signed_toggled (GtkToggleButton *togglebutton,
 {
     prefs.bin_signed = gtk_toggle_button_get_active (togglebutton);
 }
-
-void on_prefs_bin_fixed_toggled (GtkToggleButton *togglebutton, 
-                    gpointer user_data)
-{
-    GtkWidget    *w;
-    
-    prefs.bin_fixed = gtk_toggle_button_get_active (togglebutton);
-    w = GTK_WIDGET(gtk_builder_get_object (prefs_xml, "prefs_bin_length"));
-    gtk_widget_set_sensitive (w, prefs.bin_fixed);
-}
-
-void on_prefs_bin_length_value_changed (GtkSpinButton *spinbutton,
-                    GtkScrollType arg1,
-                    gpointer user_data)
-{
-    prefs.bin_length = (int) gtk_spin_button_get_value (spinbutton);
-}
-
 
 void on_prefs_number_combo_changed(GtkComboBox *widget, gpointer user_data)
 {

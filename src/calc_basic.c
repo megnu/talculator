@@ -56,7 +56,6 @@ static void engine_context_from_ui_state (talc_engine_context *ctx)
 		break;
 	case CS_OCT:
 		ctx->base_bits = prefs.oct_bits;
-		ctx->base_signed = prefs.oct_signed;
 		break;
 	case CS_BIN:
 		ctx->base_bits = prefs.bin_bits;
