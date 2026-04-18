@@ -159,6 +159,7 @@ gboolean on_textview_button_press_event (GtkWidget *widget,
 						GdkEventButton *event,
 						gpointer user_data)
 {
+    (void) user_data;
 	ui_bind_active_tab_from_widget (widget);
 	static 			GdkAtom targets_atom = GDK_NONE;
 	int			x, y;
@@ -212,6 +213,8 @@ void on_textview_selection_received (GtkWidget *widget,
 					guint time,
 					gpointer user_data)
 {
+    (void) time;
+    (void) user_data;
 	ui_bind_active_tab_from_widget (widget);
 	/* **** IMPORTANT **** Check to see if retrieval succeeded  */
 	/* occurs if we just press the middle button with no active selection */
@@ -790,6 +793,7 @@ static void display_set_line (char *string, int line, char *tag)
  */
 void display_result_add_digit (char digit, int number_base_status)
 {
+    (void) number_base_status;
 	char			*display_string=NULL, *new_display_string=NULL;
 
 	/* fool the following code */
@@ -911,6 +915,7 @@ char *display_result_get ()
 
 void display_append_e (GtkToggleButton *button)
 {
+    (void) button;
 	char *display_line;
 
 	/* we have kind of a shortcut. we don't set to 0e+ but 1e+ */
@@ -938,6 +943,7 @@ void display_append_e (GtkToggleButton *button)
 
 void display_result_toggle_sign (GtkToggleButton *button)
 {
+    (void) button;
 	char			*result_field, *e_pointer;
 
 	if (current_status.number != CS_DEC) return;
@@ -973,6 +979,7 @@ void display_result_toggle_sign (GtkToggleButton *button)
 
 void display_result_backspace (int number_base_status)
 {															
+    (void) number_base_status;
 	char	*current_entry;
 
 		if (current_status.calc_entry_start_new == TRUE) {

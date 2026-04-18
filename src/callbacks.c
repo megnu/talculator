@@ -576,6 +576,8 @@ void
 on_main_window_destroy               (GtkWidget*         widget,
                                         gpointer         user_data)
 {
+    (void) widget;
+    (void) user_data;
     GtkNotebook *notebook;
     GtkWidget *page;
     s_tab_context *ctx;
@@ -617,6 +619,7 @@ void
 on_quit_activate                     (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
+    (void) user_data;
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     request_main_window_quit ();
 }
@@ -627,6 +630,8 @@ void
 on_about_activate                     (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
+    (void) menuitem;
+    (void) user_data;
     GtkWidget *about_dialog = ui_about_dialog_create();
     gtk_dialog_run (GTK_DIALOG(about_dialog));
 }
@@ -635,6 +640,7 @@ void
 on_new_tab_activate                   (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
+    (void) user_data;
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     ui_tab_create (NULL);
 }
@@ -643,6 +649,7 @@ void
 on_close_tab_activate                 (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
+    (void) user_data;
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (!ui_tab_close_current ()) request_main_window_quit ();
 }
@@ -656,6 +663,7 @@ void
 on_number_button_clicked               (GtkToggleButton  *button,
                                         gpointer         user_data)
 {    
+    (void) user_data;
     ui_bind_active_tab_from_widget (GTK_WIDGET(button));
     if (gtk_toggle_button_get_active(button) == FALSE) return;
     button_activation (button);
@@ -675,6 +683,7 @@ on_number_button_clicked               (GtkToggleButton  *button,
 void
 on_operation_button_clicked(GtkToggleButton *button, gpointer user_data)
 {
+    (void) user_data;
     char              current_operation;
     char             *current_number = NULL;
     char            **stack = NULL;
@@ -763,6 +772,7 @@ void
 on_function_button_clicked             (GtkToggleButton    *button,
                                         gpointer user_data)
 {
+    (void) user_data;
     char         **display_name;
     const char    *fn_text;
     char          *operand = NULL;
@@ -809,6 +819,7 @@ void
 on_tbutton_fmod_clicked                (GtkButton       *button,
                                         gpointer         user_data)
 {
+    (void) user_data;
     ui_bind_active_tab_from_widget (GTK_WIDGET(button));
     if (strcmp (gtk_button_get_label (button), "inv") == 0)
         current_status.fmod ^= 1 << CS_FMOD_FLAG_INV;
@@ -821,6 +832,7 @@ void
 on_gfunc_button_clicked                (GtkToggleButton       *button,
                                         gpointer         user_data)
 {
+    (void) user_data;
     void    (*func)(GtkToggleButton *button);
     char     *display_string;
 
@@ -849,6 +861,7 @@ void
 on_dec_toggled                       (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
+    (void) user_data;
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (!gtk_check_menu_item_get_active((GtkCheckMenuItem *)menuitem)) return;
     change_option (CS_DEC, DISPLAY_OPT_NUMBER);
@@ -858,6 +871,7 @@ on_dec_toggled                       (GtkMenuItem     *menuitem,
 void
 on_hex_toggled (GtkMenuItem     *menuitem, gpointer         user_data)
 {
+    (void) user_data;
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (!gtk_check_menu_item_get_active((GtkCheckMenuItem *)menuitem)) return;
     change_option (CS_HEX, DISPLAY_OPT_NUMBER);
@@ -868,6 +882,7 @@ void
 on_oct_toggled                       (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
+    (void) user_data;
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (!gtk_check_menu_item_get_active((GtkCheckMenuItem *)menuitem)) return;
     change_option (CS_OCT, DISPLAY_OPT_NUMBER);
@@ -878,6 +893,7 @@ void
 on_bin_toggled                       (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
+    (void) user_data;
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (!gtk_check_menu_item_get_active((GtkCheckMenuItem *)menuitem)) return;
     change_option (CS_BIN, DISPLAY_OPT_NUMBER);
@@ -888,6 +904,7 @@ void
 on_deg_toggled                       (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
+    (void) user_data;
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (!gtk_check_menu_item_get_active((GtkCheckMenuItem *)menuitem)) return;
     change_option (CS_DEG, DISPLAY_OPT_ANGLE);
@@ -898,6 +915,7 @@ void
 on_rad_toggled                       (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
+    (void) user_data;
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (!gtk_check_menu_item_get_active((GtkCheckMenuItem *)menuitem)) return;
     change_option (CS_RAD, DISPLAY_OPT_ANGLE);
@@ -908,6 +926,7 @@ void
 on_grad_toggled                      (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
+    (void) user_data;
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (!gtk_check_menu_item_get_active((GtkCheckMenuItem *)menuitem)) return;
     change_option (CS_GRAD, DISPLAY_OPT_ANGLE);
@@ -917,6 +936,7 @@ void
 on_ordinary_toggled                  (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
+    (void) user_data;
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem)) == FALSE) return;
     change_option (CS_ALG, DISPLAY_OPT_NOTATION);
@@ -934,6 +954,7 @@ void
 on_toggle_notation_activate          (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
+    (void) user_data;
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (active_tab->tab_mode == PAPER_MODE) return;
     if (current_status.notation == CS_RPN) activate_menu_item ("alg");
@@ -944,6 +965,7 @@ void
 on_cycle_view_mode_activate          (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
+    (void) user_data;
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     switch (active_tab->tab_mode) {
     case BASIC_MODE:
@@ -963,6 +985,7 @@ void
 on_rpn_toggled                       (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
+    (void) user_data;
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem)) == FALSE) return;
     change_option (CS_RPN, DISPLAY_OPT_NOTATION);
@@ -980,6 +1003,7 @@ void
 on_display_control_toggled (GtkMenuItem     *menuitem,
             gpointer         user_data)
 {
+    (void) user_data;
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (active_tab->tab_mode == PAPER_MODE) return;
     active_tab->tab_vis_dispctrl =
@@ -993,6 +1017,7 @@ void
 on_logical_toggled (GtkMenuItem     *menuitem,
             gpointer         user_data)
 {
+    (void) user_data;
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (active_tab->tab_mode == BASIC_MODE) return;
     if (active_tab->tab_mode == PAPER_MODE) return;
@@ -1008,6 +1033,7 @@ void
 on_functions_toggled (GtkMenuItem     *menuitem,
             gpointer         user_data)
 {
+    (void) user_data;
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (active_tab->tab_mode == BASIC_MODE) return;
     if (active_tab->tab_mode == PAPER_MODE) return;
@@ -1022,6 +1048,7 @@ void
 on_standard_toggled (GtkMenuItem     *menuitem,
             gpointer         user_data)
 {
+    (void) user_data;
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (active_tab->tab_mode == BASIC_MODE) return;
     if (active_tab->tab_mode == PAPER_MODE) return;
@@ -1036,6 +1063,7 @@ void
 on_basic_mode_toggled (GtkMenuItem     *menuitem,
             gpointer         user_data)
 {
+    (void) user_data;
     char *display_value = NULL;
     
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
@@ -1081,6 +1109,7 @@ void
 on_scientific_mode_toggled (GtkMenuItem *menuitem,
                 gpointer user_data)
 {
+    (void) user_data;
     char *display_value = NULL;
     
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
@@ -1118,6 +1147,7 @@ void
 on_paper_mode_toggled (GtkMenuItem *menuitem,
                 gpointer user_data)
 {
+    (void) user_data;
     char *display_value = NULL;
 
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
@@ -1148,6 +1178,7 @@ void
 on_cut_activate (GtkMenuItem     *menuitem,
             gpointer         user_data)
 {
+    (void) user_data;
     GtkWidget *entry;
 
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
@@ -1166,6 +1197,7 @@ void
 on_paste_activate (GtkMenuItem     *menuitem,
             gpointer         user_data)
 {
+    (void) user_data;
     GtkWidget    *entry;
     char        *cp_text;
     
@@ -1192,6 +1224,7 @@ void
 on_copy_activate (GtkMenuItem     *menuitem,
             gpointer         user_data)
 {
+    (void) user_data;
     GtkWidget *entry;
 
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
@@ -1208,6 +1241,7 @@ on_copy_activate (GtkMenuItem     *menuitem,
 void
 on_undo_activate (GtkMenuItem *menuitem, gpointer user_data)
 {
+    (void) user_data;
     GtkWidget *entry;
 
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
@@ -1218,6 +1252,7 @@ on_undo_activate (GtkMenuItem *menuitem, gpointer user_data)
 void
 on_redo_activate (GtkMenuItem *menuitem, gpointer user_data)
 {
+    (void) user_data;
     GtkWidget *entry;
 
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
@@ -1231,6 +1266,7 @@ on_redo_activate (GtkMenuItem *menuitem, gpointer user_data)
 
 void user_function_list_selection_changed_cb (GtkTreeSelection *selection, gpointer data)
 {
+    (void) data;
     GtkTreeModel     *model;
     char         *string;
     GtkWidget    *entry;
@@ -1255,6 +1291,7 @@ void user_function_list_selection_changed_cb (GtkTreeSelection *selection, gpoin
 
 void const_list_selection_changed_cb (GtkTreeSelection *selection, gpointer data)
 {
+    (void) data;
     GtkTreeModel    *model;
     char            *string;
     GtkWidget       *entry;
@@ -1281,12 +1318,15 @@ void
 on_preferences1_activate               (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
+    (void) menuitem;
+    (void) user_data;
     ui_pref_dialog_create();
 }
 
 void
 on_prefs_result_font_set(GtkFontButton *button, gpointer user_data)
 {
+    (void) user_data;
     char *font_name;
 
 #if GTK_CHECK_VERSION(3, 2, 0)
@@ -1302,6 +1342,7 @@ on_prefs_result_font_set(GtkFontButton *button, gpointer user_data)
 void
 on_prefs_result_color_set(GtkColorButton *button, gpointer user_data)
 {
+    (void) user_data;
     if (prefs.result_color != NULL) g_free (prefs.result_color);
 
     GdkRGBA color;
@@ -1314,6 +1355,7 @@ on_prefs_result_color_set(GtkColorButton *button, gpointer user_data)
 void
 on_prefs_stack_font_set(GtkFontButton *button, gpointer user_data)
 {
+    (void) user_data;
     char *font_name;
 
 #if GTK_CHECK_VERSION(3, 2, 0)
@@ -1329,6 +1371,7 @@ on_prefs_stack_font_set(GtkFontButton *button, gpointer user_data)
 void
 on_prefs_stack_color_set(GtkColorButton *button, gpointer user_data)
 {
+    (void) user_data;
 	if (prefs.stack_color != NULL) g_free (prefs.stack_color);
 	
     GdkRGBA color;
@@ -1341,6 +1384,7 @@ on_prefs_stack_color_set(GtkColorButton *button, gpointer user_data)
 void
 on_prefs_mod_font_set(GtkFontButton *button, gpointer user_data)
 {
+    (void) user_data;
     char *font_name;
 
 #if GTK_CHECK_VERSION(3, 2, 0)
@@ -1356,6 +1400,7 @@ on_prefs_mod_font_set(GtkFontButton *button, gpointer user_data)
 void
 on_prefs_act_mod_color_set(GtkColorButton *button, gpointer user_data)
 {
+    (void) user_data;
     if (prefs.act_mod_color != NULL) g_free (prefs.act_mod_color);
     
     GdkRGBA color;
@@ -1368,6 +1413,7 @@ on_prefs_act_mod_color_set(GtkColorButton *button, gpointer user_data)
 void
 on_prefs_inact_mod_color_set(GtkColorButton *button, gpointer user_data)
 {
+    (void) user_data;
 	if (prefs.inact_mod_color != NULL) g_free (prefs.inact_mod_color);
     
     GdkRGBA color;
@@ -1380,6 +1426,7 @@ on_prefs_inact_mod_color_set(GtkColorButton *button, gpointer user_data)
 void
 on_prefs_bkg_color_set(GtkColorButton *button, gpointer user_data)
 {
+    (void) user_data;
 	if (prefs.bkg_color != NULL) g_free (prefs.bkg_color);
 	
     GdkRGBA color;
@@ -1392,6 +1439,7 @@ on_prefs_bkg_color_set(GtkColorButton *button, gpointer user_data)
 void
 on_prefs_button_font_set(GtkFontButton *button, gpointer user_data)
 {
+    (void) user_data;
     char        *font_name;
     char        *button_font;
 
@@ -1412,6 +1460,7 @@ void
 on_prefs_close_clicked                (GtkButton       *button,
                                         gpointer         user_data)
 {
+    (void) user_data;
     gtk_widget_destroy (gtk_widget_get_toplevel((GtkWidget *)button));
 }
 
@@ -1438,6 +1487,7 @@ void
 on_prefs_custom_button_font_toggled    (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
+    (void) user_data;
     GtkWidget    *w;
     char        *button_font;
     
@@ -1458,6 +1508,7 @@ on_prefs_custom_button_font_toggled    (GtkToggleButton *togglebutton,
 void on_prefs_vis_number_toggled (GtkToggleButton *togglebutton, 
                 gpointer user_data)
 {
+    (void) user_data;
     prefs.vis_number = gtk_toggle_button_get_active (togglebutton);
     active_tab->tab_vis_number = prefs.vis_number;
     display_update_modules ();
@@ -1466,6 +1517,7 @@ void on_prefs_vis_number_toggled (GtkToggleButton *togglebutton,
 void on_prefs_vis_angle_toggled (GtkToggleButton *togglebutton, 
                 gpointer user_data)
 {
+    (void) user_data;
     prefs.vis_angle = gtk_toggle_button_get_active (togglebutton);
     active_tab->tab_vis_angle = prefs.vis_angle;
     display_update_modules ();
@@ -1474,6 +1526,7 @@ void on_prefs_vis_angle_toggled (GtkToggleButton *togglebutton,
 void on_prefs_vis_notation_toggled (GtkToggleButton *togglebutton, 
                 gpointer user_data)
 {
+    (void) user_data;
     prefs.vis_notation = gtk_toggle_button_get_active (togglebutton);
     active_tab->tab_vis_notation = prefs.vis_notation;
     display_update_modules ();
@@ -1482,6 +1535,7 @@ void on_prefs_vis_notation_toggled (GtkToggleButton *togglebutton,
 void on_prefs_vis_arith_toggled (GtkToggleButton *togglebutton, 
                 gpointer user_data)
 {
+    (void) user_data;
     prefs.vis_arith = gtk_toggle_button_get_active (togglebutton);
     display_update_modules ();
 }
@@ -1489,6 +1543,7 @@ void on_prefs_vis_arith_toggled (GtkToggleButton *togglebutton,
 void on_prefs_vis_bracket_toggled (GtkToggleButton *togglebutton, 
                 gpointer user_data)
 {
+    (void) user_data;
     prefs.vis_bracket = gtk_toggle_button_get_active (togglebutton);
     display_update_modules ();
 }
@@ -1496,6 +1551,7 @@ void on_prefs_vis_bracket_toggled (GtkToggleButton *togglebutton,
 void on_prefs_show_menu_toggled (GtkToggleButton *togglebutton, 
                     gpointer user_data)
 {
+    (void) user_data;
     GtkCheckMenuItem        *show_menubar_item;
     
     prefs.show_menu = gtk_toggle_button_get_active (togglebutton);
@@ -1511,6 +1567,7 @@ void on_prefs_show_menu_toggled (GtkToggleButton *togglebutton,
 void on_prefs_rem_display_toggled (GtkToggleButton *togglebutton, 
                 gpointer user_data)
 {
+    (void) user_data;
     prefs.rem_display = gtk_toggle_button_get_active (togglebutton);
     /* only is important when leaving talculator */
 }
@@ -1519,6 +1576,8 @@ void on_prefs_button_width_changed (GtkSpinButton *spinbutton,
                     GtkScrollType arg1,
                     gpointer user_data)
 {
+    (void) arg1;
+    (void) user_data;
     int new_button_width = (int) gtk_spin_button_get_value (spinbutton);
     
     if (new_button_width != prefs.button_width) {
@@ -1531,6 +1590,8 @@ void on_prefs_button_height_changed (GtkSpinButton *spinbutton,
                     GtkScrollType arg1,
                     gpointer user_data)
 {    
+    (void) arg1;
+    (void) user_data;
     int new_button_height = (int) gtk_spin_button_get_value (spinbutton);
     if (new_button_height != prefs.button_height) {
         prefs.button_height = new_button_height;
@@ -1572,6 +1633,7 @@ void
 on_user_function_button_clicked (GtkToggleButton       *button,
                                         gpointer         user_data)
 {
+    (void) user_data;
     GtkWidget    *menu;
 
     ui_bind_active_tab_from_widget (GTK_WIDGET(button));
@@ -1605,6 +1667,7 @@ void
 on_constant_button_clicked (GtkToggleButton       *button,
                                         gpointer         user_data)
 {
+    (void) user_data;
     GtkWidget        *menu;
 
     ui_bind_active_tab_from_widget (GTK_WIDGET(button));
@@ -1651,6 +1714,7 @@ void ms_menu_handler (GtkMenuItem *menuitem, gpointer user_data)
 
 void on_ms_button_clicked (GtkToggleButton *button, gpointer user_data)
 {
+    (void) user_data;
     GtkWidget    *menu;
 
     ui_bind_active_tab_from_widget (GTK_WIDGET(button));
@@ -1680,6 +1744,7 @@ void mr_menu_handler (GtkMenuItem *menuitem, gpointer user_data)
 
 void on_mr_button_clicked (GtkToggleButton *button, gpointer user_data)
 {
+    (void) user_data;
     GtkWidget    *menu;;
 
     ui_bind_active_tab_from_widget (GTK_WIDGET(button));
@@ -1719,6 +1784,7 @@ void mplus_menu_handler (GtkMenuItem *menuitem, gpointer user_data)
 
 void on_mplus_button_clicked (GtkToggleButton *button, gpointer user_data)
 {
+    (void) user_data;
     GtkWidget    *menu;
 
     ui_bind_active_tab_from_widget (GTK_WIDGET(button));
@@ -1761,6 +1827,7 @@ void
 on_mc_button_clicked             (GtkToggleButton       *button,
                 gpointer         user_data)
 {
+    (void) user_data;
     GtkWidget    *menu;
 
     ui_bind_active_tab_from_widget (GTK_WIDGET(button));
@@ -1795,6 +1862,7 @@ void
 on_mx_button_clicked             (GtkToggleButton       *button,
                 gpointer         user_data)
 {
+    (void) user_data;
     GtkWidget    *menu;
 
     ui_bind_active_tab_from_widget (GTK_WIDGET(button));
@@ -1808,6 +1876,8 @@ on_mx_button_clicked             (GtkToggleButton       *button,
 
 void on_prefs_ufclear_clicked (GtkButton *button, gpointer user_data)
 {
+    (void) user_data;
+    (void) button;
     GtkWidget    *entry;
     
     entry = GTK_WIDGET(gtk_builder_get_object (prefs_xml, "prefs_ufname_entry"));
@@ -1820,6 +1890,8 @@ void on_prefs_ufclear_clicked (GtkButton *button, gpointer user_data)
 
 void on_prefs_ufadd_clicked (GtkButton *button, gpointer user_data)
 {
+    (void) user_data;
+    (void) button;
     GtkWidget        *entry;
     GtkTreeIter           iter;
     int            nr_user_functions;
@@ -1863,6 +1935,8 @@ void on_prefs_ufadd_clicked (GtkButton *button, gpointer user_data)
 
 void on_prefs_ufdelete_clicked (GtkButton *button, gpointer user_data)
 {
+    (void) user_data;
+    (void) button;
     GtkTreePath        *path;
     int            index, counter, nr_user_functions;
     GtkTreeIter        current_list_iter;
@@ -1898,6 +1972,8 @@ void on_prefs_ufdelete_clicked (GtkButton *button, gpointer user_data)
 
 void on_prefs_ufupdate_clicked (GtkButton *button, gpointer user_data)
 {
+    (void) user_data;
+    (void) button;
     GtkWidget    *entry;
     GtkTreePath    *path;
     int        index;
@@ -1937,6 +2013,8 @@ void on_prefs_ufupdate_clicked (GtkButton *button, gpointer user_data)
 
 void on_prefs_cclear_clicked (GtkButton *button, gpointer user_data)
 {
+    (void) user_data;
+    (void) button;
     GtkWidget    *entry;
     
     entry = GTK_WIDGET(gtk_builder_get_object (prefs_xml, "prefs_cname_entry"));
@@ -1949,6 +2027,8 @@ void on_prefs_cclear_clicked (GtkButton *button, gpointer user_data)
 
 void on_prefs_cadd_clicked (GtkButton *button, gpointer user_data)
 {
+    (void) user_data;
+    (void) button;
     GtkWidget        *entry;
     GtkTreeIter           iter;
     int            nr_consts;
@@ -1992,6 +2072,8 @@ void on_prefs_cadd_clicked (GtkButton *button, gpointer user_data)
 
 void on_prefs_cdelete_clicked (GtkButton *button, gpointer user_data)
 {
+    (void) user_data;
+    (void) button;
     GtkTreePath        *path;
     int            index, counter, nr_consts;
     GtkTreeIter        current_list_iter;
@@ -2026,6 +2108,8 @@ void on_prefs_cdelete_clicked (GtkButton *button, gpointer user_data)
 
 void on_prefs_cupdate_clicked (GtkButton *button, gpointer user_data)
 {
+    (void) user_data;
+    (void) button;
     GtkWidget    *entry;
     GtkTreePath    *path;
     int        index;
@@ -2067,12 +2151,15 @@ void on_prefs_hex_bits_value_changed (GtkSpinButton *spinbutton,
                     GtkScrollType arg1,
                     gpointer user_data)
 {    
+    (void) arg1;
+    (void) user_data;
     prefs.hex_bits = (int) gtk_spin_button_get_value (spinbutton);
 }
 
 void on_prefs_hex_signed_toggled (GtkToggleButton *togglebutton, 
                     gpointer user_data)
 {
+    (void) user_data;
     prefs.hex_signed = gtk_toggle_button_get_active (togglebutton);
 }
 
@@ -2080,6 +2167,8 @@ void on_prefs_oct_bits_value_changed (GtkSpinButton *spinbutton,
                     GtkScrollType arg1,
                     gpointer user_data)
 {
+    (void) arg1;
+    (void) user_data;
     prefs.oct_bits = (int) gtk_spin_button_get_value (spinbutton);
 }
 
@@ -2087,6 +2176,8 @@ void on_prefs_bin_bits_value_changed (GtkSpinButton *spinbutton,
                     GtkScrollType arg1,
                     gpointer user_data)
 {
+    (void) arg1;
+    (void) user_data;
     prefs.bin_bits = (int) gtk_spin_button_get_value (spinbutton);
 }
 
@@ -2094,11 +2185,13 @@ void on_prefs_bin_bits_value_changed (GtkSpinButton *spinbutton,
 void on_prefs_bin_signed_toggled (GtkToggleButton *togglebutton, 
                     gpointer user_data)
 {
+    (void) user_data;
     prefs.bin_signed = gtk_toggle_button_get_active (togglebutton);
 }
 
 void on_prefs_number_combo_changed(GtkComboBox *widget, gpointer user_data)
 {
+    (void) user_data;
 	GtkTreeIter iter;
 	if (!gtk_combo_box_get_active_iter(widget, &iter)) {
 		fprintf (stderr, _("[%s] on_prefs_number_combo_changed failed to retrieve iter. %s\n"), PROG_NAME, BUG_REPORT);
@@ -2121,6 +2214,8 @@ void on_prefs_number_combo_changed(GtkComboBox *widget, gpointer user_data)
 
 void on_prefs_menu_dec_activate (GtkMenuItem *menuitem, gpointer user_data)
 {
+    (void) user_data;
+    (void) menuitem;
     gtk_widget_show (GTK_WIDGET(gtk_builder_get_object (prefs_xml, "prefs_vbox_dec")));
     gtk_widget_hide (GTK_WIDGET(gtk_builder_get_object (prefs_xml, "prefs_vbox_hex")));
     gtk_widget_hide (GTK_WIDGET(gtk_builder_get_object (prefs_xml, "prefs_vbox_oct")));
@@ -2129,6 +2224,8 @@ void on_prefs_menu_dec_activate (GtkMenuItem *menuitem, gpointer user_data)
             
 void on_prefs_menu_hex_activate (GtkMenuItem *menuitem, gpointer user_data)
 {
+    (void) user_data;
+    (void) menuitem;
     gtk_widget_hide (GTK_WIDGET(gtk_builder_get_object (prefs_xml, "prefs_vbox_dec")));
     gtk_widget_show (GTK_WIDGET(gtk_builder_get_object (prefs_xml, "prefs_vbox_hex")));
     gtk_widget_hide (GTK_WIDGET(gtk_builder_get_object (prefs_xml, "prefs_vbox_oct")));
@@ -2137,6 +2234,8 @@ void on_prefs_menu_hex_activate (GtkMenuItem *menuitem, gpointer user_data)
             
 void on_prefs_menu_oct_activate (GtkMenuItem *menuitem, gpointer user_data)
 {
+    (void) user_data;
+    (void) menuitem;
     gtk_widget_hide (GTK_WIDGET(gtk_builder_get_object (prefs_xml, "prefs_vbox_dec")));
     gtk_widget_hide (GTK_WIDGET(gtk_builder_get_object (prefs_xml, "prefs_vbox_hex")));
     gtk_widget_show (GTK_WIDGET(gtk_builder_get_object (prefs_xml, "prefs_vbox_oct")));
@@ -2145,6 +2244,8 @@ void on_prefs_menu_oct_activate (GtkMenuItem *menuitem, gpointer user_data)
             
 void on_prefs_menu_bin_activate (GtkMenuItem *menuitem, gpointer user_data)
 {
+    (void) user_data;
+    (void) menuitem;
     gtk_widget_hide (GTK_WIDGET(gtk_builder_get_object (prefs_xml, "prefs_vbox_dec")));
     gtk_widget_hide (GTK_WIDGET(gtk_builder_get_object (prefs_xml, "prefs_vbox_hex")));
     gtk_widget_hide (GTK_WIDGET(gtk_builder_get_object (prefs_xml, "prefs_vbox_oct")));
@@ -2154,6 +2255,7 @@ void on_prefs_menu_bin_activate (GtkMenuItem *menuitem, gpointer user_data)
 void on_prefs_dec_sep_toggled (GtkToggleButton *togglebutton, 
                     gpointer user_data)
 {
+    (void) user_data;
     prefs.dec_sep = gtk_toggle_button_get_active (togglebutton);
     gtk_widget_set_sensitive (GTK_WIDGET(gtk_builder_get_object (prefs_xml, "prefs_dec_sep_char_label")), prefs.dec_sep);
     gtk_widget_set_sensitive (GTK_WIDGET(gtk_builder_get_object (prefs_xml, "prefs_dec_sep_char")), prefs.dec_sep);
@@ -2165,6 +2267,7 @@ void on_prefs_dec_sep_toggled (GtkToggleButton *togglebutton,
 void on_prefs_hex_sep_toggled (GtkToggleButton *togglebutton, 
                     gpointer user_data)
 {
+    (void) user_data;
     prefs.hex_sep = gtk_toggle_button_get_active (togglebutton);
     gtk_widget_set_sensitive (GTK_WIDGET(gtk_builder_get_object (prefs_xml, "prefs_hex_sep_char_label")), prefs.hex_sep);
     gtk_widget_set_sensitive (GTK_WIDGET(gtk_builder_get_object (prefs_xml, "prefs_hex_sep_char")), prefs.hex_sep);
@@ -2176,6 +2279,7 @@ void on_prefs_hex_sep_toggled (GtkToggleButton *togglebutton,
 void on_prefs_oct_sep_toggled (GtkToggleButton *togglebutton, 
                     gpointer user_data)
 {
+    (void) user_data;
     prefs.oct_sep = gtk_toggle_button_get_active (togglebutton);
     gtk_widget_set_sensitive (GTK_WIDGET(gtk_builder_get_object (prefs_xml, "prefs_oct_sep_char_label")), prefs.oct_sep);
     gtk_widget_set_sensitive (GTK_WIDGET(gtk_builder_get_object (prefs_xml, "prefs_oct_sep_char")), prefs.oct_sep);
@@ -2187,6 +2291,7 @@ void on_prefs_oct_sep_toggled (GtkToggleButton *togglebutton,
 void on_prefs_bin_sep_toggled (GtkToggleButton *togglebutton, 
                     gpointer user_data)
 {
+    (void) user_data;
     prefs.bin_sep = gtk_toggle_button_get_active (togglebutton);
     gtk_widget_set_sensitive (GTK_WIDGET(gtk_builder_get_object (prefs_xml, "prefs_bin_sep_char_label")), prefs.bin_sep);
     gtk_widget_set_sensitive (GTK_WIDGET(gtk_builder_get_object (prefs_xml, "prefs_bin_sep_char")), prefs.bin_sep);
@@ -2199,6 +2304,8 @@ void on_prefs_dec_sep_length_value_changed (GtkSpinButton *spinbutton,
                     GtkScrollType arg1,
                     gpointer user_data)
 {
+    (void) arg1;
+    (void) user_data;
     prefs.dec_sep_length = (int) gtk_spin_button_get_value (spinbutton);
     display_result_getset();
 }
@@ -2207,6 +2314,8 @@ void on_prefs_hex_sep_length_value_changed (GtkSpinButton *spinbutton,
                     GtkScrollType arg1,
                     gpointer user_data)
 {
+    (void) arg1;
+    (void) user_data;
     prefs.hex_sep_length = (int) gtk_spin_button_get_value (spinbutton);
     display_result_getset();
 }
@@ -2215,6 +2324,8 @@ void on_prefs_oct_sep_length_value_changed (GtkSpinButton *spinbutton,
                     GtkScrollType arg1,
                     gpointer user_data)
 {
+    (void) arg1;
+    (void) user_data;
     prefs.oct_sep_length = (int) gtk_spin_button_get_value (spinbutton);
     display_result_getset();
 }
@@ -2223,6 +2334,8 @@ void on_prefs_bin_sep_length_value_changed (GtkSpinButton *spinbutton,
                     GtkScrollType arg1,
                     gpointer user_data)
 {
+    (void) arg1;
+    (void) user_data;
     prefs.bin_sep_length = (int) gtk_spin_button_get_value (spinbutton);
     display_result_getset();
 }
@@ -2230,30 +2343,35 @@ void on_prefs_bin_sep_length_value_changed (GtkSpinButton *spinbutton,
 void on_prefs_dec_sep_char_changed (GtkEditable *editable,
                                     gpointer user_data)
 {
+    (void) user_data;
     prefs_sep_char_changed (editable, &prefs.dec_sep_char, CS_DEC);
 }
 
 void on_prefs_hex_sep_char_changed (GtkEditable *editable,
                                     gpointer user_data)
 {
+    (void) user_data;
     prefs_sep_char_changed (editable, &prefs.hex_sep_char, CS_HEX);
 }
 
 void on_prefs_oct_sep_char_changed (GtkEditable *editable,
                                     gpointer user_data)
 {
+    (void) user_data;
     prefs_sep_char_changed (editable, &prefs.oct_sep_char, CS_OCT);
 }
 
 void on_prefs_bin_sep_char_changed (GtkEditable *editable,
                                     gpointer user_data)
 {
+    (void) user_data;
     prefs_sep_char_changed (editable, &prefs.bin_sep_char, CS_BIN);
 }
 
 void on_togglebutton_released (GtkToggleButton *togglebutton, 
                     gpointer user_data)
 {
+    (void) user_data;
     gtk_toggle_button_set_active (togglebutton, FALSE);
 }
 
@@ -2264,6 +2382,7 @@ void on_togglebutton_released (GtkToggleButton *togglebutton,
 void on_main_window_check_resize (GtkContainer *container,
                                             gpointer user_data)
 {
+    (void) user_data;
     fprintf (stderr, _("[%s] on_main_window_check_resize should not get called. %s\n"), PROG_NAME, BUG_REPORT);
     
     static gboolean        itsme=FALSE;
@@ -2281,18 +2400,23 @@ void on_main_window_check_resize (GtkContainer *container,
 
 void on_finite_stack_size_clicked (GtkRadioButton *rb, gpointer user_data)
 {
+    (void) rb;
+    (void) user_data;
     prefs.stack_size = RPN_FINITE_STACK;
     rpn_stack_set_size (prefs.stack_size);
 }
 
 void on_infinite_stack_size_clicked (GtkRadioButton *rb, gpointer user_data)
 {
+    (void) rb;
+    (void) user_data;
     prefs.stack_size = RPN_INFINITE_STACK;
     rpn_stack_set_size (prefs.stack_size);
 }
 
 gboolean on_button_press_event (GtkWidget *widget, GdkEventButton *event, gpointer user_data)
 {
+    (void) user_data;
     GtkWidget    *menu;
     
     ui_bind_active_tab_from_widget (widget);
@@ -2304,6 +2428,7 @@ gboolean on_button_press_event (GtkWidget *widget, GdkEventButton *event, gpoint
 
 void on_formula_entry_activate (GtkEntry *entry, gpointer user_data)
 {
+    (void) user_data;
     char                    *formatted_result = NULL;
     
     ui_bind_active_tab_from_widget (GTK_WIDGET(entry));
@@ -2317,6 +2442,7 @@ void on_formula_entry_activate (GtkEntry *entry, gpointer user_data)
 
 void on_formula_entry_changed (GtkEditable *editable, gpointer user_data)
 {
+    (void) user_data;
     ui_bind_active_tab_from_widget (GTK_WIDGET(editable));
     talc_entry_history_on_changed (editable);
     ui_formula_entry_state(FALSE);
@@ -2324,6 +2450,7 @@ void on_formula_entry_changed (GtkEditable *editable, gpointer user_data)
 
 gboolean on_formula_entry_key_press_event (GtkWidget *widget, GdkEventKey *event, gpointer user_data)
 {
+    (void) user_data;
     GtkWidget *toplevel;
     GtkDirectionType direction;
 
@@ -2354,12 +2481,14 @@ gboolean on_formula_entry_key_press_event (GtkWidget *widget, GdkEventKey *event
 
 void on_paper_entry_changed (GtkEditable *editable, gpointer user_data)
 {
+    (void) user_data;
     ui_bind_active_tab_from_widget (GTK_WIDGET(editable));
     talc_entry_history_on_changed (editable);
 }
 
 gboolean on_paper_entry_key_press_event (GtkWidget *widget, GdkEventKey *event, gpointer user_data)
 {
+    (void) user_data;
     ui_bind_active_tab_from_widget (widget);
 
     if (cycle_tab_from_key (event)) return TRUE;
@@ -2370,6 +2499,7 @@ gboolean on_paper_entry_key_press_event (GtkWidget *widget, GdkEventKey *event, 
 
 void on_paper_entry_activate (GtkWidget *activated_widget, gpointer user_data)
 {
+    (void) user_data;
     GtkEntry                *entry;
     GtkTreeView                *tree_view;
     GtkListStore            *paper_store;
@@ -2421,6 +2551,7 @@ gboolean paper_tree_view_selection_changed_cb (GtkWidget *widget,
                                             GdkEventButton *event,
                                             gpointer user_data)
 {
+    (void) user_data;
     GtkTreeModel         *model;
     char             *string, *stripped_string;
     GtkWidget        *entry;
@@ -2450,6 +2581,7 @@ gboolean paper_tree_view_selection_changed_cb (GtkWidget *widget,
 
 gboolean on_button_can_activate_accel (GtkWidget *widget, guint signal_id, gpointer user_data)
 {
+    (void) user_data;
     if (!gtk_widget_is_sensitive(widget)) return FALSE;
     if (strcmp("clicked", g_signal_name(signal_id)) == 0) return TRUE;
     return FALSE;
@@ -2457,6 +2589,7 @@ gboolean on_button_can_activate_accel (GtkWidget *widget, guint signal_id, gpoin
 
 gboolean on_menuitem_can_activate_accel (GtkWidget *widget, guint signal_id, gpointer user_data)
 {
+    (void) user_data;
     if (!gtk_widget_is_sensitive(widget)) return FALSE;
     if (strcmp("activate", g_signal_name(signal_id)) == 0) return TRUE;
     return FALSE;
@@ -2469,6 +2602,7 @@ gboolean on_menuitem_can_activate_accel (GtkWidget *widget, guint signal_id, gpo
  */
 gboolean on_button_event(GtkWidget *widget, GdkEvent *event, gpointer user_data)
 {
+    (void) user_data;
     if (event->type == GDK_KEY_PRESS) {
         GdkEventKey *key_event = (GdkEventKey *) event;
         GtkWidget *focus = NULL;

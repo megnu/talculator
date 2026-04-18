@@ -197,6 +197,7 @@ void set_button_color (GtkBuilder *xml, char *button_name, void *color_string)
 
 void set_stacksize (GtkBuilder *xml, char *name, void *stack_size)
 {
+    (void) name;
 	int		*size;
 	GtkToggleButton	*tb;
 	
@@ -222,12 +223,12 @@ void set_entry (GtkBuilder *xml, char *entry_name, void *entry_text)
  * "apply"
  */
 
-void apply_preferences (s_preferences prefs)
+void apply_preferences (s_preferences new_prefs)
 {
 	GtkWidget	*menu_item;
 
     menu_item = GTK_WIDGET(gtk_builder_get_object (main_window_xml, "show_menubar1"));
-	gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(menu_item), prefs.show_menu);
+	gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(menu_item), new_prefs.show_menu);
 	/* If set_active does not toggle the current setting, than no callback gets
 	 * called and the menu bar might be in a wrong state. While 
 	 * gtk_check_menu_item_set_active simply sets the item, 
@@ -235,7 +236,7 @@ void apply_preferences (s_preferences prefs)
 	 */
 	gtk_check_menu_item_toggled (GTK_CHECK_MENU_ITEM(menu_item));
 
-	switch (prefs.mode) {
+	switch (new_prefs.mode) {
 	case BASIC_MODE:
         menu_item = GTK_WIDGET(gtk_builder_get_object (main_window_xml, "basic_mode"));
 		break;
@@ -246,7 +247,7 @@ void apply_preferences (s_preferences prefs)
         menu_item = GTK_WIDGET(gtk_builder_get_object (main_window_xml, "paper_mode"));
 		break;
 	default:
-		error_message ("Unknown mode %i in \"apply_preferences\"", prefs.mode);
+		error_message ("Unknown mode %i in \"apply_preferences\"", new_prefs.mode);
 	}
 	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item), TRUE);
 	gtk_check_menu_item_toggled (GTK_CHECK_MENU_ITEM(menu_item));

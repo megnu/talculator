@@ -67,26 +67,26 @@ static void ui_widget_css_set (GtkWidget *widget, const gchar *css, const gchar 
  */
 
 s_active_buttons active_buttons[] = {\
-	{"button_2", ~(AB_BIN)}, \
-	{"button_3", ~(AB_BIN)}, \
-	{"button_4", ~(AB_BIN)}, \
-	{"button_5", ~(AB_BIN)}, \
-	{"button_6", ~(AB_BIN)}, \
-	{"button_7", ~(AB_BIN)}, \
-	{"button_8", ~(AB_BIN | AB_OCT)}, \
-	{"button_9", ~(AB_BIN | AB_OCT)}, \
-	{"button_a", ~(AB_DEC | AB_BIN | AB_OCT)}, \
-	{"button_b", ~(AB_DEC | AB_BIN | AB_OCT)}, \
-	{"button_c", ~(AB_DEC | AB_BIN | AB_OCT)}, \
-	{"button_d", ~(AB_DEC | AB_BIN | AB_OCT)}, \
-	{"button_e", ~(AB_DEC | AB_BIN | AB_OCT)}, \
-	{"button_f", ~(AB_DEC | AB_BIN | AB_OCT)}, \
+	{"button_2", ~((unsigned int) AB_BIN)}, \
+	{"button_3", ~((unsigned int) AB_BIN)}, \
+	{"button_4", ~((unsigned int) AB_BIN)}, \
+	{"button_5", ~((unsigned int) AB_BIN)}, \
+	{"button_6", ~((unsigned int) AB_BIN)}, \
+	{"button_7", ~((unsigned int) AB_BIN)}, \
+	{"button_8", ~((unsigned int) (AB_BIN | AB_OCT))}, \
+	{"button_9", ~((unsigned int) (AB_BIN | AB_OCT))}, \
+	{"button_a", ~((unsigned int) (AB_DEC | AB_BIN | AB_OCT))}, \
+	{"button_b", ~((unsigned int) (AB_DEC | AB_BIN | AB_OCT))}, \
+	{"button_c", ~((unsigned int) (AB_DEC | AB_BIN | AB_OCT))}, \
+	{"button_d", ~((unsigned int) (AB_DEC | AB_BIN | AB_OCT))}, \
+	{"button_e", ~((unsigned int) (AB_DEC | AB_BIN | AB_OCT))}, \
+	{"button_f", ~((unsigned int) (AB_DEC | AB_BIN | AB_OCT))}, \
 	{"button_ee", AB_DEC}, \
 	{"button_sin", AB_DEC}, \
 	{"button_cos", AB_DEC}, \
 	{"button_tan", AB_DEC}, \
-	{"button_point", ~(AB_BIN | AB_OCT | AB_HEX)}, \
-	{"button_sign", ~(AB_BIN | AB_OCT | AB_HEX)}, \
+	{"button_point", ~((unsigned int) (AB_BIN | AB_OCT | AB_HEX))}, \
+	{"button_sign", ~((unsigned int) (AB_BIN | AB_OCT | AB_HEX))}, \
 	{NULL}\
 };
 
@@ -311,7 +311,7 @@ static void ui_tab_context_init_from_prefs (s_tab_context *ctx)
 {
 	if (!ctx) return;
 	ctx->tab_current_status = (s_current_status){
-		prefs.def_number, prefs.def_angle, prefs.def_notation, 0, FALSE, FALSE, TRUE
+		(unsigned) prefs.def_number, (unsigned) prefs.def_angle, (unsigned) prefs.def_notation, 0, FALSE, FALSE, TRUE
 	};
 	ctx->tab_mode = prefs.mode;
 	ctx->tab_vis_number = prefs.vis_number;
@@ -375,7 +375,7 @@ static void ui_session_copy_memory_from_context (s_session_tab_state *dst, s_tab
 
 	if (!dst || !ctx || ctx->tab_memory.len <= 0 || !ctx->tab_memory.data) return;
 	dst->memory_len = ctx->tab_memory.len;
-	dst->mem_values = g_new0 (char *, dst->memory_len);
+	dst->mem_values = g_new0 (char *, (gsize) dst->memory_len);
 	for (i = 0; i < dst->memory_len; i++) {
 		dst->mem_values[i] = g_strdup (ctx->tab_memory.data[i] ? ctx->tab_memory.data[i] : CLEARED_DISPLAY);
 	}
@@ -443,7 +443,7 @@ static void ui_context_set_memory_from_session (s_tab_context *ctx, const s_sess
 	}
 	if (tab->memory_len <= 0 || !tab->mem_values) return;
 	ctx->tab_memory.len = tab->memory_len;
-	ctx->tab_memory.data = g_new0 (char *, ctx->tab_memory.len);
+	ctx->tab_memory.data = g_new0 (char *, (gsize) ctx->tab_memory.len);
 	for (i = 0; i < ctx->tab_memory.len; i++) {
 		ctx->tab_memory.data[i] = g_strdup (tab->mem_values[i] ? tab->mem_values[i] : CLEARED_DISPLAY);
 	}
@@ -594,7 +594,7 @@ static void on_tabs_switch_page (GtkNotebook *notebook, GtkWidget *page, guint p
 	ctx = g_object_get_data (G_OBJECT(page), "tab-context");
 	if (ctx) ui_set_active_tab_context (ctx);
 	ui_sync_main_menu_for_active_tab ();
-	ui_tabs_set_active_widget_sensitivity (ui_tabs_get_notebook (), page_num);
+	ui_tabs_set_active_widget_sensitivity (ui_tabs_get_notebook (), (gint) page_num);
 }
 
 static void ui_tabs_set_active_widget_sensitivity (GtkNotebook *notebook, gint active_page)
@@ -644,6 +644,7 @@ static void ui_tab_build_content (s_tab_context *ctx, GtkWidget *page)
 static void free_accel_group(GtkWidget* widget, gpointer user_data)
 {
     GtkAccelGroup* accel_group = GTK_ACCEL_GROUP(user_data);
+    (void) widget;
     if(main_window_xml)
     {
         GtkWidget* toplevel = GTK_WIDGET(gtk_builder_get_object(main_window_xml, "main_window"));
@@ -743,7 +744,7 @@ static gchar *ui_tab_default_title_new ()
 	if (notebook) {
 		gint n_pages = gtk_notebook_get_n_pages (notebook);
 		for (i = 0; i < (guint) n_pages; i++) {
-			GtkWidget *page = gtk_notebook_get_nth_page (notebook, i);
+			GtkWidget *page = gtk_notebook_get_nth_page (notebook, (gint) i);
 			GtkWidget *label = gtk_notebook_get_tab_label (notebook, page);
 			if (label && GTK_IS_LABEL (label)) {
 				const gchar *text = gtk_label_get_text (GTK_LABEL (label));
@@ -1259,6 +1260,7 @@ static void set_table_child_tip_accel (GtkWidget* button, gpointer user_data)
 	GList 		*closure_list;
 	GtkAccelGroup	*accel_group;
 	gpointer	d[2];
+	(void) user_data;
 	
 	/* get all accelerators (== closures) connected to this button */
 	closure_list = gtk_widget_list_accel_closures (button);
@@ -1446,6 +1448,7 @@ void update_active_buttons (int number_base, int notation_mode)
 	int		counter=0;
 	GtkWidget	*current_button;
 	unsigned int	state;
+	(void) notation_mode;
 	
 	/* state = (1 << number_base) | (1 << (notation_mode + NR_NUMBER_BASES)); */
 	state = 1 << number_base;
@@ -1577,17 +1580,17 @@ void position_menu (GtkMenu *menu,
 	*push_in = TRUE;
 }
 
-GtkWidget *ui_user_functions_menu_create (s_user_function *user_function, GCallback user_function_handler)
+GtkWidget *ui_user_functions_menu_create (s_user_function *user_functions, GCallback user_function_handler)
 {
 	GtkWidget	*menu, *child;
 	int		counter=0;
 	char		*label;
 	
 	menu = gtk_menu_new();
-	while (user_function[counter].name != NULL) {
-		label = g_strdup_printf ("%s(%s) = %s", user_function[counter].name, 
-			user_function[counter].variable, 
-			user_function[counter].expression);
+	while (user_functions[counter].name != NULL) {
+		label = g_strdup_printf ("%s(%s) = %s", user_functions[counter].name,
+			user_functions[counter].variable,
+			user_functions[counter].expression);
 		child = gtk_menu_item_new_with_label(label);
 		g_free (label);
 		gtk_menu_shell_append ((GtkMenuShell *) menu, child);
@@ -1598,20 +1601,20 @@ GtkWidget *ui_user_functions_menu_create (s_user_function *user_function, GCallb
 	return menu;
 }
 
-GtkWidget *ui_constants_menu_create (s_constant *constant, GCallback const_handler)
+GtkWidget *ui_constants_menu_create (s_constant *constants, GCallback const_handler)
 {
 	GtkWidget	*menu, *child;
 	int		counter=0;
 	char		*label;
 	
 	menu = gtk_menu_new();
-	while (constant[counter].name != NULL) {
-		label = g_strdup_printf ("%s: %s (%s)", constant[counter].name, constant[counter].value, constant[counter].desc);
+	while (constants[counter].name != NULL) {
+		label = g_strdup_printf ("%s: %s (%s)", constants[counter].name, constants[counter].value, constants[counter].desc);
 		child = gtk_menu_item_new_with_label(label);
 		g_free (label);
 		gtk_menu_shell_append ((GtkMenuShell *) menu, child);
 		gtk_widget_show (child);
-		g_signal_connect (G_OBJECT (child), "activate", const_handler, constant[counter].value);
+		g_signal_connect (G_OBJECT (child), "activate", const_handler, constants[counter].value);
 		counter++;
 	}
 	return menu;
@@ -1662,6 +1665,8 @@ static gboolean ui_prefs_dialog_key_press_event (GtkWidget *widget, GdkEventKey 
 {
 	GtkNotebook *notebook;
 	gint page_count, current_page, target_page;
+	(void) widget;
+	(void) user_data;
 	gboolean backward;
 
 	if (!event) return FALSE;

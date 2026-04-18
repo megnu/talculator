@@ -299,7 +299,7 @@ static char *talc_substitute_identifier (const char *expression,
 			g_string_append_printf (out, "(%s)", value);
 			i += ident_len;
 		} else {
-			g_string_append_len (out, &expression[i], ident_len);
+			g_string_append_len (out, &expression[i], (gssize) ident_len);
 			i += ident_len;
 		}
 	}
@@ -603,10 +603,10 @@ static gboolean talc_is_binary_operator_idx (const char *text, int idx, char op)
 
 static void talc_gstring_replace_range (GString *str, int begin, int end_inclusive, const char *replacement)
 {
-	gsize remove_len;
+	gssize remove_len;
 
 	if (!str || !replacement || begin < 0 || end_inclusive < begin) return;
-	remove_len = (gsize) (end_inclusive - begin + 1);
+	remove_len = (gssize) (end_inclusive - begin + 1);
 	g_string_erase (str, begin, remove_len);
 	g_string_insert (str, begin, replacement);
 }

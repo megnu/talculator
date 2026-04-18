@@ -32,10 +32,10 @@ extern GtkListStore	*prefs_constant_store, *prefs_user_function_store;
 extern char		dec_point[2];
 
 /* active_buttons flags */
-#define AB_DEC 1 << CS_DEC
-#define AB_HEX 1 << CS_HEX
-#define AB_OCT 1 << CS_OCT
-#define AB_BIN 1 << CS_BIN
+#define AB_DEC (1u << CS_DEC)
+#define AB_HEX (1u << CS_HEX)
+#define AB_OCT (1u << CS_OCT)
+#define AB_BIN (1u << CS_BIN)
 
 typedef struct {
 	char		*button_name;
