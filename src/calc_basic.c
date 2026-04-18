@@ -41,7 +41,6 @@ static void engine_context_from_ui_state (talc_engine_context *ctx)
 	ctx->base = (talc_engine_base) current_status.number;
 	ctx->angle = (talc_engine_angle) current_status.angle;
 	ctx->rpn_notation = (current_status.notation == CS_RPN);
-	ctx->formula_notation = (current_status.notation == CS_FORMULA);
 	ctx->display_precision = 24;
 	ctx->decimal_point = DEFAULT_DEC_POINT;
 	ctx->base_bits = 0;

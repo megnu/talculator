@@ -195,7 +195,6 @@ static void engine_context_from_ui_state (talc_engine_context *ctx)
 	ctx->base = (talc_engine_base) current_status.number;
 	ctx->angle = (talc_engine_angle) current_status.angle;
 	ctx->rpn_notation = (current_status.notation == CS_RPN);
-	ctx->formula_notation = (current_status.notation == CS_FORMULA);
 	ctx->display_precision = get_display_number_length (current_status.number);
 	ctx->decimal_point = dec_point[0];
 	ctx->base_bits = 0;
@@ -607,8 +606,7 @@ on_number_button_clicked               (GtkToggleButton  *button,
     ui_bind_active_tab_from_widget (GTK_WIDGET(button));
     if (gtk_toggle_button_get_active(button) == FALSE) return;
     button_activation (button);
-    if ((current_status.notation == CS_FORMULA) ||
-        (current_status.notation == CS_PAN)) {
+    if (current_status.notation == CS_ALG) {
         ui_formula_entry_insert (gtk_button_get_label ((GtkButton *)button));
     } else {
         rpn_stack_lift();
@@ -642,8 +640,7 @@ on_operation_button_clicked(GtkToggleButton *button, gpointer user_data)
         current_operation = '>';
     }
     
-    if ((current_status.notation == CS_FORMULA) ||
-        (current_status.notation == CS_PAN)) {
+    if (current_status.notation == CS_ALG) {
         if (strcmp (gtk_buildable_get_name(GTK_BUILDABLE(button)), "button_enter") == 0)
             ui_formula_entry_activate();
         /* as long as we don't support string operation ids, we take
@@ -727,8 +724,7 @@ on_function_button_clicked             (GtkToggleButton    *button,
         error_message ("This button has no function associated with");
         return;
     }
-    if ((current_status.notation == CS_FORMULA) ||
-        (current_status.notation == CS_PAN)) {
+    if (current_status.notation == CS_ALG) {
         ui_formula_entry_insert (display_name[current_status.fmod]);
         if (current_status.fmod != 0) ui_relax_fmod_buttons();
         return;
@@ -778,8 +774,7 @@ on_gfunc_button_clicked                (GtkToggleButton       *button,
     ui_bind_active_tab_from_widget (GTK_WIDGET(button));
     if (gtk_toggle_button_get_active(button) == FALSE) return;
     button_activation (button);
-    if ((current_status.notation == CS_FORMULA) ||
-        (current_status.notation == CS_PAN)) {
+    if (current_status.notation == CS_ALG) {
         display_string = g_object_get_data (G_OBJECT (button), "display_string");
         if (display_string != NULL) {
             ui_formula_entry_insert (display_string);
@@ -871,7 +866,7 @@ on_ordinary_toggled                  (GtkMenuItem     *menuitem,
 {
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem)) == FALSE) return;
-    change_option (CS_PAN, DISPLAY_OPT_NOTATION);
+    change_option (CS_ALG, DISPLAY_OPT_NOTATION);
     set_widget_visibility (view_xml, "formula_entry_hbox", TRUE);
     rpn_free();
     all_clear();
@@ -897,20 +892,6 @@ on_rpn_toggled                       (GtkMenuItem     *menuitem,
     update_dispctrl();
     /* pixel above/below display result line */
     display_update_tags ();
-}
-
-/* toggle formula entry */
-void 
-on_form_toggled             (GtkMenuItem     *menuitem,
-                    gpointer         user_data)
-{
-    ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
-    if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem)) == FALSE) return;
-    change_option (CS_FORMULA, DISPLAY_OPT_NOTATION);
-    all_clear();
-    ui_button_set_pan();
-    update_dispctrl();
-    set_widget_visibility (view_xml, "formula_entry_hbox", TRUE);
 }
 
 void
@@ -2441,8 +2422,7 @@ gboolean on_button_event(GtkWidget *widget, GdkEvent *event, gpointer user_data)
         }
     }
     /* do all cheap checks first before calling expensive formula_entry_is_active */
-    if (((current_status.notation == CS_FORMULA) ||
-         (current_status.notation == CS_PAN)) &&
+    if ((current_status.notation == CS_ALG) &&
         (event->type == GDK_KEY_PRESS)) {
         GdkEventKey *key_event = (GdkEventKey *) event;
         GtkWidget *formula_entry_widget;

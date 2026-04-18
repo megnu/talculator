@@ -77,7 +77,7 @@
 #define DEFAULT_BIN_SEP_CHAR		" "
 #define DEFAULT_NUMBER				CS_DEC
 #define DEFAULT_ANGLE				CS_RAD
-#define DEFAULT_NOTATION			CS_PAN
+#define DEFAULT_NOTATION			CS_ALG
 #define DEFAULT_STACK_SIZE			3
 #define DEFAULT_REM_DISPLAY			FALSE
 #define	DEFAULT_REM_VALUEX			"0"	/* must not end with a newline! */

@@ -660,9 +660,8 @@ void ui_sync_main_menu_for_active_tab ()
 	ui_set_menu_item_state_blocked ("deg", current_status.angle == CS_DEG, G_CALLBACK(on_deg_toggled));
 	ui_set_menu_item_state_blocked ("rad", current_status.angle == CS_RAD, G_CALLBACK(on_rad_toggled));
 	ui_set_menu_item_state_blocked ("grad", current_status.angle == CS_GRAD, G_CALLBACK(on_grad_toggled));
-	ui_set_menu_item_state_blocked ("ordinary", current_status.notation == CS_PAN, G_CALLBACK(on_ordinary_toggled));
+	ui_set_menu_item_state_blocked ("alg", current_status.notation == CS_ALG, G_CALLBACK(on_ordinary_toggled));
 	ui_set_menu_item_state_blocked ("rpn", current_status.notation == CS_RPN, G_CALLBACK(on_rpn_toggled));
-	ui_set_menu_item_state_blocked ("form", current_status.notation == CS_FORMULA, G_CALLBACK(on_form_toggled));
 
 	menu_item = GTK_WIDGET(gtk_builder_get_object (main_window_xml, "functions"));
 	if (menu_item) gtk_widget_set_sensitive (menu_item, ctx->tab_mode == SCIENTIFIC_MODE);

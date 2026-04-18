@@ -56,8 +56,7 @@ void clear_for_tab (s_tab_context *ctx)
 	s_tab_context *prev_tab = active_tab;
 	if (ctx != NULL) active_tab = ctx;
 	display_result_set (CLEARED_DISPLAY, TRUE);
-	if ((current_status.notation == CS_FORMULA) ||
-		(current_status.notation == CS_PAN)) ui_formula_entry_set ("");
+	if (current_status.notation == CS_ALG) ui_formula_entry_set ("");
 	active_tab = prev_tab;
 }
 
@@ -74,8 +73,7 @@ void backspace_for_tab (s_tab_context *ctx)
 {
 	s_tab_context *prev_tab = active_tab;
 	if (ctx != NULL) active_tab = ctx;
-	if ((current_status.notation == CS_FORMULA) ||
-		(current_status.notation == CS_PAN)) ui_formula_entry_backspace();
+	if (current_status.notation == CS_ALG) ui_formula_entry_backspace();
 	else display_result_backspace(current_status.number);
 	active_tab = prev_tab;
 }
@@ -93,7 +91,7 @@ void all_clear_for_tab (s_tab_context *ctx)
 	if (ctx != NULL) active_tab = ctx;
 	clear_for_tab (active_tab);
 	switch (current_status.notation) {
-		case CS_PAN:
+		case CS_ALG:
 			break;
 		case CS_RPN:
 			rpn_free();
@@ -102,10 +100,6 @@ void all_clear_for_tab (s_tab_context *ctx)
 			display_stack_create();
 			/* it's a stack lifting disabling functon */
 			current_status.rpn_stack_lift_enabled = FALSE;
-			break;
-		case CS_FORMULA:
-			rpn_free();
-			display_stack_remove();
 			break;
 		default:
 			fprintf (stderr, _("[%s] unknown notation mode in function \"all_clear\". %s\n"), PROG_NAME, BUG_REPORT);
@@ -343,7 +337,7 @@ void gfunc_f1 (GtkToggleButton *button)
 	char		*display_value;
 	char		*result;
 	
-	if (current_status.notation == CS_PAN) 
+	if (current_status.notation == CS_ALG)
 		on_operation_button_clicked (button, NULL);
 	else {
 		display_value = display_result_get ();
@@ -371,7 +365,7 @@ void gfunc_f2 (GtkToggleButton *button)
 	char		*display_value;
 	char		*result;
 	
-	if (current_status.notation == CS_PAN)
+	if (current_status.notation == CS_ALG)
 		on_operation_button_clicked (button, NULL);
 	else {
 		display_value = display_result_get ();

@@ -38,7 +38,7 @@
 
 static char	*number_mod_labels[5] = {" DEC ", " HEX ", " OCT ", " BIN ", NULL}, 
 		*angle_mod_labels[4] = {" DEG ", " RAD ", " GRAD ", NULL},
-		*notation_mod_labels[4] = {" ALG ", " RPN ", " FORM ", NULL};	
+		*notation_mod_labels[3] = {" ALG ", " RPN ", NULL};
 
 /* no one outside display.c should need to call these functions */
 static void display_set_line (char *string, int line, char *tag);
@@ -82,7 +82,6 @@ static void display_engine_context_for_base (talc_engine_context *ctx, int numbe
 	ctx->base = (talc_engine_base) number_base_status;
 	ctx->angle = (talc_engine_angle) current_status.angle;
 	ctx->rpn_notation = (current_status.notation == CS_RPN);
-	ctx->formula_notation = (current_status.notation == CS_FORMULA);
 	ctx->display_precision = get_display_number_length (number_base_status);
 	ctx->decimal_point = dec_point[0];
 	ctx->base_bits = 0;
@@ -237,7 +236,7 @@ void display_create_text_tags ()
 	int	pixels=0;
 	
 	/* note: wrap MUST NOT be set to none in order to justify the text! */
-	if (current_status.notation == CS_PAN) pixels = 5;
+	if (current_status.notation == CS_ALG) pixels = 5;
 
 	gtk_text_buffer_create_tag (buffer, "result",
 		"justification", GTK_JUSTIFY_RIGHT,

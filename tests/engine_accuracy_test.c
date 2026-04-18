@@ -19,7 +19,6 @@ static talc_engine_context ctx_default (void)
 	ctx.base = TALC_ENGINE_BASE_DEC;
 	ctx.angle = TALC_ENGINE_ANGLE_DEG;
 	ctx.rpn_notation = FALSE;
-	ctx.formula_notation = TRUE;
 	ctx.display_precision = 16;
 	ctx.decimal_point = '.';
 	return ctx;
@@ -216,7 +215,6 @@ int main (void)
 	rad.angle = TALC_ENGINE_ANGLE_RAD;
 	rpn = dec;
 	rpn.rpn_notation = TRUE;
-	rpn.formula_notation = FALSE;
 	rpn_rad = rpn;
 	rpn_rad.angle = TALC_ENGINE_ANGLE_RAD;
 	rpn_bin = rpn;

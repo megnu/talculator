@@ -106,9 +106,8 @@ enum {
 };
 
 enum {
-	CS_PAN,			/* _P_seudo _A_lgebraic _N_otation */
+	CS_ALG,			/* algebraic notation */
 	CS_RPN,			/* reverse polish notation */
-	CS_FORMULA,		/* formula entry */
 	NR_NOTATION_MODES
 };
 

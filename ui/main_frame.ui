@@ -485,7 +485,7 @@
                                     <property name="use_action_appearance">False</property>
                                     <property name="label" translatable="yes">_Algebraic</property>
                                     <property name="use_underline">True</property>
-                                    <accelerator key="A" signal="activate" modifiers="GDK_CONTROL_MASK"/>
+                                    <accelerator key="L" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                                     <signal name="toggled" handler="on_ordinary_toggled" swapped="no"/>
                                   </object>
                                 </child>
@@ -499,18 +499,6 @@
                                     <property name="group">alg</property>
                                     <accelerator key="N" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                                     <signal name="toggled" handler="on_rpn_toggled" swapped="no"/>
-                                  </object>
-                                </child>
-                                <child>
-                                  <object class="GtkRadioMenuItem" id="form">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="use_action_appearance">False</property>
-                                    <property name="label" translatable="yes">_Formula Entry</property>
-                                    <property name="use_underline">True</property>
-                                    <property name="group">alg</property>
-                                    <accelerator key="F" signal="activate" modifiers="GDK_CONTROL_MASK"/>
-                                    <signal name="toggled" handler="on_form_toggled" swapped="no"/>
                                   </object>
                                 </child>
                               </object>

@@ -182,6 +182,10 @@ PACKAGE, config_file_name_old, config_file_name, PACKAGE, config_file_name_old);
     user_function = config_file_get_user_functions();
 
 	current_status.notation = prefs.def_notation;
+	if ((current_status.notation < 0) || (current_status.notation >= NR_NOTATION_MODES)) {
+		current_status.notation = CS_ALG;
+		prefs.def_notation = CS_ALG;
+	}
 
 #ifdef WITH_HILDON
 	glade_register_widget (HILDON_TYPE_WINDOW, glade_hildon_window_new, glade_standard_build_children, NULL);
