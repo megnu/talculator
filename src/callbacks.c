@@ -547,7 +547,7 @@ static char *substitute_user_variable (const char *expression,
 			g_string_append_printf (result, "(%s)", value);
 			i += var_len;
 		} else {
-			g_string_append_len (result, &expression[i], var_len);
+			g_string_append_len (result, &expression[i], (gssize) var_len);
 			i += var_len;
 		}
 	}
@@ -1690,12 +1690,12 @@ void ms_menu_handler (GtkMenuItem *menuitem, gpointer user_data)
     
     ui_bind_active_tab_from_menu_item (menuitem);
     index = GPOINTER_TO_INT(user_data);
-    if (index >= memory.len) {
-        index = memory.len;
-        memory.data = (char **) g_realloc (memory.data, (index + 1) * sizeof(char *));
-        memory.len++;
-        memory.data[index] = NULL;
-    }
+	if (index >= memory.len) {
+	        index = memory.len;
+	        memory.data = (char **) g_realloc (memory.data, ((gsize) (index + 1)) * sizeof(char *));
+	        memory.len++;
+	        memory.data[index] = NULL;
+	    }
     current_value = display_result_get ();
     if (memory.data[index]) g_free (memory.data[index]);
     memory.data[index] = current_value;
@@ -1813,10 +1813,10 @@ void mc_menu_handler (GtkMenuItem *menuitem, gpointer user_data)
         if (memory.data[index]) g_free (memory.data[index]);
         for (counter = index; counter < (memory.len - 1); counter++) 
             memory.data[counter] = memory.data[counter + 1];
-        memory.len--;
-        if (memory.len > 0)
-            memory.data = (char **) g_realloc (memory.data, memory.len * sizeof(char *));
-        else {
+	        memory.len--;
+	        if (memory.len > 0)
+	            memory.data = (char **) g_realloc (memory.data, ((gsize) memory.len) * sizeof(char *));
+	        else {
             g_free (memory.data);
             memory.data = NULL;
         }
@@ -1918,7 +1918,7 @@ void on_prefs_ufadd_clicked (GtkButton *button, gpointer user_data)
 	}
         
     nr_user_functions = gtk_tree_model_iter_n_children(GTK_TREE_MODEL(prefs_user_function_store), NULL);
-    user_function = (s_user_function *) g_realloc (user_function, (nr_user_functions + 2) * sizeof(s_user_function));
+	    user_function = (s_user_function *) g_realloc (user_function, ((gsize) (nr_user_functions + 2)) * sizeof(s_user_function));
     user_function[nr_user_functions + 1].name = NULL;
     
     user_function[nr_user_functions].name = name;
@@ -1963,7 +1963,7 @@ void on_prefs_ufdelete_clicked (GtkButton *button, gpointer user_data)
 	}
     
     nr_user_functions--;
-    user_function = (s_user_function *) g_realloc (user_function, (nr_user_functions + 1) * sizeof(s_user_function));
+	    user_function = (s_user_function *) g_realloc (user_function, ((gsize) (nr_user_functions + 1)) * sizeof(s_user_function));
     
 	user_function[nr_user_functions].variable = NULL;
 	user_function[nr_user_functions].expression = NULL;
@@ -2055,7 +2055,7 @@ void on_prefs_cadd_clicked (GtkButton *button, gpointer user_data)
 	}
         
     nr_consts = gtk_tree_model_iter_n_children(GTK_TREE_MODEL(prefs_constant_store), NULL);
-    constant = (s_constant *) g_realloc (constant, (nr_consts + 2) * sizeof(s_constant));
+	    constant = (s_constant *) g_realloc (constant, ((gsize) (nr_consts + 2)) * sizeof(s_constant));
     constant[nr_consts + 1].name = NULL;
     
     constant[nr_consts].name = name;
@@ -2099,7 +2099,7 @@ void on_prefs_cdelete_clicked (GtkButton *button, gpointer user_data)
 	}
     
     nr_consts--;
-    constant = (s_constant *) g_realloc (constant, (nr_consts + 1) * sizeof(s_constant));
+	    constant = (s_constant *) g_realloc (constant, ((gsize) (nr_consts + 1)) * sizeof(s_constant));
     
 	constant[nr_consts].value = NULL;
 	constant[nr_consts].desc = NULL;
@@ -2569,7 +2569,11 @@ gboolean paper_tree_view_selection_changed_cb (GtkWidget *widget,
             g_free (string);
             entry = GTK_WIDGET(gtk_builder_get_object (view_xml, "paper_entry"));
             position = gtk_editable_get_position (GTK_EDITABLE(entry));
-            gtk_editable_insert_text (GTK_EDITABLE (entry), stripped_string, strlen(stripped_string), &position);
+	            {
+	                gsize len = strlen (stripped_string);
+	                gint insert_len = (len > (gsize) G_MAXINT) ? G_MAXINT : (gint) len;
+	                gtk_editable_insert_text (GTK_EDITABLE (entry), stripped_string, insert_len, &position);
+	            }
             /* set position after currently inserted text */
             gtk_editable_set_position (GTK_EDITABLE(entry), position);
             g_free (stripped_string);

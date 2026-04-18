@@ -117,19 +117,21 @@ void all_clear ()
 char *add_leading_zeros (char *string, int multiple)
 {
 	char	*new_string;
-	int	length, offset, counter;
+	gsize	length, counter, offset, multiple_size;
 	
 	/* I don't want "0" to become "000000000" or whatever */
 	if (strcmp (string, "0") == 0) return g_strdup(string);
 	if (strcmp (string, MY_INFINITY_STRING) == 0) return g_strdup(string);
+	if (multiple <= 0) return g_strdup (string);
 	length = strlen(string);
-	offset = (multiple - length%multiple)%multiple;
+	multiple_size = (gsize) multiple;
+	offset = (multiple_size - (length % multiple_size)) % multiple_size;
 	length += offset;
-	new_string = (char *) g_malloc ((length + 1) * sizeof(char));
+	new_string = (char *) g_malloc ((length + 1u) * sizeof(char));
 	for (counter = 0; counter < offset; counter++)
 		new_string[counter] = '0';
 	for (counter = offset; counter <= length; counter++)
-		new_string[counter] = string[counter-offset];
+		new_string[counter] = string[counter - offset];
 	g_free (string);
 	return new_string;
 }
@@ -444,8 +446,12 @@ char *string_add_separator (char* string, gboolean separate, int block_length, c
 	if (string[int_length] == dpoint)
 		while ((string[int_length + frac_length + 1] != '\0') && (string[int_length + frac_length + 1] != 'e')) frac_length++;
 	/* then allocate memory for new string holding separators */
-	new_string = (char *) g_malloc ((strlen(string) + (int_length-1)/block_length +
-		(frac_length-1)/block_length + 1) * sizeof(char));
+		{
+			int int_seps = (int_length > 0) ? (int_length - 1) / block_length : 0;
+			int frac_seps = (frac_length > 0) ? (frac_length - 1) / block_length : 0;
+			gsize alloc_len = strlen (string) + (gsize) int_seps + (gsize) frac_seps + 1u;
+			new_string = (char *) g_malloc (alloc_len * sizeof(char));
+		}
 	/* then copy from string to new_string and insert separators */
 	while ((string[counter] != '\0') && (string[counter] != dpoint) && (string[counter] != 'e')) {
 		/* > ( == ) is horrible, yes, but somehow cool. avoids space
@@ -640,25 +646,61 @@ void change_option_for_tab (s_tab_context *ctx, int new_status, int opt_group)
 	if (ctx != NULL) active_tab = ctx;
 	int	old_status;
 	
-	switch (opt_group) {
-		case DISPLAY_OPT_NUMBER:
-			old_status = current_status.number;
-			if (old_status == new_status) goto out;
-			current_status.number = new_status;
-			if (active_tab->tab_mode != PAPER_MODE) display_change_option (old_status, new_status, DISPLAY_OPT_NUMBER);
-			break;
-		case DISPLAY_OPT_ANGLE:
-			old_status = current_status.angle;
-			if (old_status == new_status) goto out;
-			current_status.angle = new_status;
-			if (active_tab->tab_mode != PAPER_MODE) display_change_option (old_status, new_status, DISPLAY_OPT_ANGLE);
-			break;
-		case DISPLAY_OPT_NOTATION:
-			old_status = current_status.notation;
-			if (old_status == new_status) goto out;
-			current_status.notation = new_status;
-			if (active_tab->tab_mode != PAPER_MODE) display_change_option (old_status, new_status, DISPLAY_OPT_NOTATION);
-			break;
+		switch (opt_group) {
+			case DISPLAY_OPT_NUMBER:
+				old_status = current_status.number;
+				if (old_status == new_status) goto out;
+				switch (new_status) {
+					case CS_DEC:
+						current_status.number = CS_DEC;
+						break;
+					case CS_HEX:
+						current_status.number = CS_HEX;
+						break;
+					case CS_OCT:
+						current_status.number = CS_OCT;
+						break;
+					case CS_BIN:
+						current_status.number = CS_BIN;
+						break;
+					default:
+						goto out;
+				}
+				if (active_tab->tab_mode != PAPER_MODE) display_change_option (old_status, new_status, DISPLAY_OPT_NUMBER);
+				break;
+			case DISPLAY_OPT_ANGLE:
+				old_status = current_status.angle;
+				if (old_status == new_status) goto out;
+				switch (new_status) {
+					case CS_DEG:
+						current_status.angle = CS_DEG;
+						break;
+					case CS_RAD:
+						current_status.angle = CS_RAD;
+						break;
+					case CS_GRAD:
+						current_status.angle = CS_GRAD;
+						break;
+					default:
+						goto out;
+				}
+				if (active_tab->tab_mode != PAPER_MODE) display_change_option (old_status, new_status, DISPLAY_OPT_ANGLE);
+				break;
+			case DISPLAY_OPT_NOTATION:
+				old_status = current_status.notation;
+				if (old_status == new_status) goto out;
+				switch (new_status) {
+					case CS_ALG:
+						current_status.notation = CS_ALG;
+						break;
+					case CS_RPN:
+						current_status.notation = CS_RPN;
+						break;
+					default:
+						goto out;
+				}
+				if (active_tab->tab_mode != PAPER_MODE) display_change_option (old_status, new_status, DISPLAY_OPT_NOTATION);
+				break;
 		default:
 			error_message (_("unknown display option in function \"change_option\""));
 	}

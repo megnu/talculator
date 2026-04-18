@@ -182,10 +182,17 @@ PACKAGE, config_file_name_old, config_file_name, PACKAGE, config_file_name_old);
 	constant = config_file_get_constants();
     user_function = config_file_get_user_functions();
 
-	current_status.notation = prefs.def_notation;
-	if ((current_status.notation < 0) || (current_status.notation >= NR_NOTATION_MODES)) {
+	switch (prefs.def_notation) {
+	case CS_ALG:
+		current_status.notation = CS_ALG;
+		break;
+	case CS_RPN:
+		current_status.notation = CS_RPN;
+		break;
+	default:
 		current_status.notation = CS_ALG;
 		prefs.def_notation = CS_ALG;
+		break;
 	}
 
 #ifdef WITH_HILDON
