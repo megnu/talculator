@@ -155,7 +155,7 @@ static void config_file_session_state_copy (s_session_state *dst, const s_sessio
 		dst->tabs[i].rpn_stack_len = src->tabs[i].rpn_stack_len;
 		if (dst->tabs[i].rpn_stack_len < 0) dst->tabs[i].rpn_stack_len = 0;
 		if (dst->tabs[i].rpn_stack_len > 0) {
-			dst->tabs[i].rpn_stack = g_new0 (char *, dst->tabs[i].rpn_stack_len);
+			dst->tabs[i].rpn_stack = g_new0 (char *, (gsize) dst->tabs[i].rpn_stack_len);
 			for (j = 0; j < dst->tabs[i].rpn_stack_len; j++) {
 				dst->tabs[i].rpn_stack[j] = g_strdup (src->tabs[i].rpn_stack && src->tabs[i].rpn_stack[j] ? src->tabs[i].rpn_stack[j] : CLEARED_DISPLAY);
 			}
@@ -163,7 +163,7 @@ static void config_file_session_state_copy (s_session_state *dst, const s_sessio
 		dst->tabs[i].memory_len = src->tabs[i].memory_len;
 		if (dst->tabs[i].memory_len < 0) dst->tabs[i].memory_len = 0;
 		if (dst->tabs[i].memory_len > 0) {
-			dst->tabs[i].mem_values = g_new0 (char *, dst->tabs[i].memory_len);
+			dst->tabs[i].mem_values = g_new0 (char *, (gsize) dst->tabs[i].memory_len);
 			for (j = 0; j < dst->tabs[i].memory_len; j++) {
 				dst->tabs[i].mem_values[j] = g_strdup (src->tabs[i].mem_values && src->tabs[i].mem_values[j] ? src->tabs[i].mem_values[j] : CLEARED_DISPLAY);
 			}
@@ -250,7 +250,7 @@ static gboolean config_file_set_session_entry (const char *key, const char *valu
 		if (len < 0) len = 0;
 		if (len > TALC_SESSION_MAX_ITEMS) len = TALC_SESSION_MAX_ITEMS;
 		cf_session_state.tabs[tab_idx].rpn_stack_len = len;
-		cf_session_state.tabs[tab_idx].rpn_stack = len > 0 ? g_new0 (char *, len) : NULL;
+		cf_session_state.tabs[tab_idx].rpn_stack = len > 0 ? g_new0 (char *, (gsize) len) : NULL;
 		return TRUE;
 	}
 	if (sscanf (key, "session_tab%d_mem_len%n", &tab_idx, &n) == 1 && key[n] == '\0') {
@@ -266,7 +266,7 @@ static gboolean config_file_set_session_entry (const char *key, const char *valu
 		if (len < 0) len = 0;
 		if (len > TALC_SESSION_MAX_ITEMS) len = TALC_SESSION_MAX_ITEMS;
 		cf_session_state.tabs[tab_idx].memory_len = len;
-		cf_session_state.tabs[tab_idx].mem_values = len > 0 ? g_new0 (char *, len) : NULL;
+		cf_session_state.tabs[tab_idx].mem_values = len > 0 ? g_new0 (char *, (gsize) len) : NULL;
 		return TRUE;
 	}
 	if (sscanf (key, "session_tab%d_rpn_%d%n", &tab_idx, &item_idx, &n) == 2 && key[n] == '\0') {
@@ -450,7 +450,7 @@ void config_file_set_prefs (char *key, char *value)
 
 int config_file_get_mode (char *line, char *filename, int old_mode)
 {
-	int	len;
+	gsize	len;
 	
 	if (line == NULL) return old_mode;
 	line = g_strstrip(line);
@@ -491,7 +491,7 @@ void config_file_set_constants (char *line)
 	/* allowing desc and name to be "" */
 	if (strlen(value) == 0) return;
 	nr_consts++;
-	cf_constant = (s_constant *) g_realloc (cf_constant, (nr_consts + 1) * sizeof(s_constant));
+	cf_constant = (s_constant *) g_realloc (cf_constant, ((gsize) (nr_consts + 1)) * sizeof(s_constant));
 	cf_constant[nr_consts-1].desc = g_strdup (desc);
 	cf_constant[nr_consts-1].name = g_strdup (name);
 	cf_constant[nr_consts-1].value = g_strdup (value);
@@ -527,7 +527,7 @@ void config_file_set_user_functions (char *line)
 	if ((strlen(variable) == 0) || (strlen(expression) == 0)) return;
 	nr_user_functions++;
 	cf_user_function = (s_user_function *) g_realloc (cf_user_function, 
-		(nr_user_functions + 1) * sizeof(s_user_function));
+		((gsize) (nr_user_functions + 1)) * sizeof(s_user_function));
 	cf_user_function[nr_user_functions-1].name = g_strdup (name);
 	cf_user_function[nr_user_functions-1].variable = g_strdup (variable);
 	cf_user_function[nr_user_functions-1].expression = g_strdup (expression);

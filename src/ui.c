@@ -310,9 +310,46 @@ static GtkWidget *ui_get_current_tab_container ()
 static void ui_tab_context_init_from_prefs (s_tab_context *ctx)
 {
 	if (!ctx) return;
-	ctx->tab_current_status = (s_current_status){
-		(unsigned) prefs.def_number, (unsigned) prefs.def_angle, (unsigned) prefs.def_notation, 0, FALSE, FALSE, TRUE
-	};
+	ctx->tab_current_status = (s_current_status){ CS_DEC, CS_RAD, CS_ALG, 0, FALSE, FALSE, TRUE };
+	switch (prefs.def_number) {
+	case CS_DEC:
+		ctx->tab_current_status.number = CS_DEC;
+		break;
+	case CS_HEX:
+		ctx->tab_current_status.number = CS_HEX;
+		break;
+	case CS_OCT:
+		ctx->tab_current_status.number = CS_OCT;
+		break;
+	case CS_BIN:
+		ctx->tab_current_status.number = CS_BIN;
+		break;
+	default:
+		break;
+	}
+	switch (prefs.def_angle) {
+	case CS_DEG:
+		ctx->tab_current_status.angle = CS_DEG;
+		break;
+	case CS_RAD:
+		ctx->tab_current_status.angle = CS_RAD;
+		break;
+	case CS_GRAD:
+		ctx->tab_current_status.angle = CS_GRAD;
+		break;
+	default:
+		break;
+	}
+	switch (prefs.def_notation) {
+	case CS_ALG:
+		ctx->tab_current_status.notation = CS_ALG;
+		break;
+	case CS_RPN:
+		ctx->tab_current_status.notation = CS_RPN;
+		break;
+	default:
+		break;
+	}
 	ctx->tab_mode = prefs.mode;
 	ctx->tab_vis_number = prefs.vis_number;
 	ctx->tab_vis_angle = prefs.vis_angle;

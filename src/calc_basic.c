@@ -239,7 +239,7 @@ char **rpn_stack_get (int length)
 	if (used_len <= 0) used_len = rpn_stack ? (int) rpn_stack->len : 0;
 	if (used_len <= 0) return NULL;
 
-	return_array = g_new0 (char *, used_len);
+	return_array = g_new0 (char *, (gsize) used_len);
 	for (i = 0; i < used_len; i++) {
 		if (rpn_stack && i < (int) rpn_stack->len)
 			return_array[i] = g_strdup ((char *) rpn_stack->pdata[i]);
@@ -254,12 +254,12 @@ void rpn_stack_set_size (int size)
 	int i;
 
 	rpn_ensure_init ();
-	if ((size > 0) && ((size < rpn_stack_size) || (rpn_stack_size == -1))) {
-		for (i = (int) rpn_stack->len - 1; i >= size; i--) {
-			g_free (rpn_stack->pdata[i]);
-			g_ptr_array_remove_index (rpn_stack, i);
+		if ((size > 0) && ((size < rpn_stack_size) || (rpn_stack_size == -1))) {
+			for (i = (int) rpn_stack->len - 1; i >= size; i--) {
+				g_free (rpn_stack->pdata[i]);
+				g_ptr_array_remove_index (rpn_stack, (guint) i);
+			}
 		}
-	}
 	rpn_stack_size = size;
 }
 

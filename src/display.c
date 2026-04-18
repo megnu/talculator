@@ -46,6 +46,7 @@ static char *display_get_line (int line_nr);
 static void display_engine_context_for_base (talc_engine_context *ctx, int number_base_status);
 static char *display_convert_base_string (const char *value, int from_base, int to_base);
 static void display_widget_css_set (GtkWidget *widget, const gchar *css, const gchar *data_key);
+static int display_bracket_forward_count (int brackets);
 
 static gsize custom_constant_count (void)
 {
@@ -59,6 +60,19 @@ static gsize custom_function_count (void)
 	gsize n = 0;
 	while (user_function && user_function[n].name) n++;
 	return n;
+}
+
+static int display_bracket_forward_count (int brackets)
+{
+	int digits = 1;
+	int value = brackets;
+
+	if (value < 0) value = 0;
+	while (value >= 10) {
+		value /= 10;
+		digits++;
+	}
+	return 5 + digits;
 }
 
 static gboolean display_bracket_module_should_render (void)
@@ -372,21 +386,25 @@ int display_module_bracket_label_update (int option)
 	switch (option) {
 		case ONE_MORE:
 			active_tab->tab_display_brackets++;
-			if (active_tab->tab_display_brackets > 0) forward_count = 5 + log10(active_tab->tab_display_brackets);
+			if (active_tab->tab_display_brackets > 0)
+				forward_count = display_bracket_forward_count (active_tab->tab_display_brackets);
 			break;
 		case ONE_LESS:
-			if (active_tab->tab_display_brackets > 0) forward_count = 5 + log10(active_tab->tab_display_brackets);
+			if (active_tab->tab_display_brackets > 0)
+				forward_count = display_bracket_forward_count (active_tab->tab_display_brackets);
 			active_tab->tab_display_brackets--;
 			break;
 		case RESET:
-			if (active_tab->tab_display_brackets > 0) forward_count = 5 + log10(active_tab->tab_display_brackets);
+			if (active_tab->tab_display_brackets > 0)
+				forward_count = display_bracket_forward_count (active_tab->tab_display_brackets);
 			active_tab->tab_display_brackets = 0;
 			break;
 		case GET:
 			/* doing this here to not touch the display */
 			return active_tab->tab_display_brackets;
 		case NOP:
-			if (active_tab->tab_display_brackets > 0) forward_count = 5 + log10(active_tab->tab_display_brackets);
+			if (active_tab->tab_display_brackets > 0)
+				forward_count = display_bracket_forward_count (active_tab->tab_display_brackets);
 			break;
 	}
 	if (!display_bracket_module_should_render ())
@@ -627,20 +645,23 @@ void display_update_modules ()
 
 void display_module_base_delete (char *mark_name, char **text)
 {
-	int		counter=0, length=0;
+	int		counter=0;
+	gsize		length=0;
 	GtkTextIter	start, end;
 	GtkTextMark	*this_mark;
+	gint		forward_chars;
 	
 	if ((this_mark = gtk_text_buffer_get_mark (buffer, mark_name)) == NULL) return;
 		
 	while (text[counter] != NULL) {
-		length+=strlen(text[counter]);
+		length += strlen(text[counter]);
 		counter++;
 	}
+	forward_chars = (length > (gsize) G_MAXINT) ? G_MAXINT : (gint) length;
 
 	gtk_text_buffer_get_iter_at_mark (buffer, &start, this_mark);
 	end = start;
-	gtk_text_iter_forward_chars (&end, length);
+	gtk_text_iter_forward_chars (&end, forward_chars);
 	gtk_text_buffer_delete (buffer, &start, &end);
 }
 
@@ -777,10 +798,13 @@ static void display_set_line (char *string, int line, char *tag)
 	gtk_text_buffer_insert_with_tags_by_name (buffer, &start, separator_string, -1, tag, NULL);
 	g_free (separator_string);
 	if (line == display_result_line) {
-		display_result_counter = strlen (string);
+		gsize display_len = strlen (string);
+		display_result_counter = (display_len > (gsize) G_MAXINT) ? G_MAXINT : (gint) display_len;
 		/* this is some cosmetics. try to keep counter up2date */
 		if (strchr (string, 'e') != NULL) {
-				display_result_counter -= (strchr(string, 'e') - string + 1);
+				gsize prefix_len = (gsize) (strchr(string, 'e') - string + 1);
+				gint prefix_chars = (prefix_len > (gsize) G_MAXINT) ? G_MAXINT : (gint) prefix_len;
+				display_result_counter -= prefix_chars;
 			display_result_counter += get_display_number_length(current_status.number) - DISPLAY_RESULT_E_LENGTH - 1;
 		}
 		else if (strchr (string, dec_point[0]) != NULL) display_result_counter--;
@@ -850,11 +874,14 @@ void display_result_set (char *string_value, int update_result_counter)
 
 void display_result_feed (char *string, int number_base_status)
 {
-	int	counter;
+	gsize	counter;
+	gsize	string_len;
 
-    gboolean toggleSign = current_status.calc_entry_start_new && (strlen(string) > 0) && (*string == '-');
+	string_len = strlen (string);
+    gboolean toggleSign = current_status.calc_entry_start_new && (string_len > 0) && (*string == '-');
 
-	    for (counter = 0; counter < strlen(string); counter++) {
+	    for (counter = 0; counter < string_len; counter++) {
+	    	char digit_char = string[counter];
 	        switch (string[counter]) {
 	        case '-': {
 	            /* this only applies if we just had "EE" before */
@@ -877,11 +904,13 @@ void display_result_feed (char *string, int number_base_status)
 				display_append_e(NULL);
 				break;
 			}
-        default:
-            /* g_ascii_toupper to convert lower hex chars to upper */
-            if (is_valid_number(current_status.number, string[counter]))
-                display_result_add_digit(g_ascii_toupper(string[counter]), number_base_status);
-        }
+			/* fall through */
+	        default:
+	            if ((digit_char >= 'a') && (digit_char <= 'z'))
+	            	digit_char = (char) (digit_char - ('a' - 'A'));
+	            if (is_valid_number(current_status.number, digit_char))
+	                display_result_add_digit(digit_char, number_base_status);
+	        }
         if (toggleSign && counter==1) display_result_toggle_sign(NULL);
 	}
 //
