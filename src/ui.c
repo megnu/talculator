@@ -337,6 +337,7 @@ static s_tab_context *ui_tab_context_new ()
 	ctx->tab_display_result_line = 0;
 	ctx->tab_display_last_arith = ' ';
 	ctx->tab_display_brackets = 0;
+	ctx->tab_display_value = g_strdup (CLEARED_DISPLAY);
 	ctx->tab_rpn_stack = NULL;
 	ctx->tab_rpn_stack_len = 0;
 	return ctx;
@@ -364,6 +365,7 @@ static void ui_tab_context_free (s_tab_context *ctx)
 		}
 		g_free (ctx->tab_rpn_stack);
 	}
+	if (ctx->tab_display_value) g_free (ctx->tab_display_value);
 	g_free (ctx);
 }
 
@@ -377,19 +379,6 @@ static void ui_session_copy_memory_from_context (s_session_tab_state *dst, s_tab
 	for (i = 0; i < dst->memory_len; i++) {
 		dst->mem_values[i] = g_strdup (ctx->tab_memory.data[i] ? ctx->tab_memory.data[i] : CLEARED_DISPLAY);
 	}
-}
-
-static char *ui_tab_display_value_dup (s_tab_context *ctx)
-{
-	GtkTextIter start, end;
-
-	if (!ctx || !ctx->tab_display_buffer) return g_strdup (CLEARED_DISPLAY);
-	if (gtk_text_buffer_get_line_count (ctx->tab_display_buffer) <= ctx->tab_display_result_line)
-		return g_strdup (CLEARED_DISPLAY);
-	gtk_text_buffer_get_iter_at_line (ctx->tab_display_buffer, &start, ctx->tab_display_result_line);
-	end = start;
-	gtk_text_iter_forward_to_line_end (&end);
-	return gtk_text_buffer_get_text (ctx->tab_display_buffer, &start, &end, FALSE);
 }
 
 void ui_collect_session_state (s_session_state *out_state)
@@ -416,8 +405,9 @@ void ui_collect_session_state (s_session_state *out_state)
 	if (out_state->active_tab >= out_state->tab_count) out_state->active_tab = out_state->tab_count - 1;
 
 	for (i = 0; i < n_pages; i++) {
-		GtkWidget *page = gtk_notebook_get_nth_page (notebook, i);
-		s_tab_context *ctx = page ? g_object_get_data (G_OBJECT(page), "tab-context") : NULL;
+		char *display_value;
+		if (!ui_tab_select (i)) continue;
+		s_tab_context *ctx = active_tab;
 		s_session_tab_state *tab = &out_state->tabs[i];
 
 		if (!ctx) continue;
@@ -425,23 +415,17 @@ void ui_collect_session_state (s_session_state *out_state)
 		tab->number = ctx->tab_current_status.number;
 		tab->angle = ctx->tab_current_status.angle;
 		tab->notation = ctx->tab_current_status.notation;
-		tab->display_value = ui_tab_display_value_dup (ctx);
+		display_value = display_result_get ();
+		tab->display_value = display_value ? display_value : g_strdup (CLEARED_DISPLAY);
 
-		if (ctx == active_tab && ctx->tab_current_status.notation == CS_RPN) {
+		if (ctx->tab_current_status.notation == CS_RPN) {
 			tab->rpn_stack_len = rpn_stack_length ();
 			if (tab->rpn_stack_len > 0) tab->rpn_stack = rpn_stack_get (RPN_INFINITE_STACK);
-		} else if (ctx->tab_current_status.notation == CS_RPN &&
-			ctx->tab_rpn_stack && ctx->tab_rpn_stack_len > 0) {
-			int j;
-			tab->rpn_stack_len = ctx->tab_rpn_stack_len;
-			tab->rpn_stack = g_new0 (char *, tab->rpn_stack_len);
-			for (j = 0; j < tab->rpn_stack_len; j++) {
-				tab->rpn_stack[j] = g_strdup (ctx->tab_rpn_stack[j] ? ctx->tab_rpn_stack[j] : CLEARED_DISPLAY);
-			}
 		}
 
 		ui_session_copy_memory_from_context (tab, ctx);
 	}
+	ui_tab_select (current_page);
 }
 
 static void ui_context_set_memory_from_session (s_tab_context *ctx, const s_session_tab_state *tab)
@@ -469,8 +453,10 @@ static void ui_apply_session_tab_state (const s_session_tab_state *tab)
 {
 	char *finite_stack[3] = { NULL, NULL, NULL };
 	char **stack_values = NULL;
+	char *restored_display = NULL;
 
 	if (!tab || !active_tab) return;
+	restored_display = g_strdup (tab->display_value ? tab->display_value : CLEARED_DISPLAY);
 
 	switch (tab->mode) {
 	case BASIC_MODE: activate_menu_item ("basic_mode"); break;
@@ -496,7 +482,10 @@ static void ui_apply_session_tab_state (const s_session_tab_state *tab)
 	if (tab->mode != PAPER_MODE) {
 		if (tab->notation == CS_RPN) activate_menu_item ("rpn");
 		else activate_menu_item ("alg");
-		display_result_set (tab->display_value ? tab->display_value : CLEARED_DISPLAY, TRUE);
+	}
+	display_result_set (restored_display, TRUE);
+	g_free (restored_display);
+	if (tab->mode != PAPER_MODE) {
 		if (tab->notation == CS_RPN) {
 			rpn_free ();
 			rpn_init (prefs.stack_size, 0);
@@ -647,8 +636,8 @@ static void ui_tab_build_content (s_tab_context *ctx, GtkWidget *page)
 		/* New tabs must enforce notation-dependent formula row visibility. */
 		set_widget_visibility (view_xml, "formula_entry_hbox",
 			ctx->tab_current_status.notation != CS_RPN);
+		update_dispctrl ();
 	}
-	update_dispctrl ();
 }
 
 
@@ -1997,7 +1986,7 @@ void ui_classic_view_destroy()
 void ui_paper_view_create()
 {
 	s_tab_context		*ctx;
-	GtkWidget		*paper_view_vbox, *box, *tree_view;
+	GtkWidget		*paper_view_vbox, *box, *tree_view, *paper_entry;
 	GtkCellRenderer 	*renderer;
 	GtkTreeViewColumn 	*column;
 	GtkListStore		*paper_store;
@@ -2034,8 +2023,13 @@ void ui_paper_view_create()
     g_signal_connect (G_OBJECT (tree_view), "button-press-event",
                   G_CALLBACK (paper_tree_view_selection_changed_cb),
                   NULL);
-                  
-    gtk_widget_grab_focus(GTK_WIDGET(gtk_builder_get_object (ctx->tab_view_xml, "paper_entry")));
+
+	paper_entry = GTK_WIDGET(gtk_builder_get_object (ctx->tab_view_xml, "paper_entry"));
+	if (paper_entry && GTK_IS_ENTRY(paper_entry)) {
+		gtk_entry_set_text (GTK_ENTRY(paper_entry),
+			ctx->tab_display_value ? ctx->tab_display_value : CLEARED_DISPLAY);
+		gtk_widget_grab_focus (paper_entry);
+	}
 }
 
 void ui_paper_view_destroy()

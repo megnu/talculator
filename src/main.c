@@ -70,6 +70,7 @@ s_tab_context		default_tab_context = {
 	.tab_display_result_line = 0,
 	.tab_display_last_arith = ' ',
 	.tab_display_brackets = 0,
+	.tab_display_value = NULL,
 	.tab_view_xml = NULL,
 	.tab_button_box_xml = NULL,
 	.tab_dispctrl_xml = NULL,

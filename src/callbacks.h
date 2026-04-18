@@ -36,6 +36,9 @@ G_MODULE_EXPORT void on_gfunc_button_clicked (GtkToggleButton *button,
 					gpointer user_data);
 G_MODULE_EXPORT void on_main_window_destroy (GtkWidget* widget,
 					gpointer user_data);
+G_MODULE_EXPORT gboolean on_main_window_delete_event (GtkWidget *widget,
+					GdkEvent *event,
+					gpointer user_data);
 G_MODULE_EXPORT void on_quit_activate (GtkMenuItem *menuitem,
 					gpointer user_data);
 G_MODULE_EXPORT void on_dec_toggled (GtkMenuItem *menuitem,

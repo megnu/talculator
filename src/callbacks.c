@@ -33,9 +33,30 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 
+static gboolean session_state_captured = FALSE;
+
+static void capture_session_state_if_needed (const char *source)
+{
+	s_session_state session_state;
+	(void) source;
+
+	if (session_state_captured) return;
+	session_state_captured = TRUE;
+	if (!prefs.rem_display) {
+		config_file_set_session_state (NULL);
+		return;
+	}
+
+	memset (&session_state, 0, sizeof(session_state));
+	ui_collect_session_state (&session_state);
+	config_file_set_session_state (&session_state);
+	config_file_session_state_clear (&session_state);
+}
+
 static void request_main_window_quit ()
 {
     GtkWidget *main_window;
+    capture_session_state_if_needed ("request_quit");
     if (!main_window_xml) {
         gtk_main_quit();
         return;
@@ -555,7 +576,6 @@ void
 on_main_window_destroy               (GtkWidget*         widget,
                                         gpointer         user_data)
 {
-    s_session_state session_state;
     GtkNotebook *notebook;
     GtkWidget *page;
     s_tab_context *ctx;
@@ -569,17 +589,7 @@ on_main_window_destroy               (GtkWidget*         widget,
         }
     }
     
-    /* Keep startup defaults as explicit preferences; do not overwrite from the
-     * currently active tab at shutdown.
-     */
-    if (prefs.rem_display) {
-        memset (&session_state, 0, sizeof(session_state));
-        ui_collect_session_state (&session_state);
-        config_file_set_session_state (&session_state);
-        config_file_session_state_clear (&session_state);
-    } else {
-        config_file_set_session_state (NULL);
-    }
+    capture_session_state_if_needed ("destroy");
 
     g_object_unref(main_window_xml);
     main_window_xml = NULL;
@@ -589,6 +599,18 @@ on_main_window_destroy               (GtkWidget*         widget,
     }
 
     gtk_main_quit();
+}
+
+gboolean
+on_main_window_delete_event          (GtkWidget *widget,
+                                        GdkEvent *event,
+                                        gpointer user_data)
+{
+    (void) widget;
+    (void) event;
+    (void) user_data;
+    capture_session_state_if_needed ("delete_event");
+    return FALSE;
 }
 
 void
@@ -1019,11 +1041,11 @@ on_basic_mode_toggled (GtkMenuItem     *menuitem,
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem)) == FALSE) return;
 
+    display_value = display_result_get();
     if (active_tab->tab_mode == SCIENTIFIC_MODE) {
         /* remember number and angle. notation is active in basic mode */
         active_tab->tab_def_number = current_status.number;
         active_tab->tab_def_angle = current_status.angle;
-        display_value = display_result_get();
     }
     active_tab->tab_mode = BASIC_MODE;
     prefs.mode = active_tab->tab_mode;
@@ -1050,7 +1072,7 @@ on_basic_mode_toggled (GtkMenuItem     *menuitem,
     set_window_size_minimal();
     
     if (display_value != NULL) {
-        display_result_set(display_value, current_status.number);
+        display_result_set(display_value, TRUE);
         g_free(display_value);
     }
 }
@@ -1064,8 +1086,7 @@ on_scientific_mode_toggled (GtkMenuItem *menuitem,
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem)) == FALSE) return;
 
-    if (active_tab->tab_mode == BASIC_MODE)
-			display_value = display_result_get();
+    display_value = display_result_get();
 			
     active_tab->tab_mode = SCIENTIFIC_MODE;
     prefs.mode = active_tab->tab_mode;
@@ -1088,7 +1109,7 @@ on_scientific_mode_toggled (GtkMenuItem *menuitem,
     set_window_size_minimal();
     
     if (display_value != NULL) {
-        display_result_set(display_value, current_status.number);
+        display_result_set(display_value, TRUE);
         g_free(display_value);
     }
 }
@@ -1097,8 +1118,11 @@ void
 on_paper_mode_toggled (GtkMenuItem *menuitem,
                 gpointer user_data)
 {
+    char *display_value = NULL;
+
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem)) == FALSE) return;
+    display_value = display_result_get();
 
     active_tab->tab_mode = PAPER_MODE;
     prefs.mode = active_tab->tab_mode;
@@ -1114,6 +1138,10 @@ on_paper_mode_toggled (GtkMenuItem *menuitem,
     ui_sync_main_menu_for_active_tab ();
     
     set_window_size_minimal();
+    if (display_value != NULL) {
+        display_result_set(display_value, TRUE);
+        g_free(display_value);
+    }
 }    
 
 void
@@ -2371,6 +2399,10 @@ void on_paper_entry_activate (GtkWidget *activated_widget, gpointer user_data)
     if (!result_string)
         gtk_list_store_set (paper_store, &iter, 0, "Syntax Error", 1, 1.0, 2, "red", -1);
     else {
+        /* Keep paper mode aligned with session persistence by updating
+         * the tab's current display result on successful evaluation.
+         */
+        display_result_set (result_string, TRUE);
         markup_result_string = g_markup_printf_escaped ("<b>%s</b>", result_string);
         gtk_list_store_set (paper_store, &iter, 0, markup_result_string, 1, 1.0, 2, NULL, -1);
         g_free (result_string);

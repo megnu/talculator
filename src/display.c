@@ -533,7 +533,7 @@ void display_update_modules ()
 	GtkTextIter	start, end;
 	gboolean	first_module = TRUE;
 	
-	if (active_tab->tab_mode == PAPER_MODE) return;
+	if (active_tab && active_tab->tab_mode == PAPER_MODE) return;
 	
 	display_get_line_end_iter (buffer, display_result_line, &start);
 	display_get_line_end_iter (buffer, display_result_line+1, &end);
@@ -825,9 +825,22 @@ void display_result_add_digit (char digit, int number_base_status)
 
 void display_result_set (char *string_value, int update_result_counter)
 {
+	const char *value = string_value ? string_value : CLEARED_DISPLAY;
+
+	if (active_tab) {
+		g_free (active_tab->tab_display_value);
+		active_tab->tab_display_value = g_strdup (value);
+	}
+	if (active_tab->tab_mode == PAPER_MODE) {
+		GtkWidget *paper_entry = GTK_WIDGET(gtk_builder_get_object (view_xml, "paper_entry"));
+		if (paper_entry && GTK_IS_ENTRY(paper_entry))
+			gtk_entry_set_text (GTK_ENTRY(paper_entry), value);
+		return;
+	}
+
 	current_status.allow_arith_op = TRUE;
 	display_module_arith_label_update (' ');
-	display_set_line (string_value, display_result_line, "result");
+	display_set_line ((char *)value, display_result_line, "result");
 	if (!update_result_counter) return;
 }
 
@@ -878,7 +891,11 @@ static char *display_get_line (int line_nr)
 {
 	GtkTextIter 	start, end;
 	
-	if (active_tab->tab_mode == PAPER_MODE) return NULL;
+	if (!active_tab) return g_strdup (CLEARED_DISPLAY);
+	if (active_tab->tab_mode == PAPER_MODE) {
+		return g_strdup (active_tab->tab_display_value ?
+			active_tab->tab_display_value : CLEARED_DISPLAY);
+	}
 	
 	display_get_line_iters (buffer, line_nr, &start, &end);
 	/* DISPLAY RESULT GET */

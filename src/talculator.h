@@ -226,6 +226,7 @@ typedef struct {
 	int			tab_display_result_line;
 	char			tab_display_last_arith;
 	int			tab_display_brackets;
+	char			*tab_display_value;
 	GtkBuilder		*tab_view_xml;
 	GtkBuilder		*tab_button_box_xml;
 	GtkBuilder		*tab_dispctrl_xml;
