@@ -64,7 +64,7 @@ Menu shortcuts:
 Ctrl-Q	quit program
 Ctrl-X	Cut Display Value
 Ctrl-C	Copy Display Value
-Ctrl-V	Paste As Display Value
+Ctrl-V	Paste to Input
 Ctrl-Z	Undo Input (when an input entry is focused)
 Ctrl-Y	Redo Input (when an input entry is focused)
 Ctrl-Shift-Z	Redo Input (when an input entry is focused)

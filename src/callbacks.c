@@ -386,6 +386,33 @@ static GtkWidget *focused_input_entry (void)
 	return NULL;
 }
 
+static GtkWidget *active_tab_input_entry (void)
+{
+	GtkWidget *entry;
+
+	if (!active_tab || !view_xml) return NULL;
+	if (active_tab->tab_mode == PAPER_MODE)
+		entry = GTK_WIDGET (gtk_builder_get_object (view_xml, "paper_entry"));
+	else
+		entry = GTK_WIDGET (gtk_builder_get_object (view_xml, "formula_entry"));
+	if (!entry || !GTK_IS_EDITABLE (entry)) return NULL;
+	return entry;
+}
+
+static void mirror_display_value_into_formula_entry (const char *value)
+{
+	GtkWidget *entry;
+
+	if (!active_tab || active_tab->tab_mode == PAPER_MODE) return;
+	if (current_status.notation == CS_RPN) return;
+	entry = GTK_WIDGET (gtk_builder_get_object (view_xml, "formula_entry"));
+	if (!entry || !GTK_IS_ENTRY (entry)) return;
+	if (!value || strcmp (value, CLEARED_DISPLAY) == 0)
+		gtk_entry_set_text (GTK_ENTRY (entry), "");
+	else
+		gtk_entry_set_text (GTK_ENTRY (entry), value);
+}
+
 static void talc_entry_history_on_changed (GtkEditable *editable)
 {
 	talc_entry_history *history;
@@ -1101,6 +1128,7 @@ on_basic_mode_toggled (GtkMenuItem     *menuitem,
     
     if (display_value != NULL) {
         display_result_set(display_value, TRUE);
+        mirror_display_value_into_formula_entry (display_value);
         g_free(display_value);
     }
 }
@@ -1139,6 +1167,7 @@ on_scientific_mode_toggled (GtkMenuItem *menuitem,
     
     if (display_value != NULL) {
         display_result_set(display_value, TRUE);
+        mirror_display_value_into_formula_entry (display_value);
         g_free(display_value);
     }
 }
@@ -1170,6 +1199,11 @@ on_paper_mode_toggled (GtkMenuItem *menuitem,
     set_window_size_minimal();
     if (display_value != NULL) {
         display_result_set(display_value, TRUE);
+        if (strcmp (display_value, CLEARED_DISPLAY) == 0) {
+            GtkWidget *paper_entry = GTK_WIDGET (gtk_builder_get_object (view_xml, "paper_entry"));
+            if (paper_entry && GTK_IS_ENTRY (paper_entry))
+                gtk_entry_set_text (GTK_ENTRY (paper_entry), "");
+        }
         g_free(display_value);
     }
 }    
@@ -1199,7 +1233,9 @@ on_paste_activate (GtkMenuItem     *menuitem,
 {
     (void) user_data;
     GtkWidget    *entry;
+    GtkEditable *editable;
     char        *cp_text;
+    gint        position;
     
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     entry = focused_input_entry ();
@@ -1207,15 +1243,16 @@ on_paste_activate (GtkMenuItem     *menuitem,
         gtk_editable_paste_clipboard (GTK_EDITABLE (entry));
         return;
     }
-    if (active_tab->tab_mode == PAPER_MODE) return;
+    entry = active_tab_input_entry ();
+    if (!entry) return;
+    editable = GTK_EDITABLE (entry);
+    gtk_widget_grab_focus (entry);
     cp_text = gtk_clipboard_wait_for_text (gtk_clipboard_get (GDK_SELECTION_CLIPBOARD));
     if (cp_text) {
-        if ((entry = formula_entry_is_active_no_toplevel_check ()) != NULL) {
-            gtk_editable_paste_clipboard((GtkEditable *)entry);
-        } else {
-			rpn_stack_lift();
-			display_result_feed (cp_text, current_status.number);
-		}
+        gtk_editable_set_position (editable, -1);
+        position = gtk_editable_get_position (editable);
+        gtk_editable_insert_text (editable, cp_text, -1, &position);
+        gtk_editable_set_position (editable, position);
         g_free (cp_text);
     }
 }
@@ -2695,6 +2732,7 @@ gboolean on_button_event(GtkWidget *widget, GdkEvent *event, gpointer user_data)
         if (key_event->state & GDK_SUPER_MASK ||
              key_event->state & GDK_HYPER_MASK ||
              key_event->state & GDK_META_MASK ||
+             key_event->state & GDK_MOD1_MASK ||
              key_event->state & GDK_CONTROL_MASK) return FALSE;
         GtkWidget *formula_entry = formula_entry_is_active(widget);
         if (formula_entry) {

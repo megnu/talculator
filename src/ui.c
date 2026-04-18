@@ -418,6 +418,11 @@ static void ui_session_copy_memory_from_context (s_session_tab_state *dst, s_tab
 	}
 }
 
+static gboolean ui_is_cleared_display_value (const char *value)
+{
+	return (!value || strcmp (value, CLEARED_DISPLAY) == 0);
+}
+
 void ui_collect_session_state (s_session_state *out_state)
 {
 	GtkNotebook *notebook;
@@ -521,6 +526,17 @@ static void ui_apply_session_tab_state (const s_session_tab_state *tab)
 		else activate_menu_item ("alg");
 	}
 	display_result_set (restored_display, TRUE);
+	if (tab->mode == PAPER_MODE && ui_is_cleared_display_value (restored_display)) {
+		GtkWidget *paper_entry = GTK_WIDGET(gtk_builder_get_object (view_xml, "paper_entry"));
+		if (paper_entry && GTK_IS_ENTRY (paper_entry))
+			gtk_entry_set_text (GTK_ENTRY (paper_entry), "");
+	}
+	if (tab->mode != PAPER_MODE && tab->notation != CS_RPN &&
+		!ui_is_cleared_display_value (restored_display)) {
+		GtkWidget *formula_entry = GTK_WIDGET(gtk_builder_get_object (view_xml, "formula_entry"));
+		if (formula_entry && GTK_IS_ENTRY (formula_entry))
+			gtk_entry_set_text (GTK_ENTRY (formula_entry), restored_display);
+	}
 	g_free (restored_display);
 	if (tab->mode != PAPER_MODE) {
 		if (tab->notation == CS_RPN) {
@@ -897,7 +913,7 @@ void ui_sync_main_menu_for_active_tab ()
 	menu_item = GTK_WIDGET(gtk_builder_get_object (main_window_xml, "copy"));
 	if (menu_item) gtk_widget_set_sensitive (menu_item, ctx->tab_mode != PAPER_MODE);
 	menu_item = GTK_WIDGET(gtk_builder_get_object (main_window_xml, "paste"));
-	if (menu_item) gtk_widget_set_sensitive (menu_item, ctx->tab_mode != PAPER_MODE);
+	if (menu_item) gtk_widget_set_sensitive (menu_item, TRUE);
 
 	if (ctx->tab_mode != PAPER_MODE)
 		ui_set_visibility_if_exists (ctx->tab_view_xml, "formula_entry_hbox",
