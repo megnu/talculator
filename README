@@ -10,23 +10,19 @@ and is GTK3-only.
 For installation information see the INSTALL file.
 For a list of shortcuts, see doc/shortcuts
 There is a short man page (man talculator)
-Information on Formula Entry mode can be found below.
+Information on algebraic expression input can be found below.
 For talculator-specific development, documentation, and issue tracking, see
 https://github.com/megnu/talculator.
 For historical galculator information, see http://galculator.sf.net.
 
-Formula Entry Mode
-==================
+Algebraic Input
+===============
 
-Since version 1.2.0 talculator features a formula entry mode. This mode is one 
-more step towards a calculator accepting input as written on the paper. 
-talculator's formula entry mode aims to provide all the features of the 
-algebraic mode (and even to go beyond ...).
+talculator accepts typed expressions in Algebraic notation (with RPN available
+as the second notation mode). This section gives an overview of supported
+expression input and syntax.
 
-This part of talculator is developed actively. This section gives an overview 
-of the functions currently implemented and points out some restrictions.
-
-Formula entry mode accepts decimal numbers as input as well as hexadecimal, 
+Algebraic input accepts decimal numbers as well as hexadecimal, 
 binary and octal numbers. The latter three have to be entered with a prefix:
 
 Number base   Prefix(es)   Example
@@ -36,7 +32,7 @@ hexadecimal   0x or 0h     0xAF
 binary        0b           0b1001
 octal         0o           0o777
 
-All algebraic operations and functions of the algebraic mode are supported. The 
+All algebraic operations and functions are supported. The 
 following table lists all available operations:
 
 Operation                 identifier
@@ -51,10 +47,10 @@ AND                       &, and, AND
 OR                        |, or, OR
 XOR                       xor, XOR
 
-Let's speak of factorial and complement as functions. Most functions' argument 
+Let's speak of factorial and complement as functions. Most functions' arguments
 has to be enclosed by brackets. Therefore sin 3 is not allowed and has to be 
-written as sin(3). User defined functions can be used in formula entry mode 
-without any restrictions!
+written as sin(3). User defined functions can be used in algebraic input
+without restrictions.
 
 Function                     Function identifier   Example
 --------                     -------------------   -------
@@ -69,15 +65,14 @@ square root                  sqrt                  sqrt(3)
 factorial                    !                     (3)!, 3! (brackets optional)
 complement                   ~                     ~(3) (brackets mandatory)
 
-If formula entry mode's parser encounters an (syntax) error, the formula entry 
-text is turned red.
+If parsing encounters a syntax error, the input text is turned red.
 
 Paper Mode
 ==========
 
 Since version 1.3.0 talculator features a paper mode, which offers a very 
-simple GUI along with the functionality of formula entry mode. In the entry
-field, enter the expression following the same rules as for formula entry mode. 
+simple GUI along with the same expression engine. In the entry
+field, enter expressions using the same rules as algebraic input.
 Hitting return or clicking the button to the right will evaluate the expression 
 and add it as well as the result to the list view above. Double click on any 
 row of that list view to copy the corresponding expression to the entry field.
@@ -103,7 +98,7 @@ Function             Name   Variable   Expression
 --------             ----   --------   ----------
 g(x)=1/(1-x)=1/f(x)  g      x          1/f(x)
 
-User functions can also be called from formula entry mode.
+User functions can also be called from algebraic typed input.
 
 Some random notes
 =================
