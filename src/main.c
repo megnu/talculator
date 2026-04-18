@@ -215,10 +215,7 @@ PACKAGE, config_file_name_old, config_file_name, PACKAGE, config_file_name_old);
 		
 	/* apply changes */
 	apply_preferences (prefs);
-    remember_display_values ();
-
-	memory.data = NULL;
-	memory.len = 0;
+	if (prefs.rem_display) ui_apply_session_state (config_file_get_session_state ());
 
     /* make the window as small as possible */
 	gtk_window_resize ((GtkWindow *)main_window, 1, 1);

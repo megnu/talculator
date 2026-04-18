@@ -58,6 +58,8 @@ gboolean ui_tab_select (gint page_num);
 gboolean ui_tab_close (gint page_num);
 gboolean ui_tab_close_current ();
 gint ui_tab_get_current ();
+void ui_collect_session_state (s_session_state *out_state);
+gboolean ui_apply_session_state (const s_session_state *state);
 void ui_main_window_set_dispctrl (int location);
 void ui_main_window_buttons_destroy ();
 void ui_main_window_buttons_create (int mode);

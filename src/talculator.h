@@ -198,6 +198,8 @@ typedef struct {
 	int		len;
 } s_array;
 
+#define TALC_MAX_SESSION_TABS 6
+
 typedef struct s_preferences s_preferences;
 extern s_preferences	prefs;
 extern s_constant 	*constant;
@@ -232,6 +234,24 @@ typedef struct {
 	char			**tab_rpn_stack;
 	int			tab_rpn_stack_len;
 } s_tab_context;
+
+typedef struct {
+	int			mode;
+	int			number;
+	int			angle;
+	int			notation;
+	char			*display_value;
+	char			**rpn_stack;
+	int			rpn_stack_len;
+	char			**mem_values;
+	int			memory_len;
+} s_session_tab_state;
+
+typedef struct {
+	int			tab_count;
+	int			active_tab;
+	s_session_tab_state	tabs[TALC_MAX_SESSION_TABS];
+} s_session_state;
 
 extern s_tab_context *active_tab;
 

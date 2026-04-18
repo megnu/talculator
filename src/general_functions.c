@@ -420,34 +420,6 @@ void rpn_stack_lift ()
 	rpn_stack_lift_for_tab (active_tab);
 }
 
-void remember_display_values_for_tab (s_tab_context *ctx)
-{
-	s_tab_context *prev_tab = active_tab;
-	if (ctx != NULL) active_tab = ctx;
-	char 	*stack[3];
-	
-	if (prefs.rem_display == TRUE) {
-		display_result_set (prefs.rem_valuex, TRUE);
-		/* for the result setting the display string is enough */
-		if (current_status.notation == CS_RPN) {
-			stack[0] = prefs.rem_valuey;
-			stack[1] = prefs.rem_valuez;
-			stack[2] = prefs.rem_valuet;
-			display_stack_set_yzt (stack);
-			/* for the stack we have to update calc_basic */
-			rpn_stack_push (stack[2]);
-			rpn_stack_push (stack[1]);
-			rpn_stack_push (stack[0]);
-		}
-	}
-	active_tab = prev_tab;
-}
-
-void remember_display_values()
-{
-	remember_display_values_for_tab (active_tab);
-}
-
 /* string_separator. insert separator.
  * 	string - the string to modify
  *	separate - whether to do sth at all

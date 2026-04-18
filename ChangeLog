@@ -5,6 +5,7 @@
 	* Added engine accuracy regression tests for core calculator semantics
 	* Hardened typed-input parsing while preserving user-defined constants/functions
 	* Added Tab1..Tab6 typed keywords as read-only cross-tab value references
+	* Expanded "remember display value on exit" to restore full tabbed session state by default
 
 2026-04-15 Jared (github.com/megnu)
 	* Forked from galculator and rebranded as talculator

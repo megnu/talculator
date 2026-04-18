@@ -7,6 +7,7 @@ talculator 2.2.0
 	* add engine accuracy regression tests for core calculator semantics
 	* harden typed-input parsing while preserving user-defined constants/functions
 	* add cross-tab typed keywords Tab1..Tab6 (read-only references to tab values)
+	* expand "remember display value on exit" to restore full tabbed session state by default
 
 talculator 2.1.4+tabs (fork update)
 	* this project is now maintained as a fork of galculator

@@ -555,7 +555,7 @@ void
 on_main_window_destroy               (GtkWidget*         widget,
                                         gpointer         user_data)
 {
-    char     **stack;
+    s_session_state session_state;
     GtkNotebook *notebook;
     GtkWidget *page;
     s_tab_context *ctx;
@@ -572,24 +572,13 @@ on_main_window_destroy               (GtkWidget*         widget,
     /* Keep startup defaults as explicit preferences; do not overwrite from the
      * currently active tab at shutdown.
      */
-    /* if we have the classic view display we remember the display values */
-    if (active_tab->tab_mode != PAPER_MODE) {
-        if (prefs.rem_valuex) g_free (prefs.rem_valuex);
-        prefs.rem_valuex = display_result_get();
-        if (current_status.notation == CS_RPN) {
-            if (prefs.rem_valuey) g_free (prefs.rem_valuey);
-            if (prefs.rem_valuez) g_free (prefs.rem_valuez);
-            if (prefs.rem_valuet) g_free (prefs.rem_valuet);
-            /* we only save the visible stack */
-            stack = display_stack_get_yzt();
-            prefs.rem_valuey = g_strdup(stack[0]);
-            g_free (stack[0]);
-            prefs.rem_valuez = g_strdup(stack[1]);
-            g_free (stack[1]);
-            prefs.rem_valuet = g_strdup(stack[2]);
-            g_free (stack[2]);
-            g_free (stack);
-        }
+    if (prefs.rem_display) {
+        memset (&session_state, 0, sizeof(session_state));
+        ui_collect_session_state (&session_state);
+        config_file_set_session_state (&session_state);
+        config_file_session_state_clear (&session_state);
+    } else {
+        config_file_set_session_state (NULL);
     }
 
     g_object_unref(main_window_xml);

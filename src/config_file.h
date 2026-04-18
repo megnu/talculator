@@ -76,11 +76,7 @@
 #define DEFAULT_ANGLE				CS_RAD
 #define DEFAULT_NOTATION			CS_ALG
 #define DEFAULT_STACK_SIZE			3
-#define DEFAULT_REM_DISPLAY			FALSE
-#define	DEFAULT_REM_VALUEX			"0"	/* must not end with a newline! */
-#define	DEFAULT_REM_VALUEY			"0"
-#define	DEFAULT_REM_VALUEZ			"0"
-#define	DEFAULT_REM_VALUET			"0"
+#define DEFAULT_REM_DISPLAY			TRUE
 #define DEFAULT_SHOW_MENU			TRUE
 
 typedef struct s_preferences {
@@ -134,10 +130,6 @@ typedef struct s_preferences {
 	int		def_notation;
 	int		stack_size;
 	gboolean	rem_display;
-	char		*rem_valuex;		/* done as string */
-	char		*rem_valuey;
-	char		*rem_valuez;
-	char		*rem_valuet;
 	gboolean	show_menu;
 } s_preferences;
 
@@ -170,4 +162,7 @@ void config_file_write (char *filename, s_preferences this_prefs, s_constant *th
 s_prefs_entry *config_file_get_prefs_list();
 s_constant *config_file_get_constants();
 s_user_function  *config_file_get_user_functions();
+const s_session_state *config_file_get_session_state (void);
+void config_file_set_session_state (const s_session_state *state);
+void config_file_session_state_clear (s_session_state *state);
 #endif /* config_file.h */

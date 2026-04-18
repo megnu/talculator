@@ -367,6 +367,193 @@ static void ui_tab_context_free (s_tab_context *ctx)
 	g_free (ctx);
 }
 
+static void ui_session_copy_memory_from_context (s_session_tab_state *dst, s_tab_context *ctx)
+{
+	int i;
+
+	if (!dst || !ctx || ctx->tab_memory.len <= 0 || !ctx->tab_memory.data) return;
+	dst->memory_len = ctx->tab_memory.len;
+	dst->mem_values = g_new0 (char *, dst->memory_len);
+	for (i = 0; i < dst->memory_len; i++) {
+		dst->mem_values[i] = g_strdup (ctx->tab_memory.data[i] ? ctx->tab_memory.data[i] : CLEARED_DISPLAY);
+	}
+}
+
+static char *ui_tab_display_value_dup (s_tab_context *ctx)
+{
+	GtkTextIter start, end;
+
+	if (!ctx || !ctx->tab_display_buffer) return g_strdup (CLEARED_DISPLAY);
+	if (gtk_text_buffer_get_line_count (ctx->tab_display_buffer) <= ctx->tab_display_result_line)
+		return g_strdup (CLEARED_DISPLAY);
+	gtk_text_buffer_get_iter_at_line (ctx->tab_display_buffer, &start, ctx->tab_display_result_line);
+	end = start;
+	gtk_text_iter_forward_to_line_end (&end);
+	return gtk_text_buffer_get_text (ctx->tab_display_buffer, &start, &end, FALSE);
+}
+
+void ui_collect_session_state (s_session_state *out_state)
+{
+	GtkNotebook *notebook;
+	gint n_pages, current_page, i;
+
+	if (!out_state) return;
+	memset (out_state, 0, sizeof(*out_state));
+	notebook = ui_tabs_get_notebook ();
+	if (!notebook) return;
+
+	n_pages = gtk_notebook_get_n_pages (notebook);
+	if (n_pages <= 0) return;
+	if (n_pages > TALC_MAX_SESSION_TABS) n_pages = TALC_MAX_SESSION_TABS;
+	current_page = gtk_notebook_get_current_page (notebook);
+
+	/* Ensure current tab keeps its latest runtime RPN stack. */
+	ui_tab_store_runtime_state (active_tab);
+
+	out_state->tab_count = n_pages;
+	out_state->active_tab = current_page;
+	if (out_state->active_tab < 0) out_state->active_tab = 0;
+	if (out_state->active_tab >= out_state->tab_count) out_state->active_tab = out_state->tab_count - 1;
+
+	for (i = 0; i < n_pages; i++) {
+		GtkWidget *page = gtk_notebook_get_nth_page (notebook, i);
+		s_tab_context *ctx = page ? g_object_get_data (G_OBJECT(page), "tab-context") : NULL;
+		s_session_tab_state *tab = &out_state->tabs[i];
+
+		if (!ctx) continue;
+		tab->mode = ctx->tab_mode;
+		tab->number = ctx->tab_current_status.number;
+		tab->angle = ctx->tab_current_status.angle;
+		tab->notation = ctx->tab_current_status.notation;
+		tab->display_value = ui_tab_display_value_dup (ctx);
+
+		if (ctx == active_tab && ctx->tab_current_status.notation == CS_RPN) {
+			tab->rpn_stack_len = rpn_stack_length ();
+			if (tab->rpn_stack_len > 0) tab->rpn_stack = rpn_stack_get (RPN_INFINITE_STACK);
+		} else if (ctx->tab_current_status.notation == CS_RPN &&
+			ctx->tab_rpn_stack && ctx->tab_rpn_stack_len > 0) {
+			int j;
+			tab->rpn_stack_len = ctx->tab_rpn_stack_len;
+			tab->rpn_stack = g_new0 (char *, tab->rpn_stack_len);
+			for (j = 0; j < tab->rpn_stack_len; j++) {
+				tab->rpn_stack[j] = g_strdup (ctx->tab_rpn_stack[j] ? ctx->tab_rpn_stack[j] : CLEARED_DISPLAY);
+			}
+		}
+
+		ui_session_copy_memory_from_context (tab, ctx);
+	}
+}
+
+static void ui_context_set_memory_from_session (s_tab_context *ctx, const s_session_tab_state *tab)
+{
+	int i;
+
+	if (!ctx || !tab) return;
+	if (ctx->tab_memory.data) {
+		for (i = 0; i < ctx->tab_memory.len; i++) {
+			if (ctx->tab_memory.data[i]) g_free (ctx->tab_memory.data[i]);
+		}
+		g_free (ctx->tab_memory.data);
+		ctx->tab_memory.data = NULL;
+		ctx->tab_memory.len = 0;
+	}
+	if (tab->memory_len <= 0 || !tab->mem_values) return;
+	ctx->tab_memory.len = tab->memory_len;
+	ctx->tab_memory.data = g_new0 (char *, ctx->tab_memory.len);
+	for (i = 0; i < ctx->tab_memory.len; i++) {
+		ctx->tab_memory.data[i] = g_strdup (tab->mem_values[i] ? tab->mem_values[i] : CLEARED_DISPLAY);
+	}
+}
+
+static void ui_apply_session_tab_state (const s_session_tab_state *tab)
+{
+	char *finite_stack[3] = { NULL, NULL, NULL };
+	char **stack_values = NULL;
+
+	if (!tab || !active_tab) return;
+
+	switch (tab->mode) {
+	case BASIC_MODE: activate_menu_item ("basic_mode"); break;
+	case SCIENTIFIC_MODE: activate_menu_item ("scientific_mode"); break;
+	case PAPER_MODE: activate_menu_item ("paper_mode"); break;
+	default: activate_menu_item ("basic_mode"); break;
+	}
+
+	switch (tab->number) {
+	case CS_HEX: activate_menu_item ("hex"); break;
+	case CS_OCT: activate_menu_item ("oct"); break;
+	case CS_BIN: activate_menu_item ("bin"); break;
+	case CS_DEC:
+	default: activate_menu_item ("dec"); break;
+	}
+	switch (tab->angle) {
+	case CS_DEG: activate_menu_item ("deg"); break;
+	case CS_GRAD: activate_menu_item ("grad"); break;
+	case CS_RAD:
+	default: activate_menu_item ("rad"); break;
+	}
+
+	if (tab->mode != PAPER_MODE) {
+		if (tab->notation == CS_RPN) activate_menu_item ("rpn");
+		else activate_menu_item ("alg");
+		display_result_set (tab->display_value ? tab->display_value : CLEARED_DISPLAY, TRUE);
+		if (tab->notation == CS_RPN) {
+			rpn_free ();
+			rpn_init (prefs.stack_size, 0);
+			rpn_stack_set_array (tab->rpn_stack, tab->rpn_stack_len);
+			stack_values = rpn_stack_get (RPN_FINITE_STACK);
+			if (stack_values) {
+				finite_stack[0] = stack_values[0];
+				finite_stack[1] = stack_values[1];
+				finite_stack[2] = stack_values[2];
+				display_stack_set_yzt (finite_stack);
+				g_free (stack_values[0]);
+				g_free (stack_values[1]);
+				g_free (stack_values[2]);
+				g_free (stack_values);
+			}
+		}
+	}
+
+	active_tab->tab_def_number = tab->number;
+	active_tab->tab_def_angle = tab->angle;
+	ui_context_set_memory_from_session (active_tab, tab);
+}
+
+gboolean ui_apply_session_state (const s_session_state *state)
+{
+	GtkNotebook *notebook;
+	gint i, n_pages, target_pages, target_active;
+
+	if (!state || state->tab_count <= 0) return FALSE;
+	notebook = ui_tabs_get_notebook ();
+	if (!notebook) return FALSE;
+
+	target_pages = state->tab_count;
+	if (target_pages > TALC_MAX_SESSION_TABS) target_pages = TALC_MAX_SESSION_TABS;
+	n_pages = gtk_notebook_get_n_pages (notebook);
+	while (n_pages < target_pages) {
+		if (!ui_tab_create (NULL)) break;
+		n_pages = gtk_notebook_get_n_pages (notebook);
+	}
+	while (n_pages > target_pages) {
+		ui_tab_close (n_pages - 1);
+		n_pages = gtk_notebook_get_n_pages (notebook);
+	}
+	if (n_pages <= 0) return FALSE;
+
+	for (i = 0; i < n_pages; i++) {
+		if (!ui_tab_select (i)) continue;
+		ui_apply_session_tab_state (&state->tabs[i]);
+	}
+
+	target_active = state->active_tab;
+	if (target_active < 0) target_active = 0;
+	if (target_active >= n_pages) target_active = n_pages - 1;
+	ui_tab_select (target_active);
+	return TRUE;
+}
+
 static void ui_tab_store_runtime_state (s_tab_context *ctx)
 {
 	int stack_len;

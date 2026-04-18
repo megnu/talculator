@@ -27,6 +27,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 /* i18n */
 
@@ -83,21 +84,207 @@ static s_prefs_entry prefs_list[53] = {
 	{"default_angle_base", &(prefs.def_angle), INTEGER, NULL, NULL},
 	{"default_notation_mode", &(prefs.def_notation), INTEGER, NULL, NULL},
 	{"stack_size", &(prefs.stack_size), INTEGER, NULL, set_stacksize},
-	{"remembers_display", &(prefs.rem_display), BOOLEAN, "prefs_rem_display", set_checkbutton},
-	{"remembered_valuex", &(prefs.rem_valuex), STRING, NULL, NULL},
-	{"remembered_valuey", &(prefs.rem_valuey), STRING, NULL, NULL},
-/*50*/	{"remembered_valuez", &(prefs.rem_valuez), STRING, NULL, NULL},
-	{"remembered_valuet", &(prefs.rem_valuet), STRING, NULL, NULL},
+	{"remember_session", &(prefs.rem_display), BOOLEAN, "prefs_rem_display", set_checkbutton},
+/*50*/
 	{"show_menu_bar", &(prefs.show_menu), BOOLEAN, "prefs_show_menu", set_checkbutton},
 	{NULL, NULL, 0, NULL, NULL}
 };
-static char *prefs_list_old_entries[] = {
-	"show_status_bar", "remembered_value",
-	"oct_signed", "bin_fixed", "bin_length",
-	NULL
-};
 static s_constant *cf_constant=NULL;
 static s_user_function *cf_user_function=NULL;
+static s_session_state cf_session_state = {0};
+#define TALC_SESSION_MAX_ITEMS 256
+
+static void session_tab_clear (s_session_tab_state *tab)
+{
+	int i;
+
+	if (!tab) return;
+	if (tab->display_value) g_free (tab->display_value);
+	tab->display_value = NULL;
+	if (tab->rpn_stack) {
+		for (i = 0; i < tab->rpn_stack_len; i++) {
+			if (tab->rpn_stack[i]) g_free (tab->rpn_stack[i]);
+		}
+		g_free (tab->rpn_stack);
+	}
+	tab->rpn_stack = NULL;
+	tab->rpn_stack_len = 0;
+	if (tab->mem_values) {
+		for (i = 0; i < tab->memory_len; i++) {
+			if (tab->mem_values[i]) g_free (tab->mem_values[i]);
+		}
+		g_free (tab->mem_values);
+	}
+	tab->mem_values = NULL;
+	tab->memory_len = 0;
+	tab->mode = BASIC_MODE;
+	tab->number = CS_DEC;
+	tab->angle = CS_RAD;
+	tab->notation = CS_ALG;
+}
+
+void config_file_session_state_clear (s_session_state *state)
+{
+	int i;
+
+	if (!state) return;
+	for (i = 0; i < TALC_MAX_SESSION_TABS; i++) session_tab_clear (&state->tabs[i]);
+	state->tab_count = 0;
+	state->active_tab = 0;
+}
+
+static void config_file_session_state_copy (s_session_state *dst, const s_session_state *src)
+{
+	int i, j;
+
+	if (!dst) return;
+	config_file_session_state_clear (dst);
+	if (!src) return;
+	dst->tab_count = src->tab_count;
+	dst->active_tab = src->active_tab;
+	if (dst->tab_count < 0) dst->tab_count = 0;
+	if (dst->tab_count > TALC_MAX_SESSION_TABS) dst->tab_count = TALC_MAX_SESSION_TABS;
+	if (dst->active_tab < 0) dst->active_tab = 0;
+	if (dst->active_tab >= dst->tab_count && dst->tab_count > 0) dst->active_tab = dst->tab_count - 1;
+	for (i = 0; i < dst->tab_count; i++) {
+		dst->tabs[i].mode = src->tabs[i].mode;
+		dst->tabs[i].number = src->tabs[i].number;
+		dst->tabs[i].angle = src->tabs[i].angle;
+		dst->tabs[i].notation = src->tabs[i].notation;
+		dst->tabs[i].display_value = g_strdup (src->tabs[i].display_value ? src->tabs[i].display_value : CLEARED_DISPLAY);
+		dst->tabs[i].rpn_stack_len = src->tabs[i].rpn_stack_len;
+		if (dst->tabs[i].rpn_stack_len < 0) dst->tabs[i].rpn_stack_len = 0;
+		if (dst->tabs[i].rpn_stack_len > 0) {
+			dst->tabs[i].rpn_stack = g_new0 (char *, dst->tabs[i].rpn_stack_len);
+			for (j = 0; j < dst->tabs[i].rpn_stack_len; j++) {
+				dst->tabs[i].rpn_stack[j] = g_strdup (src->tabs[i].rpn_stack && src->tabs[i].rpn_stack[j] ? src->tabs[i].rpn_stack[j] : CLEARED_DISPLAY);
+			}
+		}
+		dst->tabs[i].memory_len = src->tabs[i].memory_len;
+		if (dst->tabs[i].memory_len < 0) dst->tabs[i].memory_len = 0;
+		if (dst->tabs[i].memory_len > 0) {
+			dst->tabs[i].mem_values = g_new0 (char *, dst->tabs[i].memory_len);
+			for (j = 0; j < dst->tabs[i].memory_len; j++) {
+				dst->tabs[i].mem_values[j] = g_strdup (src->tabs[i].mem_values && src->tabs[i].mem_values[j] ? src->tabs[i].mem_values[j] : CLEARED_DISPLAY);
+			}
+		}
+	}
+}
+
+const s_session_state *config_file_get_session_state (void)
+{
+	return &cf_session_state;
+}
+
+void config_file_set_session_state (const s_session_state *state)
+{
+	config_file_session_state_copy (&cf_session_state, state);
+}
+
+static char *config_string_unquote_dup (const char *value)
+{
+	gsize len;
+
+	if (!value) return g_strdup ("");
+	len = strlen (value);
+	if (len >= 2 && value[0] == '\"' && value[len - 1] == '\"') {
+		return g_strndup (value + 1, len - 2);
+	}
+	return g_strdup (value);
+}
+
+static gboolean config_file_set_session_entry (const char *key, const char *value)
+{
+	int tab_idx = -1;
+	int item_idx = -1;
+	int n = 0;
+
+	if (!key || !value) return FALSE;
+	if (strcmp (key, "session_tab_count") == 0) {
+		cf_session_state.tab_count = (int) g_ascii_strtod (value, NULL);
+		if (cf_session_state.tab_count < 0) cf_session_state.tab_count = 0;
+		if (cf_session_state.tab_count > TALC_MAX_SESSION_TABS) cf_session_state.tab_count = TALC_MAX_SESSION_TABS;
+		return TRUE;
+	}
+	if (strcmp (key, "session_active_tab") == 0) {
+		cf_session_state.active_tab = (int) g_ascii_strtod (value, NULL);
+		if (cf_session_state.active_tab < 0) cf_session_state.active_tab = 0;
+		return TRUE;
+	}
+	if (sscanf (key, "session_tab%d_mode%n", &tab_idx, &n) == 1 && key[n] == '\0') {
+		if (tab_idx < 0 || tab_idx >= TALC_MAX_SESSION_TABS) return TRUE;
+		cf_session_state.tabs[tab_idx].mode = (int) g_ascii_strtod (value, NULL);
+		return TRUE;
+	}
+	if (sscanf (key, "session_tab%d_number%n", &tab_idx, &n) == 1 && key[n] == '\0') {
+		if (tab_idx < 0 || tab_idx >= TALC_MAX_SESSION_TABS) return TRUE;
+		cf_session_state.tabs[tab_idx].number = (int) g_ascii_strtod (value, NULL);
+		return TRUE;
+	}
+	if (sscanf (key, "session_tab%d_angle%n", &tab_idx, &n) == 1 && key[n] == '\0') {
+		if (tab_idx < 0 || tab_idx >= TALC_MAX_SESSION_TABS) return TRUE;
+		cf_session_state.tabs[tab_idx].angle = (int) g_ascii_strtod (value, NULL);
+		return TRUE;
+	}
+	if (sscanf (key, "session_tab%d_notation%n", &tab_idx, &n) == 1 && key[n] == '\0') {
+		if (tab_idx < 0 || tab_idx >= TALC_MAX_SESSION_TABS) return TRUE;
+		cf_session_state.tabs[tab_idx].notation = (int) g_ascii_strtod (value, NULL);
+		return TRUE;
+	}
+	if (sscanf (key, "session_tab%d_display%n", &tab_idx, &n) == 1 && key[n] == '\0') {
+		if (tab_idx < 0 || tab_idx >= TALC_MAX_SESSION_TABS) return TRUE;
+		if (cf_session_state.tabs[tab_idx].display_value) g_free (cf_session_state.tabs[tab_idx].display_value);
+		cf_session_state.tabs[tab_idx].display_value = config_string_unquote_dup (value);
+		return TRUE;
+	}
+	if (sscanf (key, "session_tab%d_rpn_len%n", &tab_idx, &n) == 1 && key[n] == '\0') {
+		int i, len;
+		if (tab_idx < 0 || tab_idx >= TALC_MAX_SESSION_TABS) return TRUE;
+		if (cf_session_state.tabs[tab_idx].rpn_stack) {
+			for (i = 0; i < cf_session_state.tabs[tab_idx].rpn_stack_len; i++) {
+				if (cf_session_state.tabs[tab_idx].rpn_stack[i]) g_free (cf_session_state.tabs[tab_idx].rpn_stack[i]);
+			}
+			g_free (cf_session_state.tabs[tab_idx].rpn_stack);
+		}
+		len = (int) g_ascii_strtod (value, NULL);
+		if (len < 0) len = 0;
+		if (len > TALC_SESSION_MAX_ITEMS) len = TALC_SESSION_MAX_ITEMS;
+		cf_session_state.tabs[tab_idx].rpn_stack_len = len;
+		cf_session_state.tabs[tab_idx].rpn_stack = len > 0 ? g_new0 (char *, len) : NULL;
+		return TRUE;
+	}
+	if (sscanf (key, "session_tab%d_mem_len%n", &tab_idx, &n) == 1 && key[n] == '\0') {
+		int i, len;
+		if (tab_idx < 0 || tab_idx >= TALC_MAX_SESSION_TABS) return TRUE;
+		if (cf_session_state.tabs[tab_idx].mem_values) {
+			for (i = 0; i < cf_session_state.tabs[tab_idx].memory_len; i++) {
+				if (cf_session_state.tabs[tab_idx].mem_values[i]) g_free (cf_session_state.tabs[tab_idx].mem_values[i]);
+			}
+			g_free (cf_session_state.tabs[tab_idx].mem_values);
+		}
+		len = (int) g_ascii_strtod (value, NULL);
+		if (len < 0) len = 0;
+		if (len > TALC_SESSION_MAX_ITEMS) len = TALC_SESSION_MAX_ITEMS;
+		cf_session_state.tabs[tab_idx].memory_len = len;
+		cf_session_state.tabs[tab_idx].mem_values = len > 0 ? g_new0 (char *, len) : NULL;
+		return TRUE;
+	}
+	if (sscanf (key, "session_tab%d_rpn_%d%n", &tab_idx, &item_idx, &n) == 2 && key[n] == '\0') {
+		if (tab_idx < 0 || tab_idx >= TALC_MAX_SESSION_TABS) return TRUE;
+		if (item_idx < 0 || item_idx >= cf_session_state.tabs[tab_idx].rpn_stack_len) return TRUE;
+		if (cf_session_state.tabs[tab_idx].rpn_stack[item_idx]) g_free (cf_session_state.tabs[tab_idx].rpn_stack[item_idx]);
+		cf_session_state.tabs[tab_idx].rpn_stack[item_idx] = config_string_unquote_dup (value);
+		return TRUE;
+	}
+	if (sscanf (key, "session_tab%d_mem_%d%n", &tab_idx, &item_idx, &n) == 2 && key[n] == '\0') {
+		if (tab_idx < 0 || tab_idx >= TALC_MAX_SESSION_TABS) return TRUE;
+		if (item_idx < 0 || item_idx >= cf_session_state.tabs[tab_idx].memory_len) return TRUE;
+		if (cf_session_state.tabs[tab_idx].mem_values[item_idx]) g_free (cf_session_state.tabs[tab_idx].mem_values[item_idx]);
+		cf_session_state.tabs[tab_idx].mem_values[item_idx] = config_string_unquote_dup (value);
+		return TRUE;
+	}
+	return FALSE;
+}
 
 /*
  * config_file_get_default_prefs - initialize ALL members of the given s_preferences
@@ -159,10 +346,6 @@ static void config_file_get_default_prefs (s_preferences *this_prefs)
 	this_prefs->def_angle = DEFAULT_ANGLE;
 	this_prefs->def_notation = DEFAULT_NOTATION;
 	this_prefs->rem_display = DEFAULT_REM_DISPLAY;
-	this_prefs->rem_valuex = g_strdup (DEFAULT_REM_VALUEX);
-	this_prefs->rem_valuey = g_strdup (DEFAULT_REM_VALUEY);
-	this_prefs->rem_valuez = g_strdup (DEFAULT_REM_VALUEZ);
-	this_prefs->rem_valuet = g_strdup (DEFAULT_REM_VALUET);
 	this_prefs->show_menu = DEFAULT_SHOW_MENU;
 }
 
@@ -210,10 +393,12 @@ static void config_file_get_default_user_functions (s_user_function **this_user_
 
 void config_file_set_prefs (char *key, char *value)
 {
-	int		*int_var, counter=0, old_counter=0;
+	int		*int_var, counter=0;
 	char 		**string_var, *end_ptr;
 	gboolean	*bool_var;
 	void		*this_var;
+
+	if (config_file_set_session_entry (key, value)) return;
 	
 	while (prefs_list[counter].key != NULL)	{
 		if (g_ascii_strcasecmp (key, prefs_list[counter].key) == 0) break;	
@@ -221,12 +406,7 @@ void config_file_set_prefs (char *key, char *value)
 	}
 	
 	if (prefs_list[counter].key == NULL) {
-		while (prefs_list_old_entries[old_counter] != NULL) {
-			if (g_ascii_strcasecmp (key, prefs_list_old_entries[old_counter]) == 0) break;	
-			old_counter++;
-		}
-		if (prefs_list_old_entries[old_counter] == NULL) \
-			fprintf (stderr, _("[%s] configuration file: ignoring unknown entry %s=%s. %s\n"), PACKAGE, key, value, BUG_REPORT);
+		fprintf (stderr, _("[%s] configuration file: ignoring unknown entry %s=%s. %s\n"), PACKAGE, key, value, BUG_REPORT);
 		return;
 	}
 	
@@ -370,6 +550,7 @@ s_preferences config_file_read (char *filename)
 	
 	this_file = fopen (filename, "r");
 	config_file_get_default_prefs (&prefs);
+	config_file_session_state_clear (&cf_session_state);
 	cf_constant = (s_constant *) g_malloc (sizeof(s_constant));
 	cf_constant->desc = NULL;
 	if (this_file != NULL) {
@@ -485,6 +666,31 @@ void config_file_write (char *filename, s_preferences this_prefs, s_constant *th
 				counter ++;
 			}
 		counter = 0;
+		if (this_prefs.rem_display && cf_session_state.tab_count > 0) {
+			int tab_idx, item_idx;
+			fprintf (this_file, "session_tab_count=%d\n", cf_session_state.tab_count);
+			fprintf (this_file, "session_active_tab=%d\n", cf_session_state.active_tab);
+			for (tab_idx = 0; tab_idx < cf_session_state.tab_count; tab_idx++) {
+				s_session_tab_state *tab = &cf_session_state.tabs[tab_idx];
+				fprintf (this_file, "session_tab%d_mode=%d\n", tab_idx, tab->mode);
+				fprintf (this_file, "session_tab%d_number=%d\n", tab_idx, tab->number);
+				fprintf (this_file, "session_tab%d_angle=%d\n", tab_idx, tab->angle);
+				fprintf (this_file, "session_tab%d_notation=%d\n", tab_idx, tab->notation);
+				fprintf (this_file, "session_tab%d_display=\"%s\"\n", tab_idx,
+					tab->display_value ? tab->display_value : CLEARED_DISPLAY);
+				fprintf (this_file, "session_tab%d_rpn_len=%d\n", tab_idx, tab->rpn_stack_len);
+				for (item_idx = 0; item_idx < tab->rpn_stack_len; item_idx++) {
+					fprintf (this_file, "session_tab%d_rpn_%d=\"%s\"\n", tab_idx, item_idx,
+						(tab->rpn_stack && tab->rpn_stack[item_idx]) ? tab->rpn_stack[item_idx] : CLEARED_DISPLAY);
+				}
+				fprintf (this_file, "session_tab%d_mem_len=%d\n", tab_idx, tab->memory_len);
+				for (item_idx = 0; item_idx < tab->memory_len; item_idx++) {
+					fprintf (this_file, "session_tab%d_mem_%d=\"%s\"\n", tab_idx, item_idx,
+						(tab->mem_values && tab->mem_values[item_idx]) ? tab->mem_values[item_idx] : CLEARED_DISPLAY);
+				}
+			}
+		}
+
 		fprintf (this_file, "\n%s\n\n", SECTION_CONSTANTS);
 		while (cf_constant[counter].name != NULL) {
 			fprintf (this_file, "%s:%s=%s\n", cf_constant[counter].desc, 
