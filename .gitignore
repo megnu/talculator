@@ -20,6 +20,7 @@
 /config.sub
 /config.h
 /config.log
+/config.rpath
 /config.status
 /configure
 /depcomp
