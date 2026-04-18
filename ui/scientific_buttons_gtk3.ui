@@ -781,7 +781,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
-                    <property name="tooltip_text" translatable="yes">Modulus (m/M)</property>
+                    <property name="tooltip_text" translatable="yes">Modulus</property>
                     <property name="use_underline">True</property>
                     <accelerator key="M" signal="clicked"/>
                     <accelerator key="m" signal="clicked"/>

@@ -878,6 +878,16 @@ on_ordinary_toggled                  (GtkMenuItem     *menuitem,
 }
 
 void
+on_toggle_notation_activate          (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+    ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
+    if (active_tab->tab_mode == PAPER_MODE) return;
+    if (current_status.notation == CS_RPN) activate_menu_item ("alg");
+    else activate_menu_item ("rpn");
+}
+
+void
 on_rpn_toggled                       (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
@@ -2414,6 +2424,26 @@ gboolean on_button_event(GtkWidget *widget, GdkEvent *event, gpointer user_data)
             if (focus) ui_bind_active_tab_from_widget (focus);
         }
         if (cycle_tab_from_key (key_event)) return TRUE;
+
+        if ((key_event->state & GDK_CONTROL_MASK) &&
+            !(key_event->state & GDK_SUPER_MASK) &&
+            !(key_event->state & GDK_HYPER_MASK) &&
+            !(key_event->state & GDK_META_MASK) &&
+            ((key_event->keyval == GDK_KEY_l) || (key_event->keyval == GDK_KEY_L))) {
+            GtkWidget *target = NULL;
+            if (active_tab->tab_mode == PAPER_MODE)
+                target = GTK_WIDGET(gtk_builder_get_object (view_xml, "paper_entry"));
+            else
+                target = GTK_WIDGET(gtk_builder_get_object (view_xml, "formula_entry"));
+            if (target && gtk_widget_get_visible (target) && gtk_widget_get_sensitive (target)) {
+                gtk_widget_grab_focus (target);
+                if (GTK_IS_EDITABLE (target)) {
+                    gint pos = gtk_editable_get_position (GTK_EDITABLE (target));
+                    gtk_editable_select_region (GTK_EDITABLE (target), pos, pos);
+                }
+                return TRUE;
+            }
+        }
 
         if (key_event->keyval == GDK_KEY_Escape && active_tab->tab_mode != PAPER_MODE) {
             GtkWidget *formula_entry_widget;

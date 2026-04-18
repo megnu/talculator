@@ -76,9 +76,9 @@ Ctrl-B	change to binary number base
 Ctrl-E	change to degree angle base
 Ctrl-R	change to radian angle base
 Ctrl-G	change to GRAD angle base
-Ctrl-L	change to (normal) algebraic notation
-Ctrl-N	change to Reverse Polish Notation (RPN)
+Ctrl-N	toggle notation mode (Algebraic/RPN)
 Ctrl-M	Hide/Unhide Menubar
+Ctrl-L	focus input field (Basic/Scientific/Paper)
 
 Input field overrides:
 
