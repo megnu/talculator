@@ -1788,16 +1788,24 @@ void on_prefs_ufdelete_clicked (GtkButton *button, gpointer user_data)
     path = gtk_tree_model_get_path (GTK_TREE_MODEL (prefs_user_function_store), 
         &current_list_iter);
     index = *(gtk_tree_path_get_indices (path));
+	gtk_tree_path_free (path);
 
     gtk_list_store_remove (prefs_user_function_store, &current_list_iter);
     on_prefs_ufclear_clicked (NULL, NULL);
 
-    for (counter = index; counter < (nr_user_functions - 1); counter++)
-        memcpy (&user_function[counter], &user_function[counter+1], sizeof(s_user_function));
+	if (user_function[index].name) g_free (user_function[index].name);
+	if (user_function[index].variable) g_free (user_function[index].variable);
+	if (user_function[index].expression) g_free (user_function[index].expression);
+
+    for (counter = index; counter < (nr_user_functions - 1); counter++) {
+		memmove (&user_function[counter], &user_function[counter + 1], sizeof(s_user_function));
+	}
     
     nr_user_functions--;
     user_function = (s_user_function *) g_realloc (user_function, (nr_user_functions + 1) * sizeof(s_user_function));
     
+	user_function[nr_user_functions].variable = NULL;
+	user_function[nr_user_functions].expression = NULL;
     user_function[nr_user_functions].name = NULL;
 }
 
@@ -1815,6 +1823,7 @@ void on_prefs_ufupdate_clicked (GtkButton *button, gpointer user_data)
     path = gtk_tree_model_get_path (GTK_TREE_MODEL (prefs_user_function_store), 
         &current_list_iter);
     index = *(gtk_tree_path_get_indices (path));
+	gtk_tree_path_free (path);
     
     entry = GTK_WIDGET(gtk_builder_get_object (prefs_xml, "prefs_ufname_entry"));
 	{
@@ -1823,11 +1832,14 @@ void on_prefs_ufupdate_clicked (GtkButton *button, gpointer user_data)
 			error_message (_("Names Tab1..Tab6 are reserved for tab value references."));
 			return;
 		}
+		if (user_function[index].name) g_free (user_function[index].name);
 		user_function[index].name = g_strdup (new_name);
 	}
     entry = GTK_WIDGET(gtk_builder_get_object (prefs_xml, "prefs_ufvar_entry"));
+	if (user_function[index].variable) g_free (user_function[index].variable);
     user_function[index].variable = g_strdup (gtk_entry_get_text ((GtkEntry *) entry));
     entry = GTK_WIDGET(gtk_builder_get_object (prefs_xml, "prefs_ufexpr_entry"));
+	if (user_function[index].expression) g_free (user_function[index].expression);
     user_function[index].expression = g_strdup (gtk_entry_get_text ((GtkEntry *) entry));
     
     gtk_list_store_set (prefs_user_function_store, &current_list_iter, 
@@ -1906,16 +1918,24 @@ void on_prefs_cdelete_clicked (GtkButton *button, gpointer user_data)
     nr_consts = gtk_tree_model_iter_n_children(GTK_TREE_MODEL(prefs_constant_store), NULL);
     path = gtk_tree_model_get_path (GTK_TREE_MODEL (prefs_constant_store), &current_list_iter);
     index = *(gtk_tree_path_get_indices (path));
+	gtk_tree_path_free (path);
 
     gtk_list_store_remove (prefs_constant_store, &current_list_iter);
     on_prefs_cclear_clicked (NULL, NULL);
 
-    for (counter = index; counter < (nr_consts - 1); counter++)
-        memcpy (&constant[counter], &constant[counter+1], sizeof(s_constant));
+	if (constant[index].name) g_free (constant[index].name);
+	if (constant[index].value) g_free (constant[index].value);
+	if (constant[index].desc) g_free (constant[index].desc);
+
+    for (counter = index; counter < (nr_consts - 1); counter++) {
+		memmove (&constant[counter], &constant[counter + 1], sizeof(s_constant));
+	}
     
     nr_consts--;
     constant = (s_constant *) g_realloc (constant, (nr_consts + 1) * sizeof(s_constant));
     
+	constant[nr_consts].value = NULL;
+	constant[nr_consts].desc = NULL;
     constant[nr_consts].name = NULL;
 }
 
@@ -1933,6 +1953,7 @@ void on_prefs_cupdate_clicked (GtkButton *button, gpointer user_data)
     path = gtk_tree_model_get_path (GTK_TREE_MODEL (prefs_constant_store), 
         &current_list_iter);
     index = *(gtk_tree_path_get_indices (path));
+	gtk_tree_path_free (path);
     
     entry = GTK_WIDGET(gtk_builder_get_object (prefs_xml, "prefs_cname_entry"));
 	{
@@ -1941,11 +1962,14 @@ void on_prefs_cupdate_clicked (GtkButton *button, gpointer user_data)
 			error_message (_("Names Tab1..Tab6 are reserved for tab value references."));
 			return;
 		}
+		if (constant[index].name) g_free (constant[index].name);
 		constant[index].name = g_strdup (new_name);
 	}
     entry = GTK_WIDGET(gtk_builder_get_object (prefs_xml, "prefs_cvalue_entry"));
+	if (constant[index].value) g_free (constant[index].value);
     constant[index].value = g_strdup (gtk_entry_get_text ((GtkEntry *) entry));
     entry = GTK_WIDGET(gtk_builder_get_object (prefs_xml, "prefs_cdesc_entry"));
+	if (constant[index].desc) g_free (constant[index].desc);
     constant[index].desc = g_strdup (gtk_entry_get_text ((GtkEntry *) entry));
     
     gtk_list_store_set (prefs_constant_store, &current_list_iter, 
