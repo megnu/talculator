@@ -156,7 +156,6 @@ void rpn_stack_push (const char *number)
 	rpn_stack->pdata[0] = copy;
 
 	if (((int) rpn_stack->len > rpn_stack_size) && (rpn_stack_size > 0)) {
-		g_free (rpn_stack->pdata[rpn_stack_size]);
 		g_ptr_array_set_size (rpn_stack, rpn_stack_size);
 	}
 }
@@ -175,7 +174,6 @@ char *rpn_stack_operation (char operation, const char *number)
 	} else {
 		left_hand = g_strdup ((char *) rpn_stack->pdata[0]);
 		last_on_stack = g_strdup ((char *) rpn_stack->pdata[rpn_stack->len - 1]);
-		g_free (rpn_stack->pdata[0]);
 		g_ptr_array_remove_index (rpn_stack, 0);
 		if (((int) rpn_stack->len == rpn_stack_size - 1) && (rpn_stack_size > 0)) {
 			g_ptr_array_add (rpn_stack, last_on_stack);
@@ -254,12 +252,11 @@ void rpn_stack_set_size (int size)
 	int i;
 
 	rpn_ensure_init ();
-		if ((size > 0) && ((size < rpn_stack_size) || (rpn_stack_size == -1))) {
-			for (i = (int) rpn_stack->len - 1; i >= size; i--) {
-				g_free (rpn_stack->pdata[i]);
-				g_ptr_array_remove_index (rpn_stack, (guint) i);
-			}
+	if ((size > 0) && ((size < rpn_stack_size) || (rpn_stack_size == -1))) {
+		for (i = (int) rpn_stack->len - 1; i >= size; i--) {
+			g_ptr_array_remove_index (rpn_stack, (guint) i);
 		}
+	}
 	rpn_stack_size = size;
 }
 

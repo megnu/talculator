@@ -105,6 +105,7 @@ void all_clear_for_tab (s_tab_context *ctx)
 			fprintf (stderr, _("[%s] unknown notation mode in function \"all_clear\". %s\n"), PROG_NAME, BUG_REPORT);
 			
 	}
+	if (active_tab->tab_mode != PAPER_MODE) display_update_modules ();
 	display_module_bracket_label_update (RESET);
 	active_tab = prev_tab;
 }

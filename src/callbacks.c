@@ -975,6 +975,7 @@ on_ordinary_toggled                  (GtkMenuItem     *menuitem,
     update_dispctrl();
     /* pixel above/below display result line */
     display_update_tags ();
+    set_window_size_minimal ();
 }
 
 void
@@ -1024,6 +1025,7 @@ on_rpn_toggled                       (GtkMenuItem     *menuitem,
     update_dispctrl();
     /* pixel above/below display result line */
     display_update_tags ();
+    set_window_size_minimal ();
 }
 
 void

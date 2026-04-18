@@ -553,11 +553,17 @@ void display_update_modules ()
 {
 	GtkTextIter	start, end;
 	gboolean	first_module = TRUE;
+	gint		line_count;
 	
 	if (active_tab && active_tab->tab_mode == PAPER_MODE) return;
 	
-	display_get_line_end_iter (buffer, display_result_line, &start);
-	display_get_line_end_iter (buffer, display_result_line+1, &end);
+	line_count = gtk_text_buffer_get_line_count (buffer);
+	if (line_count <= 0) return;
+	if ((display_result_line + 1) < line_count)
+		gtk_text_buffer_get_iter_at_line (buffer, &start, display_result_line + 1);
+	else
+		gtk_text_buffer_get_end_iter (buffer, &start);
+	gtk_text_buffer_get_end_iter (buffer, &end);
 	gtk_text_buffer_delete (buffer, &start, &end);
 	
 	if (active_tab->tab_mode == BASIC_MODE) return;
@@ -1101,6 +1107,10 @@ char **display_stack_get_yzt ()
 	int 		counter;
 	
 	stack = (char **) g_malloc (3* sizeof (char *));
+	if (display_result_line <= 0) {
+		for (counter = 0; counter < 3; counter++) stack[counter] = g_strdup (CLEARED_DISPLAY);
+		return stack;
+	}
 	for (counter = 0; counter < 3; counter++) {
 		/*  DISPLAY RESULT GET 
 		display_get_line_iters (buffer, display_result_line - counter - 1, &start, &end);
