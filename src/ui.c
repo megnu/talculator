@@ -58,6 +58,7 @@ static void ui_tab_build_content (s_tab_context *ctx, GtkWidget *page);
 static void ui_tabs_set_active_widget_sensitivity (GtkNotebook *notebook, gint active_page);
 static gchar *ui_tab_default_title_new ();
 static void ui_tabs_refresh_actions ();
+static gboolean ui_prefs_dialog_key_press_event (GtkWidget *widget, GdkEventKey *event, gpointer user_data);
 #define UI_MAX_TABS 6
 static void ui_widget_css_set (GtkWidget *widget, const gchar *css, const gchar *data_key);
 
@@ -1481,6 +1482,31 @@ GtkWidget *ui_right_mouse_menu_create ()
 	return menu;
 }
 
+static gboolean ui_prefs_dialog_key_press_event (GtkWidget *widget, GdkEventKey *event, gpointer user_data)
+{
+	GtkNotebook *notebook;
+	gint page_count, current_page, target_page;
+	gboolean backward;
+
+	if (!event) return FALSE;
+	if ((event->state & GDK_CONTROL_MASK) == 0) return FALSE;
+	if ((event->state & GDK_SUPER_MASK) || (event->state & GDK_HYPER_MASK) || (event->state & GDK_META_MASK))
+		return FALSE;
+	if ((event->keyval != GDK_KEY_Tab) && (event->keyval != GDK_KEY_ISO_Left_Tab)) return FALSE;
+
+	notebook = GTK_NOTEBOOK(gtk_builder_get_object (prefs_xml, "notebook1"));
+	if (!notebook) return FALSE;
+	page_count = gtk_notebook_get_n_pages (notebook);
+	if (page_count <= 1) return TRUE;
+
+	current_page = gtk_notebook_get_current_page (notebook);
+	backward = ((event->state & GDK_SHIFT_MASK) != 0) || (event->keyval == GDK_KEY_ISO_Left_Tab);
+	if (backward) target_page = (current_page - 1 + page_count) % page_count;
+	else target_page = (current_page + 1) % page_count;
+	gtk_notebook_set_current_page (notebook, target_page);
+	return TRUE;
+}
+
 GtkWidget *ui_pref_dialog_create ()
 {
 	int			counter=0;
@@ -1506,6 +1532,8 @@ GtkWidget *ui_pref_dialog_create ()
 	gtk_adjustment_set_upper(gtk_spin_button_get_adjustment(GTK_SPIN_BUTTON(gtk_builder_get_object (prefs_xml, "prefs_bin_bits"))), upperBound);
 	
 	gtk_window_set_title ((GtkWindow *)prefs_dialog, g_strdup_printf (_("%s Preferences"), PACKAGE));
+	g_signal_connect (G_OBJECT (prefs_dialog), "key-press-event",
+		G_CALLBACK (ui_prefs_dialog_key_press_event), NULL);
 	
 	/* 
 	 * fill gui with current preferences settings 
