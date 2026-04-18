@@ -888,6 +888,25 @@ on_toggle_notation_activate          (GtkMenuItem     *menuitem,
 }
 
 void
+on_cycle_view_mode_activate          (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+    ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
+    switch (active_tab->tab_mode) {
+    case BASIC_MODE:
+        activate_menu_item ("scientific_mode");
+        break;
+    case SCIENTIFIC_MODE:
+        activate_menu_item ("paper_mode");
+        break;
+    case PAPER_MODE:
+    default:
+        activate_menu_item ("basic_mode");
+        break;
+    }
+}
+
+void
 on_rpn_toggled                       (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {

@@ -77,6 +77,7 @@ Ctrl-E	change to degree angle base
 Ctrl-R	change to radian angle base
 Ctrl-G	change to GRAD angle base
 Ctrl-N	toggle notation mode (Algebraic/RPN)
+Ctrl-U	cycle view mode (Basic -> Scientific -> Paper)
 Ctrl-M	Hide/Unhide Menubar
 Ctrl-L	focus input field (Basic/Scientific/Paper)
 

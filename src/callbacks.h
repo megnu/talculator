@@ -56,6 +56,8 @@ G_MODULE_EXPORT void on_ordinary_toggled (GtkMenuItem *menuitem,
 					gpointer user_data);
 G_MODULE_EXPORT void on_toggle_notation_activate (GtkMenuItem *menuitem,
 					gpointer user_data);
+G_MODULE_EXPORT void on_cycle_view_mode_activate (GtkMenuItem *menuitem,
+					gpointer user_data);
 G_MODULE_EXPORT void on_rpn_toggled (GtkMenuItem *menuitem,
 					gpointer user_data);
 G_MODULE_EXPORT void on_about_activate (GtkMenuItem *menuitem,
