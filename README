@@ -84,9 +84,16 @@ Since version 1.2.1 talculator also features user defined functions. They can
 be called with the fun button next to the constant button and work like the 
 other function buttons like sin, cos, etc. (except that inverse and hyperbolic 
 are not supported). User functions can be defined in the Preferences dialog 
-(Functions page). The function name can be any string beginning with a letter. 
-So far, only a single variable is allowed. Expression gives the string 
-expression of the function with respect to the specified variable:
+(Functions page). Function and constant names must match this identifier rule:
+
+name format
+-----------
+[A-Za-z_][A-Za-z0-9_]*
+
+Reserved names are rejected, including built-in constants/functions/operators
+and tab keywords `Tab1`..`Tab6` (case-insensitive). So far, only a single
+variable is allowed. Expression gives the string expression of the function
+with respect to the specified variable:
 
 Function   Name   Variable   Expression
 --------   ----   --------   ----------
@@ -117,9 +124,9 @@ Arithmetic evaluation is powered by libqalculate and uses arbitrary precision.
 In integer base modes (HEX/OCT/BIN), effective ranges and overflow behavior are
 determined by the configured word size and signedness.
 
-If in hexadecimal, octal or binary signed mode, a negative number won't be 
-represented with a leading minus but as 2's complement with respect to the 
-chosen variable length.
+If in hexadecimal or binary signed mode, a negative number won't be represented
+with a leading minus but as 2's complement with respect to the chosen variable
+length.
 
 Brackets follow explicit expression semantics:
 - ')' is only accepted when there is a matching open bracket.
@@ -148,7 +155,7 @@ Input parsing is strict calculator-style in all modes (basic/scientific/paper):
 
 There is a simple plausibility check for the character choosen as thousand's
 separator: it must not be a number in the configured number base and for
-a decimal number base neither decimal point nor "e" (exponent identifier
+a decimal number base neither decimal point nor "e"/"E" (exponent identifier
 string) nor "-" (minus).
 
 Shortcuts

@@ -83,7 +83,7 @@ Ctrl-L	focus input field (Basic/Scientific/Paper)
 
 Input field overrides:
 
-When the formula input field is focused, clipboard/editing shortcuts apply to
+When an input field is focused, clipboard/editing shortcuts apply to
 the input field rather than the display value:
 
 Ctrl-X	cut selected input text

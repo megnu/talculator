@@ -10,12 +10,14 @@ This manual page gives a short description of
 and documents its command line arguments.
 .br
 \fBtalculator\fP is a GTK3 based calculator with basic and scientific modes.
-It supports algebraic notation, RPN (Reverse Polish Notation) and formula entry
-mode, different number bases (decimal, hexadecimal, octal, and binary) and angle 
-bases (radiant, degree, and grad). Further features include arithmetic operations 
-plus precedence handling, trigonometric functions, power, sqare root, natural and 
-common logarithm, constants (e, PI, user defined), memory and inverse and 
-hyperbolic functions and user defined functions. 
+It supports algebraic notation and RPN (Reverse Polish Notation), plus paper
+mode, different number bases (decimal, hexadecimal, octal, and binary), and
+angle bases (radian, degree, and grad). Arithmetic evaluation is powered by
+libqalculate (arbitrary precision). Further features include arithmetic
+operations plus precedence handling, trigonometric functions, power, square
+root, natural and common logarithm, constants (e, PI, user defined), memory,
+inverse and hyperbolic functions, and user defined functions.
+Typed expression input uses strict identifier validation.
 
 .SH OPTIONS
 .B
@@ -30,10 +32,13 @@ Show version of program.
 
 .SH FILES
 .TP
-~/.talculator
-Automatically generated configuration file for 
+~/.config/talculator/talculator.conf
+Automatically generated configuration file for
 .B
 talculator
+.TP
+~/.talculator
+Legacy fallback configuration location.
 
 .SH ADDITIONAL INFORMATION
 You find additional information about talculator at 
