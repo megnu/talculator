@@ -534,8 +534,10 @@ static void ui_apply_session_tab_state (const s_session_tab_state *tab)
 	if (tab->mode != PAPER_MODE && tab->notation != CS_RPN &&
 		!ui_is_cleared_display_value (restored_display)) {
 		GtkWidget *formula_entry = GTK_WIDGET(gtk_builder_get_object (view_xml, "formula_entry"));
-		if (formula_entry && GTK_IS_ENTRY (formula_entry))
+		if (formula_entry && GTK_IS_ENTRY (formula_entry)) {
 			gtk_entry_set_text (GTK_ENTRY (formula_entry), restored_display);
+			gtk_editable_set_position (GTK_EDITABLE (formula_entry), -1);
+		}
 	}
 	g_free (restored_display);
 	if (tab->mode != PAPER_MODE) {

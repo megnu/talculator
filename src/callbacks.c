@@ -411,6 +411,7 @@ static void mirror_display_value_into_formula_entry (const char *value)
 		gtk_entry_set_text (GTK_ENTRY (entry), "");
 	else
 		gtk_entry_set_text (GTK_ENTRY (entry), value);
+	gtk_editable_set_position (GTK_EDITABLE (entry), -1);
 }
 
 static void talc_entry_history_on_changed (GtkEditable *editable)
