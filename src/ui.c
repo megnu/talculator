@@ -526,10 +526,17 @@ static void ui_apply_session_tab_state (const s_session_tab_state *tab)
 		else activate_menu_item ("alg");
 	}
 	display_result_set (restored_display, TRUE);
-	if (tab->mode == PAPER_MODE && ui_is_cleared_display_value (restored_display)) {
+	if (tab->mode == PAPER_MODE) {
 		GtkWidget *paper_entry = GTK_WIDGET(gtk_builder_get_object (view_xml, "paper_entry"));
-		if (paper_entry && GTK_IS_ENTRY (paper_entry))
-			gtk_entry_set_text (GTK_ENTRY (paper_entry), "");
+		if (paper_entry && GTK_IS_ENTRY (paper_entry)) {
+			gint pos;
+			if (ui_is_cleared_display_value (restored_display))
+				gtk_entry_set_text (GTK_ENTRY (paper_entry), "");
+			gtk_widget_grab_focus (paper_entry);
+			gtk_editable_set_position (GTK_EDITABLE (paper_entry), -1);
+			pos = gtk_editable_get_position (GTK_EDITABLE (paper_entry));
+			gtk_editable_select_region (GTK_EDITABLE (paper_entry), pos, pos);
+		}
 	}
 	if (tab->mode != PAPER_MODE && tab->notation != CS_RPN &&
 		!ui_is_cleared_display_value (restored_display)) {
@@ -2086,9 +2093,13 @@ void ui_paper_view_create()
 
 	paper_entry = GTK_WIDGET(gtk_builder_get_object (ctx->tab_view_xml, "paper_entry"));
 	if (paper_entry && GTK_IS_ENTRY(paper_entry)) {
+		gint pos;
 		gtk_entry_set_text (GTK_ENTRY(paper_entry),
 			ctx->tab_display_value ? ctx->tab_display_value : CLEARED_DISPLAY);
 		gtk_widget_grab_focus (paper_entry);
+		gtk_editable_set_position (GTK_EDITABLE (paper_entry), -1);
+		pos = gtk_editable_get_position (GTK_EDITABLE (paper_entry));
+		gtk_editable_select_region (GTK_EDITABLE (paper_entry), pos, pos);
 	}
 }
 
