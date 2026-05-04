@@ -1,4 +1,6 @@
 see ChangeLog
+talculator 2.2.1
+    * fixed caret placement when switching to paper mode
 
 talculator 2.2.0
 	* complete math-core port to libqalculate
