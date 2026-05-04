@@ -59,6 +59,8 @@ static void ui_tabs_set_active_widget_sensitivity (GtkNotebook *notebook, gint a
 static gchar *ui_tab_default_title_new ();
 static void ui_tabs_refresh_actions ();
 static gboolean ui_prefs_dialog_key_press_event (GtkWidget *widget, GdkEventKey *event, gpointer user_data);
+static gboolean ui_focus_editable_end_idle (gpointer data);
+static void ui_focus_editable_end (GtkWidget *editable_widget);
 #define UI_MAX_TABS 6
 static void ui_widget_css_set (GtkWidget *widget, const gchar *css, const gchar *data_key);
 
@@ -423,6 +425,28 @@ static gboolean ui_is_cleared_display_value (const char *value)
 	return (!value || strcmp (value, CLEARED_DISPLAY) == 0);
 }
 
+static gboolean ui_focus_editable_end_idle (gpointer data)
+{
+	GtkWidget *editable_widget = GTK_WIDGET (data);
+	gint pos;
+
+	if (editable_widget && GTK_IS_EDITABLE (editable_widget)) {
+		gtk_editable_set_position (GTK_EDITABLE (editable_widget), -1);
+		pos = gtk_editable_get_position (GTK_EDITABLE (editable_widget));
+		gtk_editable_select_region (GTK_EDITABLE (editable_widget), pos, pos);
+	}
+	if (editable_widget) g_object_unref (editable_widget);
+	return G_SOURCE_REMOVE;
+}
+
+static void ui_focus_editable_end (GtkWidget *editable_widget)
+{
+	if (!editable_widget || !GTK_IS_EDITABLE (editable_widget)) return;
+	gtk_widget_grab_focus (editable_widget);
+	g_object_ref (editable_widget);
+	g_idle_add (ui_focus_editable_end_idle, editable_widget);
+}
+
 void ui_collect_session_state (s_session_state *out_state)
 {
 	GtkNotebook *notebook;
@@ -529,13 +553,9 @@ static void ui_apply_session_tab_state (const s_session_tab_state *tab)
 	if (tab->mode == PAPER_MODE) {
 		GtkWidget *paper_entry = GTK_WIDGET(gtk_builder_get_object (view_xml, "paper_entry"));
 		if (paper_entry && GTK_IS_ENTRY (paper_entry)) {
-			gint pos;
 			if (ui_is_cleared_display_value (restored_display))
 				gtk_entry_set_text (GTK_ENTRY (paper_entry), "");
-			gtk_widget_grab_focus (paper_entry);
-			gtk_editable_set_position (GTK_EDITABLE (paper_entry), -1);
-			pos = gtk_editable_get_position (GTK_EDITABLE (paper_entry));
-			gtk_editable_select_region (GTK_EDITABLE (paper_entry), pos, pos);
+			ui_focus_editable_end (paper_entry);
 		}
 	}
 	if (tab->mode != PAPER_MODE && tab->notation != CS_RPN &&
@@ -657,6 +677,10 @@ static void on_tabs_switch_page (GtkNotebook *notebook, GtkWidget *page, guint p
 	if (ctx) ui_set_active_tab_context (ctx);
 	ui_sync_main_menu_for_active_tab ();
 	ui_tabs_set_active_widget_sensitivity (ui_tabs_get_notebook (), (gint) page_num);
+	if (active_tab && active_tab->tab_mode == PAPER_MODE && view_xml) {
+		GtkWidget *paper_entry = GTK_WIDGET (gtk_builder_get_object (view_xml, "paper_entry"));
+		if (paper_entry && GTK_IS_ENTRY (paper_entry)) ui_focus_editable_end (paper_entry);
+	}
 }
 
 static void ui_tabs_set_active_widget_sensitivity (GtkNotebook *notebook, gint active_page)
@@ -2093,13 +2117,9 @@ void ui_paper_view_create()
 
 	paper_entry = GTK_WIDGET(gtk_builder_get_object (ctx->tab_view_xml, "paper_entry"));
 	if (paper_entry && GTK_IS_ENTRY(paper_entry)) {
-		gint pos;
 		gtk_entry_set_text (GTK_ENTRY(paper_entry),
 			ctx->tab_display_value ? ctx->tab_display_value : CLEARED_DISPLAY);
-		gtk_widget_grab_focus (paper_entry);
-		gtk_editable_set_position (GTK_EDITABLE (paper_entry), -1);
-		pos = gtk_editable_get_position (GTK_EDITABLE (paper_entry));
-		gtk_editable_select_region (GTK_EDITABLE (paper_entry), pos, pos);
+		ui_focus_editable_end (paper_entry);
 	}
 }
 
