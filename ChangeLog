@@ -1,3 +1,10 @@
+2026-05-08 Jared (github.com/megnu)
+	* Restored algebraic input text across session restart for basic and scientific modes
+	* Restored paper mode display history from the last evaluated expression and result
+	* Preserved paper mode focus/caret placement when switching tabs and restoring sessions
+	* Fixed display ownership and edge-case safety issues found during review
+	* Hardened Preferences dialog ownership to avoid stale callbacks from duplicate dialogs
+
 2026-05-04 Jared (github.com/megnu)
 	* Fixed caret placement when switching to paper mode
 

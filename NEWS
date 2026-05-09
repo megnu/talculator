@@ -1,4 +1,11 @@
 see ChangeLog
+talculator 2.3.0
+    * restored algebraic input text across session restart for basic and scientific modes
+    * restored paper mode display history from the last evaluated expression and result
+    * preserved paper mode focus/caret placement when switching tabs and restoring sessions
+    * fixed display ownership and edge-case safety issues found during review
+    * hardened Preferences dialog ownership to avoid stale callbacks from duplicate dialogs
+
 talculator 2.2.1
     * fixed caret placement when switching to paper mode
 
