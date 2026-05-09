@@ -732,7 +732,7 @@ void display_change_option (int old_status, int new_status, int opt_group)
 void display_set_bkg_color (char *color_string)
 {
 	gchar *css;
-	if (active_tab->tab_mode == PAPER_MODE) return;
+	if (active_tab && active_tab->tab_mode == PAPER_MODE) return;
 	if (view) {
 		css = g_strdup_printf ("textview, textview text { background-color: %s; }",
 			color_string ? color_string : "#ffffff");
@@ -752,7 +752,7 @@ void display_update_tags ()
 	GtkTextTagTable		*tag_table;
 	GtkTextTag 		*tag;
 	
-	if (active_tab->tab_mode == PAPER_MODE) return;
+	if (active_tab && active_tab->tab_mode == PAPER_MODE) return;
 	/* remove all tags from tag_table, so we can define the new tags */
 	tag_table = gtk_text_buffer_get_tag_table (buffer);
 	tag = gtk_text_tag_table_lookup (tag_table, "result");
@@ -865,12 +865,7 @@ void display_result_set (char *string_value, int update_result_counter)
 		g_free (active_tab->tab_display_value);
 		active_tab->tab_display_value = g_strdup (value);
 	}
-	if (active_tab->tab_mode == PAPER_MODE) {
-		GtkWidget *paper_entry = GTK_WIDGET(gtk_builder_get_object (view_xml, "paper_entry"));
-		if (paper_entry && GTK_IS_ENTRY(paper_entry))
-			gtk_entry_set_text (GTK_ENTRY(paper_entry), value);
-		return;
-	}
+	if (active_tab->tab_mode == PAPER_MODE) return;
 
 	current_status.allow_arith_op = TRUE;
 	display_module_arith_label_update (' ');

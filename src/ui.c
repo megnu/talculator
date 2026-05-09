@@ -61,6 +61,10 @@ static void ui_tabs_refresh_actions ();
 static gboolean ui_prefs_dialog_key_press_event (GtkWidget *widget, GdkEventKey *event, gpointer user_data);
 static gboolean ui_focus_editable_end_idle (gpointer data);
 static void ui_focus_editable_end (GtkWidget *editable_widget);
+static void ui_tab_cache_input_value (s_tab_context *ctx);
+static void ui_entry_set_text_programmatic (GtkWidget *entry, const char *text);
+static const char *ui_tab_effective_input_value (s_tab_context *ctx);
+static void ui_paper_view_set_restored_result (const char *expression, const char *value);
 #define UI_MAX_TABS 6
 static void ui_widget_css_set (GtkWidget *widget, const gchar *css, const gchar *data_key);
 
@@ -377,6 +381,8 @@ static s_tab_context *ui_tab_context_new ()
 	ctx->tab_display_last_arith = ' ';
 	ctx->tab_display_brackets = 0;
 	ctx->tab_display_value = g_strdup (CLEARED_DISPLAY);
+	ctx->tab_input_value = g_strdup ("");
+	ctx->tab_paper_expression = g_strdup ("");
 	ctx->tab_rpn_stack = NULL;
 	ctx->tab_rpn_stack_len = 0;
 	return ctx;
@@ -405,6 +411,8 @@ static void ui_tab_context_free (s_tab_context *ctx)
 		g_free (ctx->tab_rpn_stack);
 	}
 	if (ctx->tab_display_value) g_free (ctx->tab_display_value);
+	if (ctx->tab_input_value) g_free (ctx->tab_input_value);
+	if (ctx->tab_paper_expression) g_free (ctx->tab_paper_expression);
 	g_free (ctx);
 }
 
@@ -418,11 +426,6 @@ static void ui_session_copy_memory_from_context (s_session_tab_state *dst, s_tab
 	for (i = 0; i < dst->memory_len; i++) {
 		dst->mem_values[i] = g_strdup (ctx->tab_memory.data[i] ? ctx->tab_memory.data[i] : CLEARED_DISPLAY);
 	}
-}
-
-static gboolean ui_is_cleared_display_value (const char *value)
-{
-	return (!value || strcmp (value, CLEARED_DISPLAY) == 0);
 }
 
 static gboolean ui_focus_editable_end_idle (gpointer data)
@@ -447,6 +450,91 @@ static void ui_focus_editable_end (GtkWidget *editable_widget)
 	g_idle_add (ui_focus_editable_end_idle, editable_widget);
 }
 
+static void ui_entry_set_text_programmatic (GtkWidget *entry, const char *text)
+{
+	if (!entry || !GTK_IS_ENTRY (entry)) return;
+	g_object_set_data (G_OBJECT (entry), "talculator-programmatic-input", GINT_TO_POINTER (1));
+	gtk_entry_set_text (GTK_ENTRY (entry), text ? text : "");
+	g_object_set_data (G_OBJECT (entry), "talculator-programmatic-input", NULL);
+}
+
+static GtkWidget *ui_tab_input_widget (s_tab_context *ctx)
+{
+	if (!ctx || !ctx->tab_view_xml) return NULL;
+	if (ctx->tab_current_status.notation == CS_RPN) return NULL;
+	if (ctx->tab_mode == PAPER_MODE)
+		return GTK_WIDGET (gtk_builder_get_object (ctx->tab_view_xml, "paper_entry"));
+	return GTK_WIDGET (gtk_builder_get_object (ctx->tab_view_xml, "formula_entry"));
+}
+
+static void ui_tab_cache_input_value (s_tab_context *ctx)
+{
+	GtkWidget *entry;
+	const char *text;
+
+	if (!ctx) return;
+	if (ctx->tab_current_status.notation == CS_RPN) {
+		g_free (ctx->tab_input_value);
+		ctx->tab_input_value = g_strdup ("");
+		return;
+	}
+
+	entry = ui_tab_input_widget (ctx);
+	if (!entry || !GTK_IS_ENTRY (entry)) return;
+	text = gtk_entry_get_text (GTK_ENTRY (entry));
+	if (ctx->tab_mode == PAPER_MODE) {
+		g_free (ctx->tab_input_value);
+		ctx->tab_input_value = g_strdup (text ? text : "");
+		return;
+	}
+	if (!text || text[0] == '\0') {
+		if (!ctx->tab_display_value || strcmp (ctx->tab_display_value, CLEARED_DISPLAY) == 0) {
+			g_free (ctx->tab_input_value);
+			ctx->tab_input_value = g_strdup ("");
+		}
+		return;
+	}
+	g_free (ctx->tab_input_value);
+	ctx->tab_input_value = g_strdup (text);
+}
+
+static const char *ui_tab_effective_input_value (s_tab_context *ctx)
+{
+	if (!ctx) return "";
+	if (ctx->tab_input_value && ctx->tab_input_value[0] != '\0') return ctx->tab_input_value;
+	if (ctx->tab_display_value && strcmp (ctx->tab_display_value, CLEARED_DISPLAY) != 0)
+		return ctx->tab_display_value;
+	return "";
+}
+
+static void ui_paper_view_set_restored_result (const char *expression, const char *value)
+{
+	GtkWidget *tree_view;
+	GtkTreeModel *model;
+	GtkListStore *paper_store;
+	GtkTreeIter iter;
+	char *markup;
+
+	if (!view_xml || !value || strcmp (value, CLEARED_DISPLAY) == 0) return;
+	tree_view = GTK_WIDGET (gtk_builder_get_object (view_xml, "paper_treeview"));
+	if (!tree_view || !GTK_IS_TREE_VIEW (tree_view)) return;
+	model = gtk_tree_view_get_model (GTK_TREE_VIEW (tree_view));
+	if (!model || !GTK_IS_LIST_STORE (model)) return;
+
+	paper_store = GTK_LIST_STORE (model);
+	gtk_list_store_clear (paper_store);
+	if (expression && expression[0] != '\0') {
+		char *escaped_expression = g_markup_escape_text (expression, -1);
+		gtk_list_store_append (paper_store, &iter);
+		gtk_list_store_set (paper_store, &iter, 0, escaped_expression, 1, 0.0, 2, NULL, -1);
+		g_free (escaped_expression);
+	}
+	gtk_list_store_append (paper_store, &iter);
+	markup = g_markup_printf_escaped ("<b>%s</b>", value);
+	gtk_list_store_set (paper_store, &iter, 0, markup, 1, 1.0, 2, NULL, -1);
+	g_free (markup);
+}
+
 void ui_collect_session_state (s_session_state *out_state)
 {
 	GtkNotebook *notebook;
@@ -463,6 +551,7 @@ void ui_collect_session_state (s_session_state *out_state)
 	current_page = gtk_notebook_get_current_page (notebook);
 
 	/* Ensure current tab keeps its latest runtime RPN stack. */
+	ui_tab_cache_input_value (active_tab);
 	ui_tab_store_runtime_state (active_tab);
 
 	out_state->tab_count = n_pages;
@@ -483,6 +572,11 @@ void ui_collect_session_state (s_session_state *out_state)
 		tab->notation = ctx->tab_current_status.notation;
 		display_value = display_result_get ();
 		tab->display_value = display_value ? display_value : g_strdup (CLEARED_DISPLAY);
+		ui_tab_cache_input_value (ctx);
+		tab->input_value = g_strdup (ctx->tab_mode == PAPER_MODE ? "" :
+			(ctx->tab_input_value ? ctx->tab_input_value : ""));
+		tab->paper_expression = g_strdup (ctx->tab_mode == PAPER_MODE ?
+			(ctx->tab_paper_expression ? ctx->tab_paper_expression : "") : "");
 
 		if (ctx->tab_current_status.notation == CS_RPN) {
 			tab->rpn_stack_len = rpn_stack_length ();
@@ -520,9 +614,15 @@ static void ui_apply_session_tab_state (const s_session_tab_state *tab)
 	char *finite_stack[3] = { NULL, NULL, NULL };
 	char **stack_values = NULL;
 	char *restored_display = NULL;
+	char *restored_input = NULL;
+	char *restored_paper_expression = NULL;
 
 	if (!tab || !active_tab) return;
 	restored_display = g_strdup (tab->display_value ? tab->display_value : CLEARED_DISPLAY);
+	restored_input = g_strdup (tab->mode == PAPER_MODE ? "" :
+		(tab->input_value ? tab->input_value : ""));
+	restored_paper_expression = g_strdup (tab->mode == PAPER_MODE ?
+		(tab->paper_expression ? tab->paper_expression : "") : "");
 
 	switch (tab->mode) {
 	case BASIC_MODE: activate_menu_item ("basic_mode"); break;
@@ -549,24 +649,32 @@ static void ui_apply_session_tab_state (const s_session_tab_state *tab)
 		if (tab->notation == CS_RPN) activate_menu_item ("rpn");
 		else activate_menu_item ("alg");
 	}
+	g_free (active_tab->tab_input_value);
+	active_tab->tab_input_value = restored_input;
+	restored_input = NULL;
+	g_free (active_tab->tab_paper_expression);
+	active_tab->tab_paper_expression = restored_paper_expression;
+	restored_paper_expression = NULL;
+
 	display_result_set (restored_display, TRUE);
 	if (tab->mode == PAPER_MODE) {
 		GtkWidget *paper_entry = GTK_WIDGET(gtk_builder_get_object (view_xml, "paper_entry"));
+		ui_paper_view_set_restored_result (active_tab->tab_paper_expression, restored_display);
 		if (paper_entry && GTK_IS_ENTRY (paper_entry)) {
-			if (ui_is_cleared_display_value (restored_display))
-				gtk_entry_set_text (GTK_ENTRY (paper_entry), "");
+			ui_entry_set_text_programmatic (paper_entry, active_tab->tab_input_value);
 			ui_focus_editable_end (paper_entry);
 		}
 	}
-	if (tab->mode != PAPER_MODE && tab->notation != CS_RPN &&
-		!ui_is_cleared_display_value (restored_display)) {
+	if (tab->mode != PAPER_MODE && tab->notation != CS_RPN) {
 		GtkWidget *formula_entry = GTK_WIDGET(gtk_builder_get_object (view_xml, "formula_entry"));
 		if (formula_entry && GTK_IS_ENTRY (formula_entry)) {
-			gtk_entry_set_text (GTK_ENTRY (formula_entry), restored_display);
+			ui_entry_set_text_programmatic (formula_entry, active_tab->tab_input_value);
 			gtk_editable_set_position (GTK_EDITABLE (formula_entry), -1);
 		}
 	}
 	g_free (restored_display);
+	g_free (restored_input);
+	g_free (restored_paper_expression);
 	if (tab->mode != PAPER_MODE) {
 		if (tab->notation == CS_RPN) {
 			rpn_free ();
@@ -661,6 +769,7 @@ static void ui_tab_restore_runtime_state (s_tab_context *ctx)
 static void ui_set_active_tab_context (s_tab_context *ctx)
 {
 	if (!ctx || (ctx == active_tab)) return;
+	ui_tab_cache_input_value (active_tab);
 	ui_tab_store_runtime_state (active_tab);
 	active_tab = ctx;
 	ui_tab_restore_runtime_state (active_tab);
@@ -2117,8 +2226,7 @@ void ui_paper_view_create()
 
 	paper_entry = GTK_WIDGET(gtk_builder_get_object (ctx->tab_view_xml, "paper_entry"));
 	if (paper_entry && GTK_IS_ENTRY(paper_entry)) {
-		gtk_entry_set_text (GTK_ENTRY(paper_entry),
-			ctx->tab_display_value ? ctx->tab_display_value : CLEARED_DISPLAY);
+		ui_entry_set_text_programmatic (paper_entry, ui_tab_effective_input_value (ctx));
 		ui_focus_editable_end (paper_entry);
 	}
 }

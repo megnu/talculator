@@ -227,6 +227,8 @@ typedef struct {
 	char			tab_display_last_arith;
 	int			tab_display_brackets;
 	char			*tab_display_value;
+	char			*tab_input_value;
+	char			*tab_paper_expression;
 	GtkBuilder		*tab_view_xml;
 	GtkBuilder		*tab_button_box_xml;
 	GtkBuilder		*tab_dispctrl_xml;
@@ -242,6 +244,8 @@ typedef struct {
 	int			angle;
 	int			notation;
 	char			*display_value;
+	char			*input_value;
+	char			*paper_expression;
 	char			**rpn_stack;
 	int			rpn_stack_len;
 	char			**mem_values;

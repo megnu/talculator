@@ -101,6 +101,10 @@ static void session_tab_clear (s_session_tab_state *tab)
 	if (!tab) return;
 	if (tab->display_value) g_free (tab->display_value);
 	tab->display_value = NULL;
+	if (tab->input_value) g_free (tab->input_value);
+	tab->input_value = NULL;
+	if (tab->paper_expression) g_free (tab->paper_expression);
+	tab->paper_expression = NULL;
 	if (tab->rpn_stack) {
 		for (i = 0; i < tab->rpn_stack_len; i++) {
 			if (tab->rpn_stack[i]) g_free (tab->rpn_stack[i]);
@@ -152,6 +156,8 @@ static void config_file_session_state_copy (s_session_state *dst, const s_sessio
 		dst->tabs[i].angle = src->tabs[i].angle;
 		dst->tabs[i].notation = src->tabs[i].notation;
 		dst->tabs[i].display_value = g_strdup (src->tabs[i].display_value ? src->tabs[i].display_value : CLEARED_DISPLAY);
+		dst->tabs[i].input_value = g_strdup (src->tabs[i].input_value ? src->tabs[i].input_value : "");
+		dst->tabs[i].paper_expression = g_strdup (src->tabs[i].paper_expression ? src->tabs[i].paper_expression : "");
 		dst->tabs[i].rpn_stack_len = src->tabs[i].rpn_stack_len;
 		if (dst->tabs[i].rpn_stack_len < 0) dst->tabs[i].rpn_stack_len = 0;
 		if (dst->tabs[i].rpn_stack_len > 0) {
@@ -235,6 +241,18 @@ static gboolean config_file_set_session_entry (const char *key, const char *valu
 		if (tab_idx < 0 || tab_idx >= TALC_MAX_SESSION_TABS) return TRUE;
 		if (cf_session_state.tabs[tab_idx].display_value) g_free (cf_session_state.tabs[tab_idx].display_value);
 		cf_session_state.tabs[tab_idx].display_value = config_string_unquote_dup (value);
+		return TRUE;
+	}
+	if (sscanf (key, "session_tab%d_input_value%n", &tab_idx, &n) == 1 && key[n] == '\0') {
+		if (tab_idx < 0 || tab_idx >= TALC_MAX_SESSION_TABS) return TRUE;
+		if (cf_session_state.tabs[tab_idx].input_value) g_free (cf_session_state.tabs[tab_idx].input_value);
+		cf_session_state.tabs[tab_idx].input_value = config_string_unquote_dup (value);
+		return TRUE;
+	}
+	if (sscanf (key, "session_tab%d_paper_expression%n", &tab_idx, &n) == 1 && key[n] == '\0') {
+		if (tab_idx < 0 || tab_idx >= TALC_MAX_SESSION_TABS) return TRUE;
+		if (cf_session_state.tabs[tab_idx].paper_expression) g_free (cf_session_state.tabs[tab_idx].paper_expression);
+		cf_session_state.tabs[tab_idx].paper_expression = config_string_unquote_dup (value);
 		return TRUE;
 	}
 	if (sscanf (key, "session_tab%d_rpn_len%n", &tab_idx, &n) == 1 && key[n] == '\0') {
@@ -678,6 +696,10 @@ void config_file_write (char *filename, s_preferences this_prefs, s_constant *th
 				fprintf (this_file, "session_tab%d_notation=%d\n", tab_idx, tab->notation);
 				fprintf (this_file, "session_tab%d_display=\"%s\"\n", tab_idx,
 					tab->display_value ? tab->display_value : CLEARED_DISPLAY);
+				fprintf (this_file, "session_tab%d_input_value=\"%s\"\n", tab_idx,
+					tab->input_value ? tab->input_value : "");
+				fprintf (this_file, "session_tab%d_paper_expression=\"%s\"\n", tab_idx,
+					tab->paper_expression ? tab->paper_expression : "");
 				fprintf (this_file, "session_tab%d_rpn_len=%d\n", tab_idx, tab->rpn_stack_len);
 				for (item_idx = 0; item_idx < tab->rpn_stack_len; item_idx++) {
 					fprintf (this_file, "session_tab%d_rpn_%d=\"%s\"\n", tab_idx, item_idx,

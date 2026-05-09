@@ -90,6 +90,10 @@ void all_clear_for_tab (s_tab_context *ctx)
 	s_tab_context *prev_tab = active_tab;
 	if (ctx != NULL) active_tab = ctx;
 	clear_for_tab (active_tab);
+	if (active_tab && active_tab->tab_mode == PAPER_MODE) {
+		g_free (active_tab->tab_paper_expression);
+		active_tab->tab_paper_expression = g_strdup ("");
+	}
 	switch (current_status.notation) {
 		case CS_ALG:
 			break;

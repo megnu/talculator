@@ -399,18 +399,51 @@ static GtkWidget *active_tab_input_entry (void)
 	return entry;
 }
 
-static void mirror_display_value_into_formula_entry (const char *value)
+static void cache_active_tab_input_text (const char *text)
+{
+	if (!active_tab) return;
+	if (active_tab->tab_mode == PAPER_MODE) {
+		g_free (active_tab->tab_input_value);
+		active_tab->tab_input_value = g_strdup (text ? text : "");
+		return;
+	}
+	if (!text || text[0] == '\0') {
+		if (!active_tab->tab_display_value ||
+			strcmp (active_tab->tab_display_value, CLEARED_DISPLAY) == 0) {
+			g_free (active_tab->tab_input_value);
+			active_tab->tab_input_value = g_strdup ("");
+		}
+		return;
+	}
+	g_free (active_tab->tab_input_value);
+	active_tab->tab_input_value = g_strdup (text);
+}
+
+static void cache_active_tab_paper_expression (const char *text)
+{
+	if (!active_tab || active_tab->tab_mode != PAPER_MODE) return;
+	g_free (active_tab->tab_paper_expression);
+	active_tab->tab_paper_expression = g_strdup (text ? text : "");
+}
+
+static void restore_formula_entry_from_tab_state (const char *display_fallback)
 {
 	GtkWidget *entry;
+	const char *input_value = NULL;
 
 	if (!active_tab || active_tab->tab_mode == PAPER_MODE) return;
 	if (current_status.notation == CS_RPN) return;
 	entry = GTK_WIDGET (gtk_builder_get_object (view_xml, "formula_entry"));
 	if (!entry || !GTK_IS_ENTRY (entry)) return;
-	if (!value || strcmp (value, CLEARED_DISPLAY) == 0)
-		gtk_entry_set_text (GTK_ENTRY (entry), "");
+	if (active_tab->tab_input_value && active_tab->tab_input_value[0] != '\0')
+		input_value = active_tab->tab_input_value;
+	else if (display_fallback && strcmp (display_fallback, CLEARED_DISPLAY) != 0)
+		input_value = display_fallback;
 	else
-		gtk_entry_set_text (GTK_ENTRY (entry), value);
+		input_value = "";
+	g_object_set_data (G_OBJECT (entry), "talculator-programmatic-input", GINT_TO_POINTER (1));
+	gtk_entry_set_text (GTK_ENTRY (entry), input_value);
+	g_object_set_data (G_OBJECT (entry), "talculator-programmatic-input", NULL);
 	gtk_editable_set_position (GTK_EDITABLE (entry), -1);
 }
 
@@ -1129,11 +1162,11 @@ on_basic_mode_toggled (GtkMenuItem     *menuitem,
     
     set_window_size_minimal();
     
-    if (display_value != NULL) {
-        display_result_set(display_value, TRUE);
-        mirror_display_value_into_formula_entry (display_value);
-        g_free(display_value);
-    }
+	if (display_value != NULL) {
+		display_result_set(display_value, TRUE);
+		restore_formula_entry_from_tab_state (display_value);
+		g_free(display_value);
+	}
 }
 
 void
@@ -1168,11 +1201,11 @@ on_scientific_mode_toggled (GtkMenuItem *menuitem,
     
     set_window_size_minimal();
     
-    if (display_value != NULL) {
-        display_result_set(display_value, TRUE);
-        mirror_display_value_into_formula_entry (display_value);
-        g_free(display_value);
-    }
+	if (display_value != NULL) {
+		display_result_set(display_value, TRUE);
+		restore_formula_entry_from_tab_state (display_value);
+		g_free(display_value);
+	}
 }
 
 void
@@ -1199,16 +1232,11 @@ on_paper_mode_toggled (GtkMenuItem *menuitem,
     display_module_angle_activate (active_tab->tab_def_angle);
     ui_sync_main_menu_for_active_tab ();
     
-    set_window_size_minimal();
-    if (display_value != NULL) {
-        display_result_set(display_value, TRUE);
-        if (strcmp (display_value, CLEARED_DISPLAY) == 0) {
-            GtkWidget *paper_entry = GTK_WIDGET (gtk_builder_get_object (view_xml, "paper_entry"));
-            if (paper_entry && GTK_IS_ENTRY (paper_entry))
-                gtk_entry_set_text (GTK_ENTRY (paper_entry), "");
-        }
-        g_free(display_value);
-    }
+	set_window_size_minimal();
+	if (display_value != NULL) {
+		display_result_set(display_value, TRUE);
+		g_free(display_value);
+	}
 }    
 
 void
@@ -2470,9 +2498,12 @@ void on_formula_entry_activate (GtkEntry *entry, gpointer user_data)
 {
     (void) user_data;
     char                    *formatted_result = NULL;
+    const char              *expression;
     
     ui_bind_active_tab_from_widget (GTK_WIDGET(entry));
-    engine_eval_expression (gtk_entry_get_text(entry), &formatted_result);
+    expression = gtk_entry_get_text(entry);
+    cache_active_tab_input_text (expression);
+    engine_eval_expression (expression, &formatted_result);
     ui_formula_entry_state (formatted_result == NULL);
     if (formatted_result) {
         display_result_set (formatted_result, TRUE);
@@ -2484,6 +2515,8 @@ void on_formula_entry_changed (GtkEditable *editable, gpointer user_data)
 {
     (void) user_data;
     ui_bind_active_tab_from_widget (GTK_WIDGET(editable));
+    if (g_object_get_data (G_OBJECT (editable), "talculator-programmatic-input")) return;
+    cache_active_tab_input_text (gtk_entry_get_text (GTK_ENTRY (editable)));
     talc_entry_history_on_changed (editable);
     ui_formula_entry_state(FALSE);
 }
@@ -2523,6 +2556,8 @@ void on_paper_entry_changed (GtkEditable *editable, gpointer user_data)
 {
     (void) user_data;
     ui_bind_active_tab_from_widget (GTK_WIDGET(editable));
+    if (g_object_get_data (G_OBJECT (editable), "talculator-programmatic-input")) return;
+    cache_active_tab_input_text (gtk_entry_get_text (GTK_ENTRY (editable)));
     talc_entry_history_on_changed (editable);
 }
 
@@ -2548,13 +2583,16 @@ void on_paper_entry_activate (GtkWidget *activated_widget, gpointer user_data)
     GtkTreePath*             last_row_path;
     
     ui_bind_active_tab_from_widget (activated_widget);
-    if (!GTK_IS_ENTRY(activated_widget))
-        entry = GTK_ENTRY(gtk_builder_get_object (view_xml, "paper_entry"));
-    else
-        entry = GTK_ENTRY(activated_widget);
+	if (!GTK_IS_ENTRY(activated_widget)) {
+		entry = GTK_ENTRY(gtk_builder_get_object (view_xml, "paper_entry"));
+	} else {
+		entry = GTK_ENTRY(activated_widget);
+	}
     
-    if (strcmp(gtk_entry_get_text(entry), "") == 0) return;
-    result_string = NULL;
+	if (strcmp(gtk_entry_get_text(entry), "") == 0) return;
+	result_string = NULL;
+	cache_active_tab_input_text (gtk_entry_get_text(entry));
+	cache_active_tab_paper_expression (gtk_entry_get_text(entry));
 	engine_eval_expression (gtk_entry_get_text(entry), &result_string);
     
     /* add to tree view */
