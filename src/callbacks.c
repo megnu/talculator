@@ -399,6 +399,39 @@ static GtkWidget *active_tab_input_entry (void)
 	return entry;
 }
 
+static char *paper_tree_selected_row_text (void)
+{
+	GtkWidget *tree_view;
+	GtkTreeSelection *select;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+	char *markup = NULL;
+	char *plain = NULL;
+	GError *error = NULL;
+
+	if (!active_tab || active_tab->tab_mode != PAPER_MODE || !view_xml) return NULL;
+	tree_view = GTK_WIDGET (gtk_builder_get_object (view_xml, "paper_treeview"));
+	if (!tree_view || !GTK_IS_TREE_VIEW (tree_view)) return NULL;
+
+	select = gtk_tree_view_get_selection (GTK_TREE_VIEW (tree_view));
+	if (!select || !gtk_tree_selection_get_selected (select, &model, &iter)) return NULL;
+
+	gtk_tree_model_get (model, &iter, 0, &markup, -1);
+	if (!markup) return NULL;
+	if (!pango_parse_markup (markup, -1, 0, NULL, &plain, NULL, &error)) {
+		if (error) g_error_free (error);
+		plain = g_strdup (markup);
+	}
+	g_free (markup);
+	return plain;
+}
+
+static void copy_text_to_clipboard (const char *text)
+{
+	if (!text || text[0] == '\0') return;
+	gtk_clipboard_set_text (gtk_clipboard_get (GDK_SELECTION_CLIPBOARD), text, -1);
+}
+
 static void cache_active_tab_input_text (const char *text)
 {
 	if (!active_tab) return;
@@ -1298,17 +1331,26 @@ on_copy_activate (GtkMenuItem     *menuitem,
     (void) user_data;
     GtkWidget *entry;
     char *display_value;
+    gint selection_start;
+    gint selection_end;
 
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
+    if (!active_tab) return;
     entry = focused_input_entry ();
-    if (entry) {
+    if (entry && gtk_editable_get_selection_bounds (GTK_EDITABLE (entry),
+        &selection_start, &selection_end)) {
         gtk_editable_copy_clipboard (GTK_EDITABLE (entry));
         return;
     }
-    if (active_tab->tab_mode == PAPER_MODE) return;
+    if (active_tab->tab_mode == PAPER_MODE) {
+        if (active_tab->tab_display_value &&
+            strcmp (active_tab->tab_display_value, CLEARED_DISPLAY) != 0) {
+            copy_text_to_clipboard (active_tab->tab_display_value);
+        }
+        return;
+    }
     display_value = display_result_get ();
-    gtk_clipboard_set_text (gtk_clipboard_get (GDK_SELECTION_CLIPBOARD),
-        display_value ? display_value : CLEARED_DISPLAY, -1);
+    copy_text_to_clipboard (display_value ? display_value : CLEARED_DISPLAY);
     if (display_value) g_free (display_value);
 }
 
@@ -2636,21 +2678,14 @@ gboolean paper_tree_view_selection_changed_cb (GtkWidget *widget,
                                             gpointer user_data)
 {
     (void) user_data;
-    GtkTreeModel         *model;
-    char             *string, *stripped_string;
+    char             *stripped_string;
     GtkWidget        *entry;
-    GtkTreeIter         current_list_iter;
     int            position;
-    GtkTreeSelection    *select;
     
     ui_bind_active_tab_from_widget (widget);
     if ((event->type == GDK_2BUTTON_PRESS) && (event->button == 1)) {
-        select = gtk_tree_view_get_selection (GTK_TREE_VIEW (widget));
-        if (gtk_tree_selection_get_selected (select, &model, &current_list_iter)) {
-            gtk_tree_model_get (model, &current_list_iter, 0, &string, -1);
-            stripped_string = g_strdup(string);
-            pango_parse_markup (string, -1, 0, NULL, &stripped_string, NULL, NULL);
-            g_free (string);
+        stripped_string = paper_tree_selected_row_text ();
+        if (stripped_string) {
             entry = GTK_WIDGET(gtk_builder_get_object (view_xml, "paper_entry"));
             position = gtk_editable_get_position (GTK_EDITABLE(entry));
 	            {

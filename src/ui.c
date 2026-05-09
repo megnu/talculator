@@ -1054,7 +1054,7 @@ void ui_sync_main_menu_for_active_tab ()
 	menu_item = GTK_WIDGET(gtk_builder_get_object (main_window_xml, "cut"));
 	if (menu_item) gtk_widget_set_sensitive (menu_item, ctx->tab_mode != PAPER_MODE);
 	menu_item = GTK_WIDGET(gtk_builder_get_object (main_window_xml, "copy"));
-	if (menu_item) gtk_widget_set_sensitive (menu_item, ctx->tab_mode != PAPER_MODE);
+	if (menu_item) gtk_widget_set_sensitive (menu_item, TRUE);
 	menu_item = GTK_WIDGET(gtk_builder_get_object (main_window_xml, "paste"));
 	if (menu_item) gtk_widget_set_sensitive (menu_item, TRUE);
 
