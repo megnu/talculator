@@ -1245,6 +1245,7 @@ on_cut_activate (GtkMenuItem     *menuitem,
 {
     (void) user_data;
     GtkWidget *entry;
+    char *display_value;
 
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     entry = focused_input_entry ();
@@ -1253,8 +1254,10 @@ on_cut_activate (GtkMenuItem     *menuitem,
         return;
     }
     if (active_tab->tab_mode == PAPER_MODE) return;
-    gtk_clipboard_set_text (gtk_clipboard_get (GDK_SELECTION_CLIPBOARD), 
-        display_result_get(), -1);
+    display_value = display_result_get ();
+    gtk_clipboard_set_text (gtk_clipboard_get (GDK_SELECTION_CLIPBOARD),
+        display_value ? display_value : CLEARED_DISPLAY, -1);
+    if (display_value) g_free (display_value);
     clear ();
 }
 
@@ -1294,6 +1297,7 @@ on_copy_activate (GtkMenuItem     *menuitem,
 {
     (void) user_data;
     GtkWidget *entry;
+    char *display_value;
 
     ui_bind_active_tab_from_widget (GTK_WIDGET(menuitem));
     entry = focused_input_entry ();
@@ -1302,8 +1306,10 @@ on_copy_activate (GtkMenuItem     *menuitem,
         return;
     }
     if (active_tab->tab_mode == PAPER_MODE) return;
-    gtk_clipboard_set_text (gtk_clipboard_get (GDK_SELECTION_CLIPBOARD), 
-        display_result_get(), -1);
+    display_value = display_result_get ();
+    gtk_clipboard_set_text (gtk_clipboard_get (GDK_SELECTION_CLIPBOARD),
+        display_value ? display_value : CLEARED_DISPLAY, -1);
+    if (display_value) g_free (display_value);
 }
 
 void

@@ -4,6 +4,7 @@
 	* Preserved paper mode focus/caret placement when switching tabs and restoring sessions
 	* Fixed display ownership and edge-case safety issues found during review
 	* Hardened Preferences dialog ownership to avoid stale callbacks from duplicate dialogs
+	* Fixed clipboard ownership leak when copying or cutting display values
 
 2026-05-04 Jared (github.com/megnu)
 	* Fixed caret placement when switching to paper mode

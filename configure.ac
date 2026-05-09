@@ -1,11 +1,11 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT([talculator], [2.2.0])
+AC_INIT([talculator], [2.3.0])
 AC_CONFIG_SRCDIR([configure.ac])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 
 dnl AC_INIT(configure.ac)
-dnl AM_INIT_AUTOMAKE([talculator], [2.2.0])
+dnl AM_INIT_AUTOMAKE([talculator], [2.3.0])
 AM_MAINTAINER_MODE
 
 AC_CONFIG_MACRO_DIR([m4])

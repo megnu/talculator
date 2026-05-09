@@ -5,6 +5,7 @@ talculator 2.3.0
     * preserved paper mode focus/caret placement when switching tabs and restoring sessions
     * fixed display ownership and edge-case safety issues found during review
     * hardened Preferences dialog ownership to avoid stale callbacks from duplicate dialogs
+    * fixed clipboard ownership leak when copying or cutting display values
 
 talculator 2.2.1
     * fixed caret placement when switching to paper mode
