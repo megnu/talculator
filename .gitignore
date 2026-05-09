@@ -45,6 +45,7 @@
 
 # Generated files in src build dir
 /src/.deps/
+/src/.dirstamp
 /src/.libs/
 /src/flex_parser.c
 /src/*.o

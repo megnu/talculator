@@ -65,6 +65,7 @@ static void ui_tab_cache_input_value (s_tab_context *ctx);
 static void ui_entry_set_text_programmatic (GtkWidget *entry, const char *text);
 static const char *ui_tab_effective_input_value (s_tab_context *ctx);
 static void ui_paper_view_set_restored_result (const char *expression, const char *value);
+static void ui_prefs_dialog_destroyed (GtkWidget *widget, gpointer user_data);
 #define UI_MAX_TABS 6
 static void ui_widget_css_set (GtkWidget *widget, const gchar *css, const gchar *data_key);
 
@@ -1883,6 +1884,25 @@ static gboolean ui_prefs_dialog_key_press_event (GtkWidget *widget, GdkEventKey 
 	return TRUE;
 }
 
+static void ui_prefs_dialog_destroyed (GtkWidget *widget, gpointer user_data)
+{
+	(void) widget;
+	(void) user_data;
+
+	if (prefs_constant_store) {
+		g_object_unref (prefs_constant_store);
+		prefs_constant_store = NULL;
+	}
+	if (prefs_user_function_store) {
+		g_object_unref (prefs_user_function_store);
+		prefs_user_function_store = NULL;
+	}
+	if (prefs_xml) {
+		g_object_unref (prefs_xml);
+		prefs_xml = NULL;
+	}
+}
+
 GtkWidget *ui_pref_dialog_create ()
 {
 	int			counter=0;
@@ -1894,20 +1914,34 @@ GtkWidget *ui_pref_dialog_create ()
 	GtkTreeSelection	*select;
 	GtkSizeGroup		*sgroup;
 	s_prefs_entry		*prefs_list;
-	
+	gchar			*dialog_title;
+	gdouble			upperBound = 4096;
+
+	if (prefs_xml) {
+		prefs_dialog = GTK_WIDGET(gtk_builder_get_object (prefs_xml, "prefs_dialog"));
+		if (prefs_dialog && GTK_IS_WINDOW (prefs_dialog)) {
+			gtk_window_present (GTK_WINDOW (prefs_dialog));
+			return prefs_dialog;
+		}
+		ui_prefs_dialog_destroyed (NULL, NULL);
+	}
+
 	prefs_xml = gtk_builder_file_open (PREFS_GLADE_FILE, FALSE);
 	gtk_builder_connect_signals(prefs_xml, NULL);
 	
     prefs_dialog = GTK_WIDGET(gtk_builder_get_object (prefs_xml, "prefs_dialog"));
     
     /* libqalculate supports arbitrary precision integers; keep UI limits practical. */
-	gdouble upperBound = 4096;
 
 	gtk_adjustment_set_upper(gtk_spin_button_get_adjustment(GTK_SPIN_BUTTON(gtk_builder_get_object (prefs_xml, "prefs_hex_bits"))), upperBound);
 	gtk_adjustment_set_upper(gtk_spin_button_get_adjustment(GTK_SPIN_BUTTON(gtk_builder_get_object (prefs_xml, "prefs_oct_bits"))), upperBound);
 	gtk_adjustment_set_upper(gtk_spin_button_get_adjustment(GTK_SPIN_BUTTON(gtk_builder_get_object (prefs_xml, "prefs_bin_bits"))), upperBound);
 	
-	gtk_window_set_title ((GtkWindow *)prefs_dialog, g_strdup_printf (_("%s Preferences"), PACKAGE));
+	dialog_title = g_strdup_printf (_("%s Preferences"), PACKAGE);
+	gtk_window_set_title ((GtkWindow *)prefs_dialog, dialog_title);
+	g_free (dialog_title);
+	g_signal_connect (G_OBJECT (prefs_dialog), "destroy",
+		G_CALLBACK (ui_prefs_dialog_destroyed), NULL);
 	g_signal_connect (G_OBJECT (prefs_dialog), "key-press-event",
 		G_CALLBACK (ui_prefs_dialog_key_press_event), NULL);
 	
@@ -2006,7 +2040,8 @@ GtkWidget *ui_pref_dialog_create ()
         gtk_builder_get_object (prefs_xml, "prefs_button_width_label")));
     gtk_size_group_add_widget (sgroup, GTK_WIDGET(
         gtk_builder_get_object (prefs_xml, "prefs_button_height_label")));
-	
+	g_object_unref (sgroup);
+
 	sgroup = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
     gtk_size_group_add_widget (sgroup, GTK_WIDGET(
         gtk_builder_get_object (prefs_xml, "prefs_const_add_button")));
@@ -2016,7 +2051,8 @@ GtkWidget *ui_pref_dialog_create ()
         gtk_builder_get_object (prefs_xml, "prefs_const_delete_button")));
     gtk_size_group_add_widget (sgroup, GTK_WIDGET(
         gtk_builder_get_object (prefs_xml, "prefs_const_clear_button")));
-	
+	g_object_unref (sgroup);
+
 	sgroup = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
     gtk_size_group_add_widget (sgroup, GTK_WIDGET(
         gtk_builder_get_object (prefs_xml, "prefs_func_add_button")));
@@ -2026,6 +2062,7 @@ GtkWidget *ui_pref_dialog_create ()
         gtk_builder_get_object (prefs_xml, "prefs_func_delete_button")));
     gtk_size_group_add_widget (sgroup, GTK_WIDGET(
         gtk_builder_get_object (prefs_xml, "prefs_func_clear_button")));
+	g_object_unref (sgroup);
 
 	gtk_widget_show (prefs_dialog);
 	return prefs_dialog;
@@ -2213,6 +2250,7 @@ void ui_paper_view_create()
 	paper_store = gtk_list_store_new (3, G_TYPE_STRING, G_TYPE_FLOAT, G_TYPE_STRING);
     tree_view = GTK_WIDGET(gtk_builder_get_object (ctx->tab_view_xml, "paper_treeview"));
 	gtk_tree_view_set_model ((GtkTreeView *) tree_view, GTK_TREE_MODEL (paper_store));
+	g_object_unref (paper_store);
 	
 	renderer = gtk_cell_renderer_text_new ();
 	column = gtk_tree_view_column_new_with_attributes (_("Result Display"), renderer, "markup", 0, "xalign", 1, "foreground", 2, NULL);

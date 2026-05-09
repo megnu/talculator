@@ -351,7 +351,9 @@ void display_module_arith_label_update (char operation)
 {
 	GtkTextMark	*this_mark;
 	GtkTextIter	start, end;
+	char		*label;
 	
+	if (!active_tab) return;
 	if ((prefs.vis_arith == FALSE) || (active_tab->tab_mode != SCIENTIFIC_MODE))
 		return;
 	if (strchr ("()", operation) != NULL) return;
@@ -367,8 +369,9 @@ void display_module_arith_label_update (char operation)
 	gtk_text_buffer_get_iter_at_mark (buffer, &start, this_mark);
 	if (operation != NOP) active_tab->tab_display_last_arith = operation;
 
-	gtk_text_buffer_insert_with_tags_by_name (buffer, &start, \
-		g_strdup_printf ("\t%c\t", active_tab->tab_display_last_arith), -1, "active_module", NULL);
+	label = g_strdup_printf ("\t%c\t", active_tab->tab_display_last_arith);
+	gtk_text_buffer_insert_with_tags_by_name (buffer, &start, label, -1, "active_module", NULL);
+	g_free (label);
 }
 
 /*
@@ -555,6 +558,7 @@ void display_update_modules ()
 	gboolean	first_module = TRUE;
 	gint		line_count;
 	
+	if (!active_tab) return;
 	if (active_tab && active_tab->tab_mode == PAPER_MODE) return;
 	
 	line_count = gtk_text_buffer_get_line_count (buffer);
@@ -861,10 +865,9 @@ void display_result_set (char *string_value, int update_result_counter)
 {
 	const char *value = string_value ? string_value : CLEARED_DISPLAY;
 
-	if (active_tab) {
-		g_free (active_tab->tab_display_value);
-		active_tab->tab_display_value = g_strdup (value);
-	}
+	if (!active_tab) return;
+	g_free (active_tab->tab_display_value);
+	active_tab->tab_display_value = g_strdup (value);
 	if (active_tab->tab_mode == PAPER_MODE) return;
 
 	current_status.allow_arith_op = TRUE;
@@ -991,7 +994,9 @@ void display_result_toggle_sign (GtkToggleButton *button)
 		}
 		else if (strcmp (result_field, "0") != 0)
 		{
-			result_field = g_strdup_printf ("-%s", result_field);
+			char *signed_result = g_strdup_printf ("-%s", result_field);
+			g_free (result_field);
+			result_field = signed_result;
 		}
 		} else {
 			if (*(++e_pointer) == '-') *e_pointer = '+';
@@ -1011,22 +1016,29 @@ void display_result_backspace (int number_base_status)
 {															
     (void) number_base_status;
 	char	*current_entry;
+	gsize	current_entry_len;
 
-		if (current_status.calc_entry_start_new == TRUE) {
-			current_status.calc_entry_start_new = FALSE;
-			display_result_set (CLEARED_DISPLAY, TRUE);
-		} else {
-			current_entry = display_result_get();
-			if (!current_entry) return;
-			/* to avoid an empty/senseless result field */
-			if (strlen(current_entry) == 0) current_entry[0] = '0';
-			else if (strlen(current_entry) == 1) current_entry[0] = '0';
-			else if ((strlen(current_entry) == 2) && (*current_entry == '-')) current_entry[0] = '0';
-			else if (current_entry[strlen(current_entry) - 2] == 'e') current_entry[strlen(current_entry) - 2] = '\0';
-			else current_entry[strlen(current_entry) - 1] = '\0';
-			display_result_set (current_entry, TRUE);
+	if (current_status.calc_entry_start_new == TRUE) {
+		current_status.calc_entry_start_new = FALSE;
+		display_result_set (CLEARED_DISPLAY, TRUE);
+	} else {
+		current_entry = display_result_get();
+		if (!current_entry) return;
+		/* to avoid an empty/senseless result field */
+		current_entry_len = strlen (current_entry);
+		if (current_entry_len <= 1) {
 			g_free (current_entry);
+			current_entry = g_strdup (CLEARED_DISPLAY);
 		}
+		else if ((current_entry_len == 2) && (*current_entry == '-')) {
+			current_entry[0] = '0';
+			current_entry[1] = '\0';
+		}
+		else if (current_entry[current_entry_len - 2] == 'e') current_entry[current_entry_len - 2] = '\0';
+		else current_entry[current_entry_len - 1] = '\0';
+		display_result_set (current_entry, TRUE);
+		g_free (current_entry);
+	}
 }
 
 /* display_result_getset. kind of display result redraw. use this to get and
@@ -1039,6 +1051,7 @@ void display_result_getset ()
 	char	**stack;
 	int	i;
 	
+	if (!active_tab) return;
 	if (active_tab->tab_mode == PAPER_MODE) return;
 	
 	result = display_result_get();
