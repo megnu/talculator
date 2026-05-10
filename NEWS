@@ -1,4 +1,14 @@
 see ChangeLog
+talculator 2.3.1
+    * fixed paper mode to keep algebraic evaluation and input handling when
+      switching from RPN
+    * refactored RPN stack handling, including operation evaluation, percent
+      behavior, and constants/MR stack lift
+    * added RPN stack regression tests
+    * hardened config parsing, paper-mode row handling, and formula-entry helpers
+      against ownership and missing-widget edge cases
+    * fixed copy-to-clipboard behavior in paper mode
+
 talculator 2.3.0
     * restored algebraic input text across session restart for basic and scientific modes
     * restored paper mode display history from the last evaluated expression and result
