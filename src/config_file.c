@@ -94,6 +94,22 @@ static s_user_function *cf_user_function=NULL;
 static s_session_state cf_session_state = {0};
 #define TALC_SESSION_MAX_ITEMS 256
 
+static int config_file_constant_count (void)
+{
+	int n = 0;
+
+	while (cf_constant && cf_constant[n].name) n++;
+	return n;
+}
+
+static int config_file_user_function_count (void)
+{
+	int n = 0;
+
+	while (cf_user_function && cf_user_function[n].name) n++;
+	return n;
+}
+
 static void session_tab_clear (s_session_tab_state *tab)
 {
 	int i;
@@ -432,18 +448,23 @@ void config_file_set_prefs (char *key, char *value)
 	switch (prefs_list[counter].key_type)
 	{
 		case STRING:
-			string_var = this_var;
-			g_free (*string_var);
-			/* version 1.2.4 introduced strings enbodied by pairs of
-			 * \"'s. So remove those if they exist.
-			 */
-			if ((value[0] == '\"') && (value[strlen(value)-1] == '\"'))
 			{
-				value++;
-				value[strlen(value)-1]='\0';
+				gsize value_len;
+
+				string_var = this_var;
+				g_free (*string_var);
+				/* version 1.2.4 introduced strings enbodied by pairs of
+				 * \"'s. So remove those if they exist.
+				 */
+				value_len = strlen (value);
+				if ((value_len >= 2) && (value[0] == '\"') && (value[value_len - 1] == '\"'))
+				{
+					value++;
+					value[strlen(value)-1]='\0';
+				}
+				*string_var = g_strdup (value);
+				break;
 			}
-			*string_var = g_strdup (value);
-			break;
 		case BOOLEAN:
 			bool_var = this_var;
 			if (g_ascii_strcasecmp (value, "true")  == 0) *bool_var = TRUE;
@@ -492,7 +513,7 @@ configuration file %s. Using preceding section.\n"), PACKAGE, line, filename);
 void config_file_set_constants (char *line)
 {
 	char		*desc, *name, *value;
-	static int	nr_consts=0;
+	int		nr_consts;
 	
 	desc = line;
 	name = strchr (line, ':');
@@ -508,6 +529,7 @@ void config_file_set_constants (char *line)
 	value = g_strstrip(value);	
 	/* allowing desc and name to be "" */
 	if (strlen(value) == 0) return;
+	nr_consts = config_file_constant_count ();
 	nr_consts++;
 	cf_constant = (s_constant *) g_realloc (cf_constant, ((gsize) (nr_consts + 1)) * sizeof(s_constant));
 	cf_constant[nr_consts-1].desc = g_strdup (desc);
@@ -524,7 +546,7 @@ void config_file_set_constants (char *line)
 void config_file_set_user_functions (char *line)
 {
 	char 		*name, *variable, *expression;
-	static int	nr_user_functions=0;
+	int		nr_user_functions;
 	
 	name = line;
 	variable = strchr (line, '(');
@@ -543,6 +565,7 @@ void config_file_set_user_functions (char *line)
 	expression = g_strstrip(expression);
 	/* allowing name to be "" */
 	if ((strlen(variable) == 0) || (strlen(expression) == 0)) return;
+	nr_user_functions = config_file_user_function_count ();
 	nr_user_functions++;
 	cf_user_function = (s_user_function *) g_realloc (cf_user_function, 
 		((gsize) (nr_user_functions + 1)) * sizeof(s_user_function));
@@ -569,8 +592,8 @@ s_preferences config_file_read (char *filename)
 	this_file = fopen (filename, "r");
 	config_file_get_default_prefs (&prefs);
 	config_file_session_state_clear (&cf_session_state);
-	cf_constant = (s_constant *) g_malloc (sizeof(s_constant));
-	cf_constant->desc = NULL;
+	cf_constant = (s_constant *) g_new0 (s_constant, 1);
+	cf_user_function = (s_user_function *) g_new0 (s_user_function, 1);
 	if (this_file != NULL) {
 		while (fgets (line, MAX_FILE_LINE_LENGTH, this_file) != NULL) {
 			if (line[0] != '#') {
@@ -602,9 +625,15 @@ s_preferences config_file_read (char *filename)
 	else fprintf (stderr, _("[%s] configuration file: couldn't open configuration file %s for reading. \
 Nothing to worry about if you are starting %s for the first time. Using defaults.\n"), PACKAGE, filename, PACKAGE);
 
-	if (have_const_section == FALSE) config_file_get_default_consts (&cf_constant);
+	if (have_const_section == FALSE) {
+		g_free (cf_constant);
+		config_file_get_default_consts (&cf_constant);
+	}
 
-	if (have_user_function_section == FALSE) config_file_get_default_user_functions (&cf_user_function);
+	if (have_user_function_section == FALSE) {
+		g_free (cf_user_function);
+		config_file_get_default_user_functions (&cf_user_function);
+	}
 
 	/* If locales have changed since last start one of the separator characters
 	 * could be the new decimal point. This would lead to confusion.

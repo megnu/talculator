@@ -2082,7 +2082,9 @@ void ui_formula_entry_activate ()
 {
 	GtkWidget	*formula_entry;
 	
+	if (!view_xml) return;
     formula_entry = GTK_WIDGET(gtk_builder_get_object (view_xml, "formula_entry"));
+	if (!formula_entry || !GTK_IS_WIDGET (formula_entry)) return;
 	gtk_widget_activate(formula_entry);
 }
 
@@ -2091,7 +2093,9 @@ void ui_formula_entry_set (const gchar *text)
 	GtkWidget	*formula_entry;
 
 	if (text == NULL) return;
+	if (!view_xml) return;
     formula_entry = GTK_WIDGET(gtk_builder_get_object (view_xml, "formula_entry"));
+	if (!formula_entry || !GTK_IS_ENTRY (formula_entry)) return;
 	gtk_entry_set_text ((GtkEntry *) formula_entry, text);
 }
 
@@ -2101,7 +2105,9 @@ void ui_formula_entry_insert (const gchar *text)
 	int		position;
 	
 	if (text == NULL) return;
+	if (!view_xml) return;
     formula_entry = GTK_WIDGET(gtk_builder_get_object (view_xml, "formula_entry"));
+	if (!formula_entry || !GTK_IS_EDITABLE (formula_entry)) return;
 	position = gtk_editable_get_position ((GtkEditable *) formula_entry);
 	gtk_editable_insert_text ((GtkEditable *) formula_entry, text, -1,
                                              &position);
@@ -2114,7 +2120,9 @@ void ui_formula_entry_backspace ()
 	const gchar	*text;
 	gint		text_len;
 	
+	if (!view_xml) return;
     formula_entry = GTK_WIDGET(gtk_builder_get_object (view_xml, "formula_entry"));
+	if (!formula_entry || !GTK_IS_ENTRY (formula_entry)) return;
 	text = gtk_entry_get_text ((GtkEntry *) formula_entry);
 	if (text == NULL) return;
 	text_len = (gint) strlen (text);

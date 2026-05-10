@@ -2613,11 +2613,13 @@ void on_paper_entry_activate (GtkWidget *activated_widget, gpointer user_data)
     GtkTreePath*             last_row_path;
     
     ui_bind_active_tab_from_widget (activated_widget);
+    if (!view_xml) return;
 	if (!GTK_IS_ENTRY(activated_widget)) {
 		entry = GTK_ENTRY(gtk_builder_get_object (view_xml, "paper_entry"));
 	} else {
 		entry = GTK_ENTRY(activated_widget);
 	}
+	if (!entry || !GTK_IS_ENTRY (entry)) return;
     
 	if (strcmp(gtk_entry_get_text(entry), "") == 0) return;
 	result_string = NULL;
@@ -2627,7 +2629,15 @@ void on_paper_entry_activate (GtkWidget *activated_widget, gpointer user_data)
     
     /* add to tree view */
     tree_view = GTK_TREE_VIEW(gtk_builder_get_object (view_xml, "paper_treeview"));
+    if (!tree_view || !GTK_IS_TREE_VIEW (tree_view)) {
+        if (result_string) g_free (result_string);
+        return;
+    }
     paper_store = GTK_LIST_STORE(gtk_tree_view_get_model(tree_view));
+    if (!paper_store || !GTK_IS_LIST_STORE (paper_store)) {
+        if (result_string) g_free (result_string);
+        return;
+    }
     gtk_list_store_append (paper_store, &iter);
     escaped_input_string = g_markup_escape_text(gtk_entry_get_text(entry), -1);
     gtk_list_store_set (paper_store, &iter, 0, escaped_input_string, 1, 0.0, 2, NULL, -1);
@@ -2649,7 +2659,10 @@ void on_paper_entry_activate (GtkWidget *activated_widget, gpointer user_data)
     
     /* scroll to last row */
     last_row_path = gtk_tree_model_get_path (gtk_tree_view_get_model(tree_view), &iter);
-    gtk_tree_view_scroll_to_cell(tree_view, last_row_path, NULL, FALSE, 0., 0.);
+    if (last_row_path) {
+        gtk_tree_view_scroll_to_cell(tree_view, last_row_path, NULL, FALSE, 0., 0.);
+        gtk_tree_path_free (last_row_path);
+    }
     
     /* clear entry */
     gtk_entry_set_text (entry, "");
@@ -2665,11 +2678,15 @@ gboolean paper_tree_view_selection_changed_cb (GtkWidget *widget,
     int            position;
     
     ui_bind_active_tab_from_widget (widget);
-    if ((event->type == GDK_2BUTTON_PRESS) && (event->button == 1)) {
-        stripped_string = paper_tree_selected_row_text ();
-        if (stripped_string) {
-            entry = GTK_WIDGET(gtk_builder_get_object (view_xml, "paper_entry"));
-            position = gtk_editable_get_position (GTK_EDITABLE(entry));
+    if (event && (event->type == GDK_2BUTTON_PRESS) && (event->button == 1)) {
+	        stripped_string = paper_tree_selected_row_text ();
+	        if (stripped_string) {
+	            entry = GTK_WIDGET(gtk_builder_get_object (view_xml, "paper_entry"));
+	            if (!entry || !GTK_IS_EDITABLE (entry)) {
+	                g_free (stripped_string);
+	                return FALSE;
+	            }
+	            position = gtk_editable_get_position (GTK_EDITABLE(entry));
 	            {
 	                gsize len = strlen (stripped_string);
 	                gint insert_len = (len > (gsize) G_MAXINT) ? G_MAXINT : (gint) len;
