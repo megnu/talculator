@@ -56,7 +56,15 @@ void clear_for_tab (s_tab_context *ctx)
 	s_tab_context *prev_tab = active_tab;
 	if (ctx != NULL) active_tab = ctx;
 	display_result_set (CLEARED_DISPLAY, TRUE);
-	if (current_status.notation == CS_ALG) ui_formula_entry_set ("");
+	if (active_tab && active_tab->tab_mode == PAPER_MODE) {
+		GtkWidget *entry = view_xml ?
+			GTK_WIDGET (gtk_builder_get_object (view_xml, "paper_entry")) : NULL;
+		g_free (active_tab->tab_input_value);
+		active_tab->tab_input_value = g_strdup ("");
+		if (entry && GTK_IS_ENTRY (entry)) gtk_entry_set_text (GTK_ENTRY (entry), "");
+	} else if (current_status.notation == CS_ALG) {
+		ui_formula_entry_set ("");
+	}
 	active_tab = prev_tab;
 }
 

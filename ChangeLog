@@ -5,6 +5,7 @@
 	* Added RPN stack tests
 	* Hardened config parsing, paper-mode row handling, and formula-entry helpers
 		against ownership and missing-widget edge cases
+	* Kept paper mode evaluation and input state algebraic when switching from RPN
 
 ##############################################
 # 2026-05-08 galculator 2.3.0 released       #

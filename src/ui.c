@@ -462,9 +462,9 @@ static void ui_entry_set_text_programmatic (GtkWidget *entry, const char *text)
 static GtkWidget *ui_tab_input_widget (s_tab_context *ctx)
 {
 	if (!ctx || !ctx->tab_view_xml) return NULL;
-	if (ctx->tab_current_status.notation == CS_RPN) return NULL;
 	if (ctx->tab_mode == PAPER_MODE)
 		return GTK_WIDGET (gtk_builder_get_object (ctx->tab_view_xml, "paper_entry"));
+	if (ctx->tab_current_status.notation == CS_RPN) return NULL;
 	return GTK_WIDGET (gtk_builder_get_object (ctx->tab_view_xml, "formula_entry"));
 }
 
@@ -474,7 +474,7 @@ static void ui_tab_cache_input_value (s_tab_context *ctx)
 	const char *text;
 
 	if (!ctx) return;
-	if (ctx->tab_current_status.notation == CS_RPN) {
+	if (ctx->tab_current_status.notation == CS_RPN && ctx->tab_mode != PAPER_MODE) {
 		g_free (ctx->tab_input_value);
 		ctx->tab_input_value = g_strdup ("");
 		return;

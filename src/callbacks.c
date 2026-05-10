@@ -262,7 +262,8 @@ static void engine_context_from_ui_state (talc_engine_context *ctx)
 	ctx->mode = (talc_engine_mode) active_tab->tab_mode;
 	ctx->base = (talc_engine_base) current_status.number;
 	ctx->angle = (talc_engine_angle) current_status.angle;
-	ctx->rpn_notation = (current_status.notation == CS_RPN);
+	ctx->rpn_notation = (active_tab->tab_mode != PAPER_MODE) &&
+		(current_status.notation == CS_RPN);
 	ctx->display_precision = get_display_number_length (current_status.number);
 	ctx->decimal_point = dec_point[0];
 	ctx->base_bits = 0;
