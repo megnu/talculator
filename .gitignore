@@ -55,6 +55,7 @@
 /tests/*.trs
 /tests/*.log
 /tests/engine_accuracy_test
+/tests/rpn_stack_test
 /tests/test-suite.log
 
 # Generated templates and backups

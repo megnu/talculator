@@ -1,9 +1,13 @@
 2026-05-09 Jared (github.com/megnu)
 	* Fixed copy to clipboard in paper mode
+	* Refactored RPN stack handling, fixing operation evaluation, percent behavior,
+		and constants/MR stack lift
+	* Added RPN stack tests
 
 ##############################################
 # 2026-05-08 galculator 2.3.0 released       #
 ##############################################
+
 2026-05-08 Jared (github.com/megnu)
 	* Restored algebraic input text across session restart for basic and scientific modes
 	* Restored paper mode display history from the last evaluated expression and result

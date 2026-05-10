@@ -58,6 +58,8 @@ void gfunc_f2 (GtkToggleButton *button);
 
 void rpn_stack_lift ();
 void rpn_stack_lift_for_tab (s_tab_context *ctx);
+void rpn_stack_refresh_display ();
+void rpn_enter_value (const char *value);
 
 char *string_add_separator (char *string, gboolean separate, int block_length, char separator, char dpoint);
 char *string_del_separator (char *string, char separator);

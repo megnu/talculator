@@ -341,7 +341,6 @@ int get_display_number_length (int base)
 
 void gfunc_f1 (GtkToggleButton *button)
 {
-	char		**stack;
 	char		*display_value;
 	char		*result;
 	
@@ -351,14 +350,9 @@ void gfunc_f1 (GtkToggleButton *button)
 		display_value = display_result_get ();
 		result = rpn_stack_swapxy (display_value);
 		display_result_set (result, TRUE);
-		stack = rpn_stack_get (RPN_FINITE_STACK);
-		display_stack_set_yzt (stack);
+		rpn_stack_refresh_display ();
 		g_free (display_value);
 		g_free (result);
-		g_free (stack[0]);
-		g_free (stack[1]);
-		g_free (stack[2]);
-		g_free (stack);
 		current_status.rpn_stack_lift_enabled = TRUE;
 		current_status.calc_entry_start_new = TRUE;
 	}
@@ -369,7 +363,6 @@ void gfunc_f1 (GtkToggleButton *button)
 
 void gfunc_f2 (GtkToggleButton *button)
 {
-	char 		**stack;
 	char		*display_value;
 	char		*result;
 	
@@ -379,14 +372,9 @@ void gfunc_f2 (GtkToggleButton *button)
 		display_value = display_result_get ();
 		result = rpn_stack_rolldown (display_value);
 		display_result_set (result, TRUE);
-		stack = rpn_stack_get (RPN_FINITE_STACK);
-		display_stack_set_yzt (stack);
+		rpn_stack_refresh_display ();
 		g_free (display_value);
 		g_free (result);
-		g_free (stack[0]);
-		g_free (stack[1]);
-		g_free (stack[2]);
-		g_free (stack);
 		current_status.rpn_stack_lift_enabled = TRUE;
 		current_status.calc_entry_start_new = TRUE;
 	}
@@ -405,19 +393,13 @@ void rpn_stack_lift_for_tab (s_tab_context *ctx)
 	s_tab_context *prev_tab = active_tab;
 	if (ctx != NULL) active_tab = ctx;
 	char	*display_value;
-	char	**stack;
 	
 	if ((current_status.notation == CS_RPN) && 
 		(current_status.rpn_stack_lift_enabled == TRUE)) {
 		display_value = display_result_get ();
 		rpn_stack_push (display_value);
-		stack = rpn_stack_get (RPN_FINITE_STACK);
-		display_stack_set_yzt (stack);
+		rpn_stack_refresh_display ();
 		g_free (display_value);
-		g_free (stack[0]);
-		g_free (stack[1]);
-		g_free (stack[2]);
-		g_free (stack);
 		current_status.rpn_stack_lift_enabled = FALSE;
 	}
 	active_tab = prev_tab;
@@ -426,6 +408,26 @@ void rpn_stack_lift_for_tab (s_tab_context *ctx)
 void rpn_stack_lift ()
 {
 	rpn_stack_lift_for_tab (active_tab);
+}
+
+void rpn_stack_refresh_display ()
+{
+	char **stack;
+	int i;
+
+	stack = rpn_stack_get (RPN_FINITE_STACK);
+	if (!stack) return;
+	display_stack_set_yzt (stack);
+	for (i = 0; i < RPN_FINITE_STACK; i++) g_free (stack[i]);
+	g_free (stack);
+}
+
+void rpn_enter_value (const char *value)
+{
+	if (current_status.notation == CS_RPN) rpn_stack_lift ();
+	display_result_set ((char *) (value ? value : CLEARED_DISPLAY), TRUE);
+	if (current_status.notation == CS_RPN) current_status.rpn_stack_lift_enabled = TRUE;
+	current_status.calc_entry_start_new = TRUE;
 }
 
 /* string_separator. insert separator.

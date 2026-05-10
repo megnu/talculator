@@ -780,7 +780,6 @@ on_operation_button_clicked(GtkToggleButton *button, gpointer user_data)
     (void) user_data;
     char              current_operation;
     char             *current_number = NULL;
-    char            **stack = NULL;
     char             *rpn_result = NULL;
     GtkWidget        *tbutton;
     
@@ -827,12 +826,7 @@ on_operation_button_clicked(GtkToggleButton *button, gpointer user_data)
         switch (current_operation) {
         case '=':
             rpn_stack_push (current_number);
-            stack = rpn_stack_get (RPN_FINITE_STACK);
-            display_stack_set_yzt (stack);
-            g_free (stack[0]);
-            g_free (stack[1]);
-            g_free (stack[2]);
-            g_free (stack);
+            rpn_stack_refresh_display ();
             /* ENT is a stack lift disabling button */
             current_status.rpn_stack_lift_enabled = FALSE;
             /* display line isn't cleared! */
@@ -841,12 +835,7 @@ on_operation_button_clicked(GtkToggleButton *button, gpointer user_data)
             rpn_result = rpn_stack_operation (current_operation, current_number);
             display_result_set (rpn_result, TRUE);
             g_free (rpn_result);
-            stack = rpn_stack_get (RPN_FINITE_STACK);
-            display_stack_set_yzt (stack);
-            g_free (stack[0]);
-            g_free (stack[1]);
-            g_free (stack[2]);
-            g_free (stack);
+            rpn_stack_refresh_display ();
             /* all other operations are stack lift enabling */
             current_status.rpn_stack_lift_enabled = TRUE;
         }
@@ -1769,13 +1758,8 @@ void constants_menu_handler (GtkMenuItem *menuitem, gpointer user_data)
     char        *const_value;
     
     ui_bind_active_tab_from_menu_item (menuitem);
-    /* push current display value */
-    current_status.rpn_stack_lift_enabled = TRUE;
-    rpn_stack_lift();
 	const_value = user_data;
-    display_result_set (const_value, TRUE);
-    current_status.rpn_stack_lift_enabled = TRUE;
-    current_status.calc_entry_start_new = TRUE;
+    rpn_enter_value (const_value);
 }
 
 
@@ -1853,9 +1837,7 @@ void mr_menu_handler (GtkMenuItem *menuitem, gpointer user_data)
     if ((index < 0) || (index >= memory.len) || (memory.data == NULL) || (memory.data[index] == NULL)) {
         return;
     }
-    display_result_set(memory.data[index], TRUE);
-    current_status.rpn_stack_lift_enabled = TRUE;
-    current_status.calc_entry_start_new = TRUE;
+    rpn_enter_value (memory.data[index]);
 }
 
 void on_mr_button_clicked (GtkToggleButton *button, gpointer user_data)

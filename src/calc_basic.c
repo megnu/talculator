@@ -107,6 +107,9 @@ static char *rpn_eval_binary_expression (const char *left_hand,
 	if (!expr) return NULL;
 
 	engine_context_from_ui_state (&engine_ctx);
+	/* The interactive stack has already resolved RPN ordering; evaluate the
+	 * generated "(Y) op (X)" expression with the algebraic parser. */
+	engine_ctx.rpn_notation = FALSE;
 	result = talc_engine_eval_expression (calc_engine, &engine_ctx, expr);
 	g_free (expr);
 	return result;
@@ -173,11 +176,13 @@ char *rpn_stack_operation (char operation, const char *number)
 		else left_hand = g_strdup (CLEARED_DISPLAY);
 	} else {
 		left_hand = g_strdup ((char *) rpn_stack->pdata[0]);
-		last_on_stack = g_strdup ((char *) rpn_stack->pdata[rpn_stack->len - 1]);
-		g_ptr_array_remove_index (rpn_stack, 0);
-		if (((int) rpn_stack->len == rpn_stack_size - 1) && (rpn_stack_size > 0)) {
-			g_ptr_array_add (rpn_stack, last_on_stack);
-			last_on_stack = NULL;
+		if (operation != '%') {
+			last_on_stack = g_strdup ((char *) rpn_stack->pdata[rpn_stack->len - 1]);
+			g_ptr_array_remove_index (rpn_stack, 0);
+			if (((int) rpn_stack->len == rpn_stack_size - 1) && (rpn_stack_size > 0)) {
+				g_ptr_array_add (rpn_stack, last_on_stack);
+				last_on_stack = NULL;
+			}
 		}
 	}
 
