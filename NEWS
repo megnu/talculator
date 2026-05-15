@@ -1,4 +1,7 @@
 see ChangeLog
+talculator 2.3.2
+	* fixed paper mode TabN refs by using display value instead of buffer
+
 talculator 2.3.1
     * fixed paper mode to keep algebraic evaluation and input handling when
       switching from RPN

@@ -176,8 +176,6 @@ static char *tab_keyword_display_value_by_index (int tab_index_1based)
 	GtkNotebook *notebook;
 	GtkWidget *page;
 	s_tab_context *ctx;
-	GtkTextIter start, end;
-	char *value;
 
 	if (tab_index_1based < 1 || tab_index_1based > 6) return g_strdup ("0");
 	notebook = ui_tabs_get_notebook ();
@@ -187,20 +185,10 @@ static char *tab_keyword_display_value_by_index (int tab_index_1based)
 	if (!page) return g_strdup ("0");
 
 	ctx = g_object_get_data (G_OBJECT(page), "tab-context");
-	if (!ctx || !ctx->tab_display_buffer) return g_strdup ("0");
-	if (gtk_text_buffer_get_line_count (ctx->tab_display_buffer) <= ctx->tab_display_result_line)
+	if (!ctx || !ctx->tab_display_value || ctx->tab_display_value[0] == '\0')
 		return g_strdup ("0");
 
-	gtk_text_buffer_get_iter_at_line (ctx->tab_display_buffer, &start, ctx->tab_display_result_line);
-	end = start;
-	gtk_text_iter_forward_to_line_end (&end);
-	value = gtk_text_buffer_get_text (ctx->tab_display_buffer, &start, &end, FALSE);
-	if (!value || value[0] == '\0') {
-		if (value) g_free (value);
-		return g_strdup ("0");
-	}
-
-	return value;
+	return g_strdup (ctx->tab_display_value);
 }
 
 static char *expression_resolve_tab_keywords (const char *expression)

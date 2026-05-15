@@ -1,3 +1,6 @@
+2026-05-15 Jared (github.com/megnu)
+	* Fixed paper mode TabN refs by using display value instead of buffer.
+
 2026-05-09 Jared (github.com/megnu)
 	* Fixed copy to clipboard in paper mode
 	* Refactored RPN stack handling, fixing operation evaluation, percent behavior,
